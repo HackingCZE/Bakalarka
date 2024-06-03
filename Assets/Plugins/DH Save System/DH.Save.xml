@@ -1,0 +1,337 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>DH.Save</name>
+    </assembly>
+    <members>
+        <member name="M:DH.Save.EncryptionSystem.EncryptString(System.String,System.String)">
+            <summary>
+            Encrypts a plain text string using AES encryption with the specified key.
+            </summary>
+            <param name="key">The encryption key to use.</param>
+            <param name="plainText">The text to encrypt.</param>
+            <returns>The encrypted text as a base64 string.</returns>
+        </member>
+        <member name="M:DH.Save.EncryptionSystem.DecryptString(System.String,System.String)">
+            <summary>
+            Decrypts a base64 encoded string encrypted with AES encryption using the specified key.
+            </summary>
+            <param name="key">The encryption key used to encrypt the text.</param>
+            <param name="cipherText">The base64 encoded text to decrypt.</param>
+            <returns>The decrypted plain text string.</returns>
+        </member>
+        <member name="M:DH.Save.EncryptionSystem.GenerateRandomKey(System.Int32)">
+            <summary>
+            Generates a random key of the specified size using a cryptographically secure random number generator.
+            </summary>
+            <param name="keySizeInBits">The size of the key in bits (must be 128, 192, or 256).</param>
+            <returns>A base64 encoded string representing the generated key.</returns>
+        </member>
+        <member name="P:DH.Save.SaveSystem.GetCurrentSaveSlot">
+            <summary>
+            <return>The current loaded save slot.</return>
+            </summary>
+        </member>
+        <member name="P:DH.Save.SaveSystem.GetSaveDataSlots">
+            <summary>
+            <return>All created save slots.</return>
+            </summary>
+        </member>
+        <member name="P:DH.Save.SaveSystem.GetGlobalData">
+            <summary>
+            <return>Dictionary with global data.</return>
+            </summary>
+        </member>
+        <member name="P:DH.Save.SaveSystem.GetSlotData">
+            <summary>
+            <return>Dictionary with slot data.</return>
+            </summary>
+        </member>
+        <member name="P:DH.Save.SaveSystem.AreThereUnsavedSlotData">
+            <summary>
+            Indicates whether there is unsaved data for the current slot.
+            </summary>
+        </member>
+        <member name="P:DH.Save.SaveSystem.AreThereUnsavedGlobalData">
+            <summary>
+            Indicates whether there is unsaved global data.
+            </summary>
+        </member>
+        <member name="M:DH.Save.SaveSystem.GenerateNewEncryptionKey">
+            <summary>
+            Generates a new random encryption key for the save data.
+            <warning>We recommend using SaveSystemSettings. If you use this function, save system cannot work properly.</warning>
+            </summary>
+            <returns>A new random encryption key as a string.</returns>
+        </member>
+        <member name="P:DH.Save.SaveSystem.IsSlotLoaded">
+            <summary>
+            Checks if a save slot is currently loaded.
+            </summary>
+        </member>
+        <member name="M:DH.Save.SaveSystem.ClearData(System.Boolean,System.Boolean)">
+            <summary>
+            Clears all data within a specified scope (global or slot-specific) without removing the slots themselves. Optionally saves the changes immediately.
+            </summary>
+            <param name="isGlobal">Determines whether to clear global data or data specific to the current slot.</param>
+            <param name="saveImmediately">If true, the changes are saved immediately after clearing the data.</param>
+        </member>
+        <member name="M:DH.Save.SaveSystem.CreateNewSaveSlot(System.String,System.Int32)">
+            <summary>
+            Creates a new save slot with the specified name and index, and saves it.
+            </summary>
+            <param name="slotName">The name of the new save slot.</param>
+            <param name="indexSlot">The index of the new save slot.</param>
+        </member>
+        <member name="M:DH.Save.SaveSystem.ContainSlotName(System.String)">
+            <summary>
+            Checks if slot exist.
+            </summary>
+            <param name="slotName">The name of the new save slot.</param>
+            <returns>True if the save slot exist with the slotName.</returns>
+        </member>
+        <member name="M:DH.Save.SaveSystem.LoadSaveSlot(System.String)">
+            <summary>
+            Loads the save slot with the specified name into memory, replacing any currently loaded data.
+            </summary>
+            <param name="slotName">The name of the save slot to load.</param>
+            <returns>True if the save slot is successfully loaded; otherwise, throws SaveSlotNotLoadedException.</returns>
+            <exception cref="T:DH.Save.Exceptions.SaveSlotNotLoadedException">Thrown when the specified save slot cannot be found.</exception>
+        </member>
+        <member name="M:DH.Save.SaveSystem.RemoveSaveSlot(System.String,System.Int32)">
+            <summary>
+            Removes a save slot with the specified name and index, deletes its associated save file, and updates global data accordingly.
+            </summary>
+            <param name="slotName">The name of the save slot to remove.</param>
+            <param name="indexSlot">The index of the save slot to remove.</param>
+            <returns>True if the save slot is successfully found and removed; otherwise, false.</returns>
+        </member>
+        <member name="M:DH.Save.SaveSystem.SaveData">
+            <summary>
+            Saves the current slot data to disk and updates the global save data. Throws an exception if no save slot is loaded.
+            </summary>
+            <returns>True if data is saved successfully; otherwise, it throws SaveSlotNotLoadedException.</returns>
+            <exception cref="T:DH.Save.Exceptions.SaveSlotNotLoadedException">Thrown when no save slot is currently loaded.</exception>
+        </member>
+        <member name="M:DH.Save.SaveSystem.LoadData(System.Collections.Generic.List{Newtonsoft.Json.JsonConverter})">
+            <summary>
+            Loads data from a specified path and optionally applies provided JSON converters for custom deserialization.
+            </summary>
+            <param name="jsonConverters">Optional list of JsonConverter instances for custom serialization settings.</param>
+        </member>
+        <member name="M:DH.Save.SaveSystem.SaveGlobalData">
+            <summary>
+            Saves global data, including information about all save slots, to disk.
+            </summary>
+        </member>
+        <member name="M:DH.Save.SaveSystem.Save``1(System.String,``0,System.Boolean)">
+            <summary>
+            Saves a value to global or slot data.
+            </summary>
+            <param name="ID">Unique identifier for the data entry.</param>
+            <param name="value">Value to save.</param>
+            <param name="isGlobal">True for global data, false for slot-specific data.</param>
+            <typeparam name="T">Type of the value.</typeparam>
+            <exception cref="T:DH.Save.Exceptions.IdAlreadyExistsException">If ID exists.</exception>
+            <exception cref="T:DH.Save.Exceptions.SaveSlotNotLoadedException">If no slot is loaded for slot-specific save.</exception>
+        </member>
+        <member name="M:DH.Save.SaveSystem.Contains(System.String,System.Boolean)">
+            <summary>
+            Checks if the specified ID exists in either global or slot-specific data.
+            </summary>
+            <param name="ID">The unique identifier to check.</param>
+            <param name="isGlobal">True to check in global data, false for slot-specific data.</param>
+            <returns>True if ID exists, otherwise false.</returns>
+        </member>
+        <member name="M:DH.Save.SaveSystem.Load``1(System.String,System.Boolean)">
+            <summary>
+            Loads a value of type T using the specified ID from either global or slot-specific data.
+            </summary>
+            <param name="ID">The unique identifier for the data to load.</param>
+            <param name="isGlobal">True for global data, false for slot-specific data.</param>
+            <typeparam name="T">The type of the data to load.</typeparam>
+            <returns>The loaded data of type T, or default(T) if not found.</returns>
+        </member>
+        <member name="M:DH.Save.SaveSystem.LoadTransform(UnityEngine.Transform,System.String,System.Boolean)">
+            <summary>
+            Loads and applies transform data to a single target transform.
+            </summary>
+            <param name="targetTransform">The target transform to apply data to.</param>
+            <param name="ID">The unique identifier for the data.</param>
+            <param name="isGlobal">True for global data, false for slot-specific data.</param>
+            <returns>The updated target transform.</returns>
+        </member>
+        <member name="M:DH.Save.SaveSystem.LoadTransform(UnityEngine.Transform[],System.String,System.Boolean)">
+            <summary>
+            Loads and applies transform data to an array of target transforms.
+            </summary>
+            <param name="targetTransforms">The array of target transforms to apply data to.</param>
+            <param name="ID">The unique identifier for the data.</param>
+            <param name="isGlobal">True for global data, false for slot-specific data.</param>
+            <returns>The array of updated target transforms.</returns>
+        </member>
+        <member name="M:DH.Save.SaveSystem.LoadTransform(System.Collections.Generic.List{UnityEngine.Transform},System.String,System.Boolean)">
+            <summary>
+            Loads and applies transform data to a list of target transforms.
+            </summary>
+            <param name="targetTransforms">The list of target transforms to apply data to.</param>
+            <param name="ID">The unique identifier for the data.</param>
+            <param name="isGlobal">True for global data, false for slot-specific data.</param>
+            <returns>The list of updated target transforms.</returns>
+        </member>
+        <member name="M:DH.Save.SaveSystem.LoadSerializableData``1(System.String,System.Boolean)">
+            <summary>
+            Loads serialized data of a specific type using the specified ID from either global or slot-specific data.
+            </summary>
+            <param name="ID">The unique identifier for the data to load.</param>
+            <param name="isGlobal">True for global data, false for slot-specific data.</param>
+            <typeparam name="T">The type of the data to be loaded. Must be a class.</typeparam>
+            <returns>The loaded data of type T, or null if not found.</returns>
+        </member>
+        <member name="M:DH.Save.SaveSystem.TryLoad``1(``0@,System.String,System.Boolean)">
+            <summary>
+            Attempts to load data of a specified type using the given ID from either global or slot-specific data.
+            </summary>
+            <param name="returnData">Output parameter for the loaded data.</param>
+            <param name="ID">The unique identifier for the data to load.</param>
+            <param name="isGlobal">True for global data, false for slot-specific data.</param>
+            <typeparam name="T">The type of the data to be loaded.</typeparam>
+            <returns>True if the data is successfully loaded, otherwise false.</returns>
+        </member>
+        <member name="M:DH.Save.SaveSystem.Update``1(System.String,``0,System.Boolean)">
+            <summary>
+            Updates existing data with the specified ID in either global or slot-specific storage.
+            </summary>
+            <param name="ID">The unique identifier for the data entry.</param>
+            <param name="value">The new value to store.</param>
+            <param name="isGlobal">True to update global data, false for slot-specific data.</param>
+            <typeparam name="T">The type of the data being updated.</typeparam>
+            <returns>True if the update is successful, otherwise false.</returns>
+        </member>
+        <member name="M:DH.Save.SaveSystem.UpdateOrSave``1(System.String,``0,System.Boolean)">
+            <summary>
+            Updates an existing entry with the specified ID or saves a new entry if it does not exist.
+            </summary>
+            <param name="ID">The unique identifier for the data entry.</param>
+            <param name="value">The value to update or save.</param>
+            <param name="isGlobal">True to operate on global data, false for slot-specific data.</param>
+            <typeparam name="T">The type of the data being updated or saved.</typeparam>
+        </member>
+        <member name="M:DH.Save.SaveSystem.Remove(System.String,System.Boolean)">
+            <summary>
+            Removes a data entry with the specified ID from either global or slot-specific storage.
+            </summary>
+            <param name="ID">The unique identifier for the data entry to be removed.</param>
+            <param name="isGlobal">True to remove from global data, false for slot-specific data.</param>
+        </member>
+        <member name="M:DH.Save.SaveSystem.Deserialize``1(System.String)">
+            <summary>
+            Deserializes JSON data into an object of the specified type.
+            </summary>
+            <param name="json">The encrypted JSON string to deserialize.</param>
+            <typeparam name="T">The type of object to deserialize to.</typeparam>
+            <returns>An object of type T deserialized from the input JSON string.</returns>
+        </member>
+        <member name="M:DH.Save.SaveSystem.Serialize(System.Object)">
+            <summary>
+            Serializes an object into a JSON string and encrypts it.
+            </summary>
+            <param name="value">The object to serialize.</param>
+            <returns>An encrypted JSON string representation of the input object.</returns>
+        </member>
+        <member name="M:DH.Save.SaveSystem.ChangeType(System.Object,System.String@,System.String@)">
+            <summary>
+            Converts an object to a different type suitable for serialization, handling primitive types, collections, dictionaries, and custom classes.
+            This method also updates the type information for both saving and loading operations.
+            </summary>
+            <param name="obj">The original object to be converted.</param>
+            <param name="saveType">Out parameter that returns the assembly qualified name of the type suitable for saving the object.</param>
+            <param name="loadType">Out parameter that returns the assembly qualified name of the original object's type.</param>
+        </member>
+        <member name="M:DH.Save.SaveSystem.CallGenericMethod(System.String,System.String,System.Boolean)">
+            <summary>
+            Dynamically calls the Deserialize method on a specified type using reflection, allowing for the deserialization of various types from JSON data.
+            </summary>
+            <param name="typeName">The assembly qualified name of the type to deserialize to.</param>
+            <param name="jsonData">The JSON string containing the data to deserialize.</param>
+            <param name="convert">Is true if @typeName is not Serializable type</param>
+            <returns>The deserialized object of the specified type.</returns>
+            <exception cref="T:System.ArgumentException">Thrown if the specified type cannot be found.</exception>
+        </member>
+        <member name="M:DH.Save.SaveSystem.SaveDataSlot.SetLastSave(System.DateTime)">
+            <summary>
+            Sets the last save date and time for the save slot.
+            LastSave is automatically set after calling the SaveData() method, so don't use it.
+            </summary>
+            <param name="newLastSave">The new last save date and time.</param>
+        </member>
+        <member name="M:DH.Save.SaveSystem.SaveDataSlot.SetSlotName(System.String)">
+            <summary>
+            Sets the name for the save slot.
+            </summary>
+            <param name="newSlotName">The new name for the slot.</param>
+        </member>
+        <member name="M:DH.Save.SaveSystem.SaveDataSlot.SetProgress(System.Single)">
+            <summary>
+            Sets the progress value for the save slot.
+            </summary>
+            <param name="newProgress">The new progress value.</param>
+        </member>
+        <member name="M:DH.Save.SaveSystem.SaveDataSlot.SetOtherData``1(``0,System.Boolean)">
+            <summary>
+            Sets and optionally saves other data of generic type T.
+            </summary>
+            <param name="newOtherData">The data to set.</param>
+            <param name="saveImmediately">Whether to save the data immediately.</param>
+        </member>
+        <member name="M:DH.Save.SaveSystem.SaveDataSlot.GetOtherData``1">
+            <summary>
+            Retrieves other data of generic type T.
+            </summary>
+            <returns>The retrieved data of type T, or default value if not found.</returns>
+        </member>
+        <member name="P:DH.Save.SaveSystemManager.IsAutoSaving">
+            <summary>
+            Gets or privately sets the auto-saving state. Triggers an event on state change.
+            </summary>
+        </member>
+        <member name="M:DH.Save.SaveSystemManager.AddJsonConverter(Newtonsoft.Json.JsonConverter)">
+            <summary>
+            Adds a JSON converter to the list of converters used for serialization/deserialization.
+            </summary>
+            <param name="converter">The JSON converter to add.</param>
+        </member>
+        <member name="M:DH.Save.SaveSystemManager.UpdateSettings(DH.Save.SaveSystemSettings)">
+            <summary>
+            Updates the save system settings.
+            </summary>
+            <param name="settings">The new settings to apply.</param>
+        </member>
+        <member name="M:DH.Save.SaveSystemManager.StartTimer">
+            <summary>
+            Starts the auto-save timer.
+            </summary>
+        </member>
+        <member name="M:DH.Save.SaveSystemManager.StopTimer">
+            <summary>
+            Stops the auto-save timer.
+            </summary>
+        </member>
+        <member name="M:DH.Save.SaveSystemManager.Load">
+            <summary>
+            Loads the save system settings and data.
+            </summary>
+        </member>
+        <member name="M:DH.Save.SaveSystemSettings.LoadSettings">
+            <summary>
+            Loads the save system settings from a resource file.
+            </summary>
+            <returns>The loaded save system settings.</returns>
+        </member>
+        <member name="M:DH.Save.SaveSystemSettings.GenerateEncryptionKey">
+            <summary>
+            Generates a new encryption key and manages the history of previous keys.
+            </summary>
+        </member>
+    </members>
+</doc>
