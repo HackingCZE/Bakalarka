@@ -1,20 +1,24 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public class SimpleVisualizer : MonoBehaviour
 {
     public LSystemGenerator lSystem;
-    List<Vector3> _positions = new();
-    List<Joins> _joins = new();
+    [SerializeField] List<Node> _positions = new();
+    [SerializeField] List<Node> _candidats = new();
+    [SerializeField] List<Joins> _joins = new();
     public bool randomAngle = true;
     public bool changeLength = true;
 
+    [Serializable]
     private class Joins
     {
-        public Vector3 start;
-        public Vector3 end;
+        public Node start;
+        public Node end;
         public Color color;
     }
 
@@ -28,7 +32,7 @@ public class SimpleVisualizer : MonoBehaviour
     {
         defaltLenght = _length;
         Create();
-        StartCoroutine(DynamicallyChange());
+        //StartCoroutine(DynamicallyChange());
     }
 
     void Create()
@@ -54,10 +58,10 @@ public class SimpleVisualizer : MonoBehaviour
 
         if (randomAngle) _angle = UnityEngine.Random.Range(_angle > 180 ? 180 : 0, _angle > 180 ? 360 : 180);
 
-        var currentPosition = Vector3.zero;
+        Node currentPosition = new Node(Vector3.zero);
 
         Vector3 direction = Vector3.forward;
-        Vector3 tempPosition = Vector3.zero;
+        Node tempPosition = null;
 
         _positions.Add(currentPosition);
 
@@ -89,7 +93,7 @@ public class SimpleVisualizer : MonoBehaviour
                     break;
                 case EncodingLetters.draw:
                     tempPosition = currentPosition;
-                    currentPosition += direction * _length;
+                    currentPosition = new Node(currentPosition.position + direction * _length);
                     DrawLine(tempPosition, currentPosition, Color.red);
                     if (changeLength) Length -= 2;
                     _positions.Add(currentPosition);
@@ -102,7 +106,32 @@ public class SimpleVisualizer : MonoBehaviour
                     break;
             }
         }
+        GetJunctions();
+    }
 
+    private void GetJunctions()
+    {
+        List<Joins> newJoins = new(_joins);
+        while (newJoins.Count > 0)
+        {
+            var currentJoin = newJoins[0];
+            newJoins.RemoveAt(0);
+
+            Node toAdd = null;
+            if (newJoins.Any(e =>
+            {
+                if (e.start == currentJoin.start || e.start == currentJoin.end) toAdd = e.start;
+
+                return toAdd != null;
+            })) _candidats.Add(toAdd);
+
+            if (newJoins.Any(e =>
+            {
+                if (e.end == currentJoin.start || e.end == currentJoin.end) toAdd = e.end;
+
+                return toAdd != null;
+            })) _candidats.Add(toAdd);
+        }
     }
 
     private void OnDrawGizmos()
@@ -111,17 +140,23 @@ public class SimpleVisualizer : MonoBehaviour
         foreach (var item in _positions)
         {
 
-            Gizmos.DrawWireCube(item, new Vector3(.5f, .5f, .5f));
+            Gizmos.DrawWireCube(item.position, new Vector3(.5f, .5f, .5f));
         }
 
         foreach (var item in _joins)
         {
             Gizmos.color = item.color;
-            Gizmos.DrawLine(item.start, item.end);
+            Gizmos.DrawLine(item.start.position, item.end.position);
+        }
+
+        Gizmos.color = Color.blue;
+        foreach (var item in _candidats)
+        {
+            Gizmos.DrawWireCube(item.position, new Vector3(.5f, .5f, .5f));
         }
     }
 
-    private void DrawLine(Vector3 start, Vector3 end, Color color)
+    private void DrawLine(Node start, Node end, Color color)
     {
         _joins.Add(new Joins()
         {
@@ -139,5 +174,16 @@ public class SimpleVisualizer : MonoBehaviour
         draw = 'F',
         turnRight = '+',
         turnLeft = '-'
+    }
+
+    [Serializable]
+    public class Node
+    {
+        public Vector3 position;
+
+        public Node(Vector3 position)
+        {
+            this.position = position;
+        }
     }
 }
