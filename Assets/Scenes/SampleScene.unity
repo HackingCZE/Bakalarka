@@ -1194,11 +1194,23 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   lSystem: {fileID: 1527794820}
   _positions: []
-  _candidats: []
   _joins: []
+  _tilesParent: {fileID: 1319121073}
+  _minLenght: 5
+  _distance: 4.8
   randomAngle: 0
-  changeLength: 0
-  _length: 3
+  changeLength: 1
+  distanceCheck: 1
+  gizmosCandidats: 1
+  _roadLine: {fileID: 6693510168765338992, guid: 86fe0b19bb73f484a9be05aeeafffe2e,
+    type: 3}
+  _roadCurve: {fileID: 3639866720136062770, guid: 0d4b9facdbead404aa6e4d646ea28c11,
+    type: 3}
+  _junction3Dirs: {fileID: 525253978693045133, guid: 426f2bdf17193bc4e9957b7eae32ba1d,
+    type: 3}
+  _junction4Dirs: {fileID: 8167769884466882087, guid: f837e483ff52eea4f8e616ed32a3a3ca,
+    type: 3}
+  _length: 10
 --- !u!4 &1319121073
 Transform:
   m_ObjectHideFlags: 0
