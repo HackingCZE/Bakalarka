@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Analytics;
 using UnityEngine.UIElements;
 
 public class SimpleVisualizer : MonoBehaviour
@@ -12,6 +13,8 @@ public class SimpleVisualizer : MonoBehaviour
     public LSystemGenerator lSystem;
     [SerializeField] List<Node> _positions = new();
     [SerializeField] Dictionary<Node, List<Node>> _candidats = new();
+    [SerializeField] Dictionary<Node, List<Node>> _nodes = new();
+    [SerializeField] Dictionary<RoadTileType, List<Node>> _roadTypes = new();
     [SerializeField] List<Joins> _joins = new();
     [SerializeField] Transform _tilesParent;
     [SerializeField] int _minLenght;
@@ -22,6 +25,74 @@ public class SimpleVisualizer : MonoBehaviour
     public bool gizmosCandidats = false;
 
     [SerializeField] GameObject _roadLine, _roadCurve, _junction3Dirs, _junction4Dirs;
+
+    public enum RoadTileType
+    {
+        Junction3Dirs, Junction4Dirs, RoadCurve, RoadLine, None
+    }
+
+    private void RecognizeTypeOfNode(KeyValuePair<Node, List<Node>> keyValue)
+    {
+        RoadTileType type = RoadTileType.None;
+
+        switch (keyValue.Value.Count)
+        {
+            case 2:
+                Vector3 dir1 = keyValue.Value[0].position - keyValue.Key.position;
+                Vector3 dir2 = keyValue.Value[1].position - keyValue.Key.position;
+                float angle = Mathf.Round(Vector3.Angle(dir1, dir2));
+
+                if (angle == 180) type = RoadTileType.RoadLine;
+                else type = RoadTileType.RoadCurve;
+                break;
+            case 3:
+                type = RoadTileType.Junction3Dirs;
+                break;
+            case 4:
+                type = RoadTileType.Junction4Dirs;
+                break;
+        }
+        if (type == RoadTileType.None) return;
+        if (!_roadTypes.ContainsKey(type)) _roadTypes[type] = new();
+
+        _roadTypes[type].Add(keyValue.Key);
+    }
+
+    private List<Node> TryAddNextNeighbour(List<Node> neighbours, Node newNeighbour)
+    {
+        if (!neighbours.Contains(newNeighbour)) neighbours.Add(newNeighbour);
+        return neighbours;
+    }
+
+    [Button]
+    private void SpawnTiles()
+    {
+        foreach (var roadType in _roadTypes)
+        {
+            foreach (var node in roadType.Value)
+            {
+                switch (roadType.Key)
+                {
+                    case RoadTileType.Junction3Dirs:
+                        Instantiate(_junction3Dirs, node.position, Quaternion.identity, _tilesParent);
+                        break;
+                    case RoadTileType.Junction4Dirs:
+                        Instantiate(_junction4Dirs, node.position, Quaternion.identity, _tilesParent);
+                        break;
+                    case RoadTileType.RoadCurve:
+                        Instantiate(_roadCurve, node.position, Quaternion.identity, _tilesParent);
+                        break;
+                    case RoadTileType.RoadLine:
+                        Instantiate(_roadLine, node.position, Quaternion.identity, _tilesParent);
+                        break;
+                    case RoadTileType.None:
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+    }
 
     [Serializable]
     private class Joins
@@ -106,23 +177,30 @@ public class SimpleVisualizer : MonoBehaviour
                 case EncodingLetters.draw:
                     tempPosition = currentPosition;
                     currentPosition = new Node(currentPosition.position + direction * _length);
-                    currentPosition.position2 = currentPosition.position;
+                    currentPosition.direction = direction;
+                    //currentPosition.position2 = currentPosition.position;
 
                     Node findedNode = null;
                     if (!_positions.Any(e =>
                     {
                         if (distanceCheck)
                         {
-                            if (Vector3.Distance(e.position, currentPosition.position2) <= _distance) findedNode = e;
+                            if (Vector3.Distance(e.position, currentPosition.position) <= _distance) findedNode = e;
                         }
                         else
                         {
-                            if(e.position == currentPosition.position2) findedNode = e;
+                            if (e.position == currentPosition.position) findedNode = e;
                         }
                         return findedNode != null;
                     }))
                     {
-                        DrawLine(tempPosition, currentPosition, Color.red);
+                        if (!_nodes.ContainsKey(tempPosition)) _nodes[tempPosition] = new List<Node>();
+                        if (!_nodes.ContainsKey(currentPosition)) _nodes[currentPosition] = new List<Node>();
+                        _nodes[tempPosition] = TryAddNextNeighbour(_nodes[tempPosition], currentPosition);
+                        _nodes[currentPosition] = TryAddNextNeighbour(_nodes[currentPosition], tempPosition);
+
+
+                        //DrawLine(tempPosition, currentPosition, Color.red);
                         //PlaceStreetPos(tempPosition.position, Vector3Int.RoundToInt(direction), Length);
                         if (changeLength) Length -= 2;
                         if (Length < _minLenght) Length = _minLenght;
@@ -145,7 +223,15 @@ public class SimpleVisualizer : MonoBehaviour
                     break;
             }
         }
-        GetJunctions();
+        RecognizeTypeOfNodes();
+    }
+
+    private void RecognizeTypeOfNodes()
+    {
+        foreach (var node in _nodes)
+        {
+            RecognizeTypeOfNode(node);
+        }
     }
 
     HashSet<Vector3Int> fixRoadCandidates = new HashSet<Vector3Int>();
@@ -202,6 +288,7 @@ public class SimpleVisualizer : MonoBehaviour
                 _candidats[toAdd.end].Add(toAdd.start);
             }
         }
+
     }
 
     [Button]
@@ -218,33 +305,71 @@ public class SimpleVisualizer : MonoBehaviour
 
     private void OnDrawGizmos()
     {
-        Gizmos.color = Color.green;
-        foreach (var item in _positions)
-        {
 
-            Gizmos.DrawWireCube(item.position2, new Vector3(.5f, .5f, .5f));
-        }
-
-        foreach (var item in _joins)
+        foreach (var item in _nodes)
         {
-            Gizmos.color = item.color;
-            Gizmos.DrawLine(item.start.position2, item.end.position2);
-        }
-
-        if (!gizmosCandidats) return;
-        foreach (var item in _candidats)
-        {
-            Gizmos.color = Color.blue;
-            Gizmos.DrawWireCube(item.Key.position, new Vector3(.5f, .5f, .5f));
             Handles.Label(item.Key.position + new Vector3(0, 2, 0), item.Value.Count.ToString());
-            foreach (var node in item.Value)
+
+            foreach (var neighbour in item.Value)
             {
-                Gizmos.color = Color.black;
-                Vector3 nesPos = node.position + new Vector3(0, 1, 0);
-                Gizmos.DrawLine(item.Key.position, nesPos);
-                Gizmos.DrawSphere(nesPos, .5f);
+                Gizmos.DrawLine(item.Key.position, neighbour.position + new Vector3(0, .5f, 0));
             }
         }
+
+        foreach (var roadType in _roadTypes)
+        {
+            switch (roadType.Key)
+            {
+                case RoadTileType.Junction3Dirs:
+                    Gizmos.color = Color.cyan;
+                    break;
+                case RoadTileType.Junction4Dirs:
+                    Gizmos.color = Color.yellow;
+                    break;
+                case RoadTileType.RoadCurve:
+                    Gizmos.color = Color.green;
+                    break;
+                case RoadTileType.RoadLine:
+                    Gizmos.color = Color.red;
+                    break;
+                case RoadTileType.None:
+                    Gizmos.color = Color.black;
+                    break;
+            }
+            foreach (var node in roadType.Value)
+            {
+                Gizmos.DrawWireCube(node.position, new Vector3(.5f, .5f, .5f));
+            }
+        }
+
+        //Gizmos.color = Color.green;
+        //foreach (var item in _positions)
+        //{
+
+        //    Gizmos.DrawWireCube(item.position, new Vector3(.5f, .5f, .5f));
+        //    Handles.Label(item.position + new Vector3(0, 2, 0), item.direction.ToString());
+
+        //}
+
+        //foreach (var item in _joins)
+        //{
+        //    Gizmos.DrawLine(item.start.position, item.end.position);
+        //}
+
+        //if (!gizmosCandidats) return;
+        //foreach (var item in _candidats)
+        //{
+        //    Gizmos.color = Color.blue;
+        //    Gizmos.DrawWireCube(item.Key.position, new Vector3(.5f, .5f, .5f));
+        //    Handles.Label(item.Key.position + new Vector3(0, 2, 0), item.Value.Count.ToString());
+        //    foreach (var node in item.Value)
+        //    {
+        //        Gizmos.color = Color.black;
+        //        Vector3 nesPos = node.position + new Vector3(0, 1, 0);
+        //        Gizmos.DrawLine(item.Key.position, nesPos);
+        //        Gizmos.DrawSphere(nesPos, .5f);
+        //    }
+        //}
     }
 
     private void DrawLine(Node start, Node end, Color color)
@@ -272,6 +397,7 @@ public class SimpleVisualizer : MonoBehaviour
     {
         public Vector3 position;
         public Vector3 position2;
+        public Vector3 direction;
 
         public Node(Vector3 position)
         {
