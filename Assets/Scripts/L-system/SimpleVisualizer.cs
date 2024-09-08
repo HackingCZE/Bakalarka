@@ -7,6 +7,7 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.Analytics;
 using UnityEngine.UIElements;
+using static Unity.Burst.Intrinsics.X86;
 
 public class SimpleVisualizer : MonoBehaviour
 {
@@ -34,6 +35,16 @@ public class SimpleVisualizer : MonoBehaviour
     private void RecognizeTypeOfNode(KeyValuePair<Node, List<Node>> keyValue)
     {
         RoadTileType type = RoadTileType.None;
+
+        List<Vector3> vector3s = new List<Vector3>();
+
+        foreach (var item in keyValue.Value)
+        {
+            vector3s.Add(item.position);
+        }
+
+
+        keyValue.Key.list = vector3s;
 
         switch (keyValue.Value.Count)
         {
@@ -71,19 +82,55 @@ public class SimpleVisualizer : MonoBehaviour
         {
             foreach (var node in roadType.Value)
             {
+                float rotation = 0f;
+                Vector3 dir1, dir2, dir3;
                 switch (roadType.Key)
                 {
-                    case RoadTileType.Junction3Dirs:
-                        Instantiate(_junction3Dirs, node.position, Quaternion.identity, _tilesParent);
-                        break;
                     case RoadTileType.Junction4Dirs:
                         Instantiate(_junction4Dirs, node.position, Quaternion.identity, _tilesParent);
                         break;
+                    case RoadTileType.Junction3Dirs:
+                        dir1 = (node.list[0] - node.position).normalized;
+                        dir2 = (node.list[1] - node.position).normalized;
+                        dir3 = (node.list[2] - node.position).normalized;
+
+                        rotation = 0f;
+                        bool up = (dir1.z > 0.5f) || (dir2.z > 0.5f) || (dir3.z > 0.5f);
+                        bool down = (dir1.z < -0.5f) || (dir2.z < -0.5f) || (dir3.z < -0.5f);
+                        bool right = (dir1.x > 0.5f) || (dir2.x > 0.5f) || (dir3.x > 0.5f);
+                        bool left = (dir1.x < -0.5f) || (dir2.x < -0.5f) || (dir3.x < -0.5f);
+                       
+
+                        if (up && down && right) rotation = 0;
+                        else if (up && down && left) rotation = 180f;
+                        else if (up && left && right) rotation = -90f;
+                        else if (down && left && right) rotation = 90f;
+
+                        Debug.Log(rotation + " - " + Quaternion.Euler(0, rotation, 0).eulerAngles.ToString());
+
+                        Instantiate(_junction3Dirs, node.position, Quaternion.Euler(0, rotation, 0), _tilesParent);
+                        break;
                     case RoadTileType.RoadCurve:
-                        Instantiate(_roadCurve, node.position, Quaternion.identity, _tilesParent);
+
+                        dir1 = (node.list[0] - node.position).normalized;
+                        dir2 = (node.list[1] - node.position).normalized;
+
+                        rotation = 0f;
+
+                        if (Mathf.Abs(dir1.x) > Mathf.Abs(dir1.z)) rotation = dir1.x > 0 ? (dir2.z > 0 ? -90f : 0f) : (dir2.z > 0 ? 180f : 90f); // Soused1 je na ose X (vodorovnì
+                        else rotation = dir1.z > 0 ? (dir2.x > 0 ? -90f : 180f) : (dir2.x > 0 ? 0f : 90f); // Soused1 je na ose Z (svisle)
+
+                        Instantiate(_roadCurve, node.position, Quaternion.Euler(0, rotation, 0), _tilesParent);
                         break;
                     case RoadTileType.RoadLine:
-                        Instantiate(_roadLine, node.position, Quaternion.identity, _tilesParent);
+                        dir1 = (node.list[0] - node.position).normalized;
+                        dir2 = (node.list[1] - node.position).normalized;
+
+                        rotation = 0f;
+
+                        if (Mathf.Abs(dir1.x) > 0.1f && Mathf.Abs(dir2.x) > 0.1f) rotation = 90;
+
+                        Instantiate(_roadLine, node.position, Quaternion.Euler(0, rotation, 0), _tilesParent);
                         break;
                     case RoadTileType.None:
                         break;
@@ -204,6 +251,8 @@ public class SimpleVisualizer : MonoBehaviour
                         //PlaceStreetPos(tempPosition.position, Vector3Int.RoundToInt(direction), Length);
                         if (changeLength) Length -= 2;
                         if (Length < _minLenght) Length = _minLenght;
+
+                        _distance = Length - .1f;
                         //while (_positions.Any(e => e.position == currentPosition.position2))
                         //{
                         //    currentPosition.position2 += new Vector3(0, 1, 0);
@@ -232,6 +281,8 @@ public class SimpleVisualizer : MonoBehaviour
         {
             RecognizeTypeOfNode(node);
         }
+
+        SpawnTiles();
     }
 
     HashSet<Vector3Int> fixRoadCandidates = new HashSet<Vector3Int>();
@@ -308,7 +359,8 @@ public class SimpleVisualizer : MonoBehaviour
 
         foreach (var item in _nodes)
         {
-            Handles.Label(item.Key.position + new Vector3(0, 2, 0), item.Value.Count.ToString());
+            Gizmos.color = Color.white;
+            Handles.Label(item.Key.position + new Vector3(0, 2, 0), item.Key.direction.ToString());
 
             foreach (var neighbour in item.Value)
             {
@@ -336,9 +388,17 @@ public class SimpleVisualizer : MonoBehaviour
                     Gizmos.color = Color.black;
                     break;
             }
+
+            Color currentC = Gizmos.color;
             foreach (var node in roadType.Value)
             {
+                Gizmos.color = currentC;
                 Gizmos.DrawWireCube(node.position, new Vector3(.5f, .5f, .5f));
+                if (roadType.Key != RoadTileType.RoadCurve) continue;
+                Gizmos.color = Color.red;
+                Gizmos.DrawSphere(node.list[0] + new Vector3(0, 1f, 0), .1f);
+                Gizmos.color = Color.blue;
+                Gizmos.DrawSphere(node.list[1] + new Vector3(0, 1f, 0), .1f);
             }
         }
 
@@ -398,6 +458,7 @@ public class SimpleVisualizer : MonoBehaviour
         public Vector3 position;
         public Vector3 position2;
         public Vector3 direction;
+        public List<Vector3> list;
 
         public Node(Vector3 position)
         {

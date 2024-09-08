@@ -1197,10 +1197,10 @@ MonoBehaviour:
   _positions: []
   _joins: []
   _tilesParent: {fileID: 1319121073}
-  _minLenght: 5
-  _distance: 4.8
+  _minLenght: 3
+  _distance: 2.9
   randomAngle: 0
-  changeLength: 1
+  changeLength: 0
   distanceCheck: 1
   gizmosCandidats: 1
   _roadLine: {fileID: 6693510168765338992, guid: 86fe0b19bb73f484a9be05aeeafffe2e,
@@ -1211,7 +1211,7 @@ MonoBehaviour:
     type: 3}
   _junction4Dirs: {fileID: 8167769884466882087, guid: f837e483ff52eea4f8e616ed32a3a3ca,
     type: 3}
-  _length: 10
+  _length: 3
 --- !u!4 &1319121073
 Transform:
   m_ObjectHideFlags: 0
