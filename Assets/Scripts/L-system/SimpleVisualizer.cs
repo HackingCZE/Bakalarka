@@ -7,7 +7,6 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.Analytics;
 using UnityEngine.UIElements;
-using static Unity.Burst.Intrinsics.X86;
 
 public class SimpleVisualizer : MonoBehaviour
 {
@@ -25,11 +24,11 @@ public class SimpleVisualizer : MonoBehaviour
     public bool distanceCheck = true;
     public bool gizmosCandidats = false;
 
-    [SerializeField] GameObject _roadLine, _roadCurve, _junction3Dirs, _junction4Dirs;
+    [SerializeField] GameObject _roadLine, _roadCurve, _junction3Dirs, _junction4Dirs, _roadEnd;
 
     public enum RoadTileType
     {
-        Junction3Dirs, Junction4Dirs, RoadCurve, RoadLine, None
+        Junction3Dirs, Junction4Dirs, RoadCurve, RoadLine, RoadEnd, None
     }
 
     private void RecognizeTypeOfNode(KeyValuePair<Node, List<Node>> keyValue)
@@ -48,6 +47,9 @@ public class SimpleVisualizer : MonoBehaviour
 
         switch (keyValue.Value.Count)
         {
+            case 1:
+                type = RoadTileType.RoadEnd; 
+                break;
             case 2:
                 Vector3 dir1 = keyValue.Value[0].position - keyValue.Key.position;
                 Vector3 dir2 = keyValue.Value[1].position - keyValue.Key.position;
@@ -131,6 +133,13 @@ public class SimpleVisualizer : MonoBehaviour
                         if (Mathf.Abs(dir1.x) > 0.1f && Mathf.Abs(dir2.x) > 0.1f) rotation = 90;
 
                         Instantiate(_roadLine, node.position, Quaternion.Euler(0, rotation, 0), _tilesParent);
+                        break;
+                    case RoadTileType.RoadEnd:
+                        dir1 = (node.list[0] - node.position).normalized;
+
+                        float angle = Mathf.Atan2(dir1.x, dir1.z) * Mathf.Rad2Deg;
+                        angle = Mathf.Round(angle / 90) * 90 ;
+                        Instantiate(_roadEnd, node.position, Quaternion.Euler(0, angle, 0), _tilesParent);
                         break;
                     case RoadTileType.None:
                         break;

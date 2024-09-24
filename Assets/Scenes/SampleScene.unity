@@ -1211,6 +1211,8 @@ MonoBehaviour:
     type: 3}
   _junction4Dirs: {fileID: 8167769884466882087, guid: f837e483ff52eea4f8e616ed32a3a3ca,
     type: 3}
+  _roadEnd: {fileID: 6693510168765338992, guid: a0ff47b6c8ea5f745817cfc951034130,
+    type: 3}
   _length: 3
 --- !u!4 &1319121073
 Transform:
