@@ -107,7 +107,6 @@ public class NavigationManager : MonoBehaviour, IDrawingNode
             Gizmos.DrawSphere(target.position, 1f);
         }
 
-        if (_nodes == null) return;
         for (int i = 0; i < _nodes.Count; i++)
         {
             var node = _nodes[i];
