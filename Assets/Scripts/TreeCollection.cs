@@ -84,18 +84,18 @@ public class TreeCollection
         }
     }
 
-
+    public List<TreeCollectionItem> recontructedPath = new List<TreeCollectionItem>();
     public List<TreeCollectionItem> ReconstructPath(TreeCollectionItem endNode)
     {
-        List<TreeCollectionItem> path = new List<TreeCollectionItem>();
+        recontructedPath = new List<TreeCollectionItem>();
         TreeCollectionItem currentNode = endNode;
         while (currentNode != null)
         {
-            path.Insert(0, currentNode);
+            recontructedPath.Insert(0, currentNode);
             currentNode = currentNode.Parent;
         }
 
-        return path;
+        return recontructedPath;
     }
 
 }

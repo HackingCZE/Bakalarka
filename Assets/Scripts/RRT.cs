@@ -9,10 +9,14 @@ using UnityEngine.Rendering;
 
 public class RRT : IRRTAlgorithm
 {
+    public LayerMask barrierLayer;
+    public IDrawingNode drawingNode;
     public TreeCollection treeCollection = new TreeCollection();
     GenerationArea area;
-    public async Task Interation(Vector3 start, Vector3 end, int maxIterations, int maxStepLength, GenerationArea area, float threshold)
+    public async Task<TreeCollection> Interation(Vector3 start, Vector3 end, int maxIterations, float maxStepLength, GenerationArea area, float threshold, LayerMask barrierLayer, IDrawingNode drawingNode)
     {
+        this.barrierLayer = barrierLayer;
+        this.drawingNode = drawingNode;
         this.area = area;
         treeCollection.Init(start);
         for (int i = 0; i < maxIterations; i++)
@@ -23,23 +27,27 @@ public class RRT : IRRTAlgorithm
                 break;
             }
         }
+        return treeCollection;
     }
 
-    public async Task<bool> Next(float3 end, int maxStepLength, int count, float threshold)
+    public async Task<bool> Next(float3 end, float maxStepLength, int count, float threshold)
     {
         for (int i = 0; i < count; i++)
         {
-            if (false) await Task.Delay(5);
+            if (true) await Task.Delay(5);
             float3 randomPoint = IRRTAlgorithm.SampleRandomPoint(area);
+            randomPoint.y = treeCollection.root.Position.y;
             TreeCollectionItem neareastNode = treeCollection.KDTree.NearestNeighbor(randomPoint).Item.treeCollectionItem;
             var newNode = IRRTAlgorithm.Steer(neareastNode, randomPoint, maxStepLength);
-            if (IRRTAlgorithm.NotInCollision(neareastNode, newNode))
+            if (IRRTAlgorithm.NotInCollision(neareastNode, newNode, barrierLayer))
             {
                 var lastNode = treeCollection.AddNode(newNode, neareastNode);
-                GameManager.Instance.DrawNode();                
+                drawingNode.DrawNode();
+                //GameManager.Instance.DrawNode();                
                 if (Vector3.Distance(lastNode.Position, end) < (threshold + 5))
                 {
-                    GameManager.Instance.DrawPath(treeCollection.ReconstructPath(lastNode));
+                    treeCollection.ReconstructPath(lastNode);
+                    //GameManager.Instance.DrawPath(treeCollection.ReconstructPath(lastNode));
                     return false;
                 }
             }
@@ -54,3 +62,4 @@ public class RRT : IRRTAlgorithm
 
 
 }
+

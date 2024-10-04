@@ -363,7 +363,7 @@ public class SimpleVisualizer : MonoBehaviour
         }
     }
 
-    private void OnDrawGizmos()
+    private void OnDrawGizmosSelected()
     {
 
         foreach (var item in _nodes)
