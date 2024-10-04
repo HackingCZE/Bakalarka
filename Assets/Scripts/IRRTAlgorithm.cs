@@ -14,22 +14,22 @@ using Vector3 = UnityEngine.Vector3;
 
 public interface IRRTAlgorithm
 {
-    public async Task Interation(float3 start, float3 end, int maxIterations, int maxStepLength, GenerationArea area, float threshold) { }
-    public Task<bool> Next(float3 end, int maxStepLength, int count, float threshold);
+    public async Task<TreeCollection> Interation(float3 start, float3 end, int maxIterations, float maxStepLength, GenerationArea area, float threshold, LayerMask barrierLayer, IDrawingNode drawingNode) { return null; }
+    public Task<bool> Next(float3 end, float maxStepLength, int count, float threshold);
 
-    public static bool NotInCollision(TreeCollectionItem newNode, TreeCollectionItem parentNode)
+    public static bool NotInCollision(TreeCollectionItem newNode, TreeCollectionItem parentNode, LayerMask barrierLayer)
     {
-        if (LineIntersectsObstacle(newNode.Position, parentNode.Position))
+        if (LineIntersectsObstacle(newNode.Position, parentNode.Position, barrierLayer))
         {
             return false;
         }
         return true;
     }
-    public static bool LineIntersectsObstacle(float3 position1, float3 position2)
+    public static bool LineIntersectsObstacle(float3 position1, float3 position2, LayerMask barrierLayer)
     {
         Vector3 direction = ((Vector3)(position2 - position1)).normalized;
         float distance = Vector3.Distance(position1, position2);
-        if (Physics.Raycast(position1, direction, out RaycastHit hit, distance))
+        if (Physics.Raycast(position1, direction, out RaycastHit hit, distance, barrierLayer))
         {
             if (hit.collider)
             {
@@ -52,7 +52,7 @@ public interface IRRTAlgorithm
     }
 
 
-    public static TreeCollectionItem Steer(TreeCollectionItem fromNode, float3 toPoint, int maxStepLength)
+    public static TreeCollectionItem Steer(TreeCollectionItem fromNode, float3 toPoint, float maxStepLength)
     {
         Vector3 newPoint = Vector3.zero;
         var direction = toPoint - (float3)fromNode.Position;
@@ -78,4 +78,9 @@ public interface IRRTAlgorithm
     {
         return Mathf.Sqrt(Mathf.Pow(vector.x, 2) + Mathf.Pow(vector.y, 2) + Mathf.Pow(vector.z, 2));
     }
+}
+
+public interface IDrawingNode
+{
+    public void DrawNode() { }
 }

@@ -7,7 +7,7 @@ using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using static UnityEditor.TypeCache;
 
-public class GameManager : MonoBehaviour
+public class GameManager : MonoBehaviour, IDrawingNode
 {
     public static GameManager Instance;
     [SerializeField] Transform startPostion;
@@ -43,7 +43,7 @@ public class GameManager : MonoBehaviour
         lines = new List<Line>();
         path = new List<TreeCollectionItem>();
         timerIsRunning = true;
-        await (algo == Algo.RRT ? ((RRT)rRT).Interation(startPostion.position, endPostion.position, maxIterations, maxStepLength, area, threshold) : ((RRTStar)rRT).Interation(startPostion.position, endPostion.position, maxIterations, maxStepLength, area, threshold));
+        await (algo == Algo.RRT ? ((RRT)rRT).Interation(startPostion.position, endPostion.position, maxIterations, maxStepLength, area, threshold, LayerMask.NameToLayer("Barrier"), this) : ((RRTStar)rRT).Interation(startPostion.position, endPostion.position, maxIterations, maxStepLength, area, threshold, LayerMask.NameToLayer("Barrier"), this));
 
         TryAddNewNode(algo == Algo.RRT ? ((RRT)rRT).treeCollection.root : ((RRTStar)rRT).treeCollection.root);
     }
@@ -131,7 +131,7 @@ public class GameManager : MonoBehaviour
         }
     }
     [Serializable]
-    private class Line
+    public class Line
     {
         public Vector3 start;
         public Vector3 end;
