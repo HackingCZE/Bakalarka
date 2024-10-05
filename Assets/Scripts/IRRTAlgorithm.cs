@@ -83,4 +83,5 @@ public interface IRRTAlgorithm
 public interface IDrawingNode
 {
     public void DrawNode() { }
+    public void DrawNode(AlgoNode node) { }
 }

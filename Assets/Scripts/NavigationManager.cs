@@ -14,20 +14,23 @@ public class NavigationManager : MonoBehaviour, IDrawingNode
     public float threshold, maxStepLenght;
     public LayerMask barrierLayer;
     [SerializeField] GenerationArea area;
+    [SerializeField] SimpleVisualizer visualizer;
 
 
 
     private List<TreeCollectionItem> _nodes;
     private List<TreeCollectionItem> _path;
+    private List<AlgoNode> _result;
     private List<Line> _lines;
 
     [SerializeField] private float _elapsedTime = 0f;
     bool _timerIsRunning;
     RRTStar _rRT;
-
+    DFS _dFS;
     private void Start()
     {
         _rRT = new RRTStar();
+        _dFS = new DFS();
         _nodes = new List<TreeCollectionItem>();
         _lines = new List<Line>();
         _path = new List<TreeCollectionItem>();
@@ -36,7 +39,8 @@ public class NavigationManager : MonoBehaviour, IDrawingNode
     public enum NavigationAlgorithm
     {
         RRT,
-        AStar
+        AStar,
+        DFS
     }
 
     private void Update()
@@ -45,6 +49,12 @@ public class NavigationManager : MonoBehaviour, IDrawingNode
         {
             _elapsedTime += Time.deltaTime;
         }
+    }
+
+    [Button]
+    public void GetN()
+    {
+        newNodes = visualizer.GetNodes(); 
     }
 
     [Button]
@@ -66,9 +76,33 @@ public class NavigationManager : MonoBehaviour, IDrawingNode
                 break;
             case NavigationAlgorithm.AStar:
                 break;
+            case NavigationAlgorithm.DFS:
+
+
+                newNodes = new List<AlgoNode>();
+                var nodes = visualizer.GetNodes();
+                var startNode = NodeUtility.FindClosestNode(nodes, player.position);
+                var endNode = NodeUtility.FindClosestNode(nodes, target.position);
+                this._result = await _dFS.StartDFS(startNode, endNode, nodes, this);
+
+                Invoke(nameof(StartAlgorithm), 2);
+                break;
         }
 
 
+    }
+
+    List<AlgoNode> newNodes = new List<AlgoNode>();
+    public void DrawNode(AlgoNode node)
+    {
+        foreach (var item in newNodes)
+        {
+            if (item == node)
+            {
+                Debug.LogError("Stejny node");
+            }
+        }
+        newNodes.Add(node);
     }
 
     public void DrawNode()
@@ -106,7 +140,29 @@ public class NavigationManager : MonoBehaviour, IDrawingNode
             Gizmos.DrawSphere(player.position, 1f);
             Gizmos.DrawSphere(target.position, 1f);
         }
+        if (newNodes == null) return;
+        for (int i = 0; i < newNodes.Count; i++)
+        {
+            Gizmos.color = Color.red;
 
+            Gizmos.DrawSphere(newNodes[i].Position, .5f);
+            for (int j = 0; j < newNodes[i].Neighbors.Count; j++)
+            {
+                Gizmos.color = Color.blue;
+
+                Gizmos.DrawSphere(newNodes[i].Neighbors[j].Position, .5f);
+            }
+        }
+        if (_result == null) return;
+        Gizmos.color = Color.black;
+
+        foreach (var item in _result)
+        {
+            Gizmos.DrawSphere(item.Position, .5f);
+
+        }
+
+        return;
         for (int i = 0; i < _nodes.Count; i++)
         {
             var node = _nodes[i];

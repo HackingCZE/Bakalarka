@@ -48,7 +48,7 @@ public class SimpleVisualizer : MonoBehaviour
         switch (keyValue.Value.Count)
         {
             case 1:
-                type = RoadTileType.RoadEnd; 
+                type = RoadTileType.RoadEnd;
                 break;
             case 2:
                 Vector3 dir1 = keyValue.Value[0].position - keyValue.Key.position;
@@ -77,6 +77,8 @@ public class SimpleVisualizer : MonoBehaviour
         return neighbours;
     }
 
+    List<AlgoNode> _algoNodes = new List<AlgoNode>();
+
     [Button]
     private void SpawnTiles()
     {
@@ -101,7 +103,7 @@ public class SimpleVisualizer : MonoBehaviour
                         bool down = (dir1.z < -0.5f) || (dir2.z < -0.5f) || (dir3.z < -0.5f);
                         bool right = (dir1.x > 0.5f) || (dir2.x > 0.5f) || (dir3.x > 0.5f);
                         bool left = (dir1.x < -0.5f) || (dir2.x < -0.5f) || (dir3.x < -0.5f);
-                       
+
 
                         if (up && down && right) rotation = 0;
                         else if (up && down && left) rotation = 180f;
@@ -138,7 +140,7 @@ public class SimpleVisualizer : MonoBehaviour
                         dir1 = (node.list[0] - node.position).normalized;
 
                         float angle = Mathf.Atan2(dir1.x, dir1.z) * Mathf.Rad2Deg;
-                        angle = Mathf.Round(angle / 90) * 90 ;
+                        angle = Mathf.Round(angle / 90) * 90;
                         Instantiate(_roadEnd, node.position, Quaternion.Euler(0, angle, 0), _tilesParent);
                         break;
                     case RoadTileType.None:
@@ -148,6 +150,42 @@ public class SimpleVisualizer : MonoBehaviour
                 }
             }
         }
+
+
+    }
+
+    public List<AlgoNode> GetNodes()
+    {
+        // Vytvoøíme mapu, abychom rychle našli a pøiøadili AlgoNode objekt k pozici
+        Dictionary<Vector3, AlgoNode> algoNodeMap = new Dictionary<Vector3, AlgoNode>();
+
+        // Nejprve vytvoøíme všechny AlgoNode objekty bez sousedù
+        foreach (var entry in _nodes)
+        {
+            Node currentNode = entry.Key;
+            AlgoNode algoNode = new AlgoNode(currentNode.position, null);  // Parent zatím nastaven na null
+            algoNodeMap[currentNode.position] = algoNode;
+        }
+
+        // Nyní pøidáme sousedy a pøiøadíme Parent
+        foreach (var entry in _nodes)
+        {
+            Node currentNode = entry.Key;
+            List<Node> neighbors = entry.Value;
+
+            AlgoNode algoNode = algoNodeMap[currentNode.position];
+
+            foreach (Node neighbor in neighbors)
+            {
+                if (algoNodeMap.TryGetValue(neighbor.position, out AlgoNode neighborAlgoNode))
+                {
+                    algoNode.Neighbors.Add(neighborAlgoNode);
+                }
+            }
+        }
+
+        // Vrátíme všechny AlgoNode jako List
+        return algoNodeMap.Values.ToList();
     }
 
     [Serializable]
