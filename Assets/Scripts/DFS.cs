@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEngine;
 
-public class DFS : MonoBehaviour
+public class DFS
 {
     Stack<AlgoNode> stack;
     public async Task<List<AlgoNode>> StartDFS(AlgoNode startNode, AlgoNode endNode, List<AlgoNode> graph, IDrawingNode drawingNode)
@@ -18,7 +18,8 @@ public class DFS : MonoBehaviour
             await Task.Delay(1);
             AlgoNode currentNode = stack.Pop();
 
-            if (currentNode == endNode){
+            if (currentNode == endNode)
+            {
                 Debug.Log("Getting path");
                 var path = NodeUtility.ReconstructPath(startNode, currentNode);
                 return await Task.FromResult(path);

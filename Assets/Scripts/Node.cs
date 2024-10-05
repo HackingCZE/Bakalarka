@@ -15,19 +15,20 @@ public class AlgoNode
     public AlgoNode()
     {
         Visited = false;
+        Value = float.PositiveInfinity;
     }
 
     public AlgoNode(Vector3 position)
     {
         Position = position;
-
+        Value = float.PositiveInfinity;
         Visited = false;
     }
 
     public AlgoNode(Vector3 position, AlgoNode parent)
     {
         Visited = false;
-
+        Value = float.PositiveInfinity;
         Position = position;
         Parent = parent;
         Neighbors = new List<AlgoNode>();

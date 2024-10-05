@@ -27,10 +27,14 @@ public class NavigationManager : MonoBehaviour, IDrawingNode
     bool _timerIsRunning;
     RRTStar _rRT;
     DFS _dFS;
+    BFS _bFS;
+    Dijkstra _dijkstra;
     private void Start()
     {
         _rRT = new RRTStar();
         _dFS = new DFS();
+        _bFS = new BFS();
+        _dijkstra = new Dijkstra();
         _nodes = new List<TreeCollectionItem>();
         _lines = new List<Line>();
         _path = new List<TreeCollectionItem>();
@@ -40,7 +44,9 @@ public class NavigationManager : MonoBehaviour, IDrawingNode
     {
         RRT,
         AStar,
-        DFS
+        DFS,
+        BFS,
+        DIJKSTRA
     }
 
     private void Update()
@@ -54,7 +60,7 @@ public class NavigationManager : MonoBehaviour, IDrawingNode
     [Button]
     public void GetN()
     {
-        newNodes = visualizer.GetNodes(); 
+        newNodes = visualizer.GetNodes();
     }
 
     [Button]
@@ -63,6 +69,8 @@ public class NavigationManager : MonoBehaviour, IDrawingNode
         _nodes = new List<TreeCollectionItem>();
         _lines = new List<Line>();
         _path = new List<TreeCollectionItem>();
+        List<AlgoNode> nodes = new List<AlgoNode>();
+        AlgoNode startNode, endNode;
 
         switch (navigationAlgorithm)
         {
@@ -77,15 +85,29 @@ public class NavigationManager : MonoBehaviour, IDrawingNode
             case NavigationAlgorithm.AStar:
                 break;
             case NavigationAlgorithm.DFS:
-
-
                 newNodes = new List<AlgoNode>();
-                var nodes = visualizer.GetNodes();
-                var startNode = NodeUtility.FindClosestNode(nodes, player.position);
-                var endNode = NodeUtility.FindClosestNode(nodes, target.position);
+                nodes = visualizer.GetNodes();
+                startNode = NodeUtility.FindClosestNode(nodes, player.position);
+                endNode = NodeUtility.FindClosestNode(nodes, target.position);
                 this._result = await _dFS.StartDFS(startNode, endNode, nodes, this);
 
-                Invoke(nameof(StartAlgorithm), 2);
+                //Invoke(nameof(StartAlgorithm), 2);
+                break;
+            case NavigationAlgorithm.BFS:
+                newNodes = new List<AlgoNode>();
+                nodes = visualizer.GetNodes();
+                startNode = NodeUtility.FindClosestNode(nodes, player.position);
+                endNode = NodeUtility.FindClosestNode(nodes, target.position);
+                this._result = await _bFS.StartBFS(startNode, endNode, nodes, this);
+
+                break;
+            case NavigationAlgorithm.DIJKSTRA:
+                newNodes = new List<AlgoNode>();
+                nodes = visualizer.GetNodes();
+                startNode = NodeUtility.FindClosestNode(nodes, player.position);
+                endNode = NodeUtility.FindClosestNode(nodes, target.position);
+                this._result = await _dijkstra.StartDijkstra(startNode, endNode, nodes, this);
+
                 break;
         }
 
