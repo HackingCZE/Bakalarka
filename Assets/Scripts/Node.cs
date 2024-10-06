@@ -5,33 +5,26 @@ using UnityEngine;
 public class AlgoNode
 {
     public Vector3 Position { get; set; }
-    public List<AlgoNode> Neighbors { get; set; }
+    public List<AlgoNode> Neighbors { get; set; } = new List<AlgoNode>();
     public AlgoNode Parent { get; set; }
 
-    public float Value { get; set; }
+    public float Value { get; set; } = float.PositiveInfinity;
+    public float GScore { get; set; } = float.PositiveInfinity;
+    public float FScore { get; set; } = float.PositiveInfinity;
     public float Cost { get; set; }
-    public bool Visited { get; set; }
+    public bool Visited { get; set; } = false;
 
-    public AlgoNode()
-    {
-        Visited = false;
-        Value = float.PositiveInfinity;
-    }
+ 
 
     public AlgoNode(Vector3 position)
     {
         Position = position;
-        Value = float.PositiveInfinity;
-        Visited = false;
     }
 
     public AlgoNode(Vector3 position, AlgoNode parent)
     {
-        Visited = false;
-        Value = float.PositiveInfinity;
         Position = position;
         Parent = parent;
-        Neighbors = new List<AlgoNode>();
     }
 
     public override bool Equals(object obj)
@@ -70,13 +63,10 @@ public static class NodeUtility
         AlgoNode closestNode = null;
         float closestDistance = float.MaxValue;
 
-        // Iterace pøes všechny uzly
         foreach (AlgoNode node in nodes)
         {
-            // Vypoèítáme vzdálenost mezi cílovou pozicí a aktuálním uzlem
             float distance = Vector3.Distance(node.Position, targetPosition);
 
-            // Pokud je vzdálenost menší než dosud nalezená, uložíme tento uzel jako nejbližší
             if (distance < closestDistance)
             {
                 closestDistance = distance;

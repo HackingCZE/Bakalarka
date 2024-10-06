@@ -35,4 +35,18 @@ public class PriorityQueue<T>
         Count--;
         return item;
     }
+
+    public bool Contains(T item)
+    {
+        // Iterate through all the queues in the priority dictionary
+        foreach (var queue in _elements.Values)
+        {
+            if (queue.Contains(item))
+            {
+                return true;  // Item found
+            }
+        }
+        return false;  // Item not found
+    }
+
 }

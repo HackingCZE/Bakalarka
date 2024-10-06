@@ -8,6 +8,7 @@ using static GameManager;
 public class NavigationManager : MonoBehaviour, IDrawingNode
 {
     public NavigationAlgorithm navigationAlgorithm;
+    NavigationAlgorithm _lastAlgo;
     public Transform player;
     public Transform target;
     public int maxInteractions;
@@ -16,25 +17,22 @@ public class NavigationManager : MonoBehaviour, IDrawingNode
     [SerializeField] GenerationArea area;
     [SerializeField] SimpleVisualizer visualizer;
 
+    public List<string> times = new List<string>();
+
 
 
     private List<TreeCollectionItem> _nodes;
     private List<TreeCollectionItem> _path;
-    private List<AlgoNode> _result;
+    private List<AlgoNode> _result, _oldResult;
     private List<Line> _lines;
 
     [SerializeField] private float _elapsedTime = 0f;
     bool _timerIsRunning;
     RRTStar _rRT;
-    DFS _dFS;
-    BFS _bFS;
-    Dijkstra _dijkstra;
+    AlgoBase _algoBase;
     private void Start()
     {
         _rRT = new RRTStar();
-        _dFS = new DFS();
-        _bFS = new BFS();
-        _dijkstra = new Dijkstra();
         _nodes = new List<TreeCollectionItem>();
         _lines = new List<Line>();
         _path = new List<TreeCollectionItem>();
@@ -60,17 +58,22 @@ public class NavigationManager : MonoBehaviour, IDrawingNode
     [Button]
     public void GetN()
     {
-        newNodes = visualizer.GetNodes();
+        _newNodes = visualizer.GetNodes();
     }
 
     [Button]
     public async void StartAlgorithm()
     {
+        _timerIsRunning = true;
+        _elapsedTime = 0f;
+        _lastAlgo = navigationAlgorithm;
+        _oldResult = _result;
+        _result = new();
         _nodes = new List<TreeCollectionItem>();
         _lines = new List<Line>();
         _path = new List<TreeCollectionItem>();
         List<AlgoNode> nodes = new List<AlgoNode>();
-        AlgoNode startNode, endNode;
+        AlgoNode startNode = null, endNode = null;
 
         switch (navigationAlgorithm)
         {
@@ -78,53 +81,71 @@ public class NavigationManager : MonoBehaviour, IDrawingNode
                 var val = await ((RRTStar)_rRT).Interation(player.position, target.position, maxInteractions, maxStepLenght, area, threshold, barrierLayer, this);
 
                 this._path = val.recontructedPath;
-                _timerIsRunning = false;
 
                 //TryAddNewNode(((RRT)_rRT).treeCollection.root);
                 break;
-            case NavigationAlgorithm.AStar:
-                break;
             case NavigationAlgorithm.DFS:
-                newNodes = new List<AlgoNode>();
-                nodes = visualizer.GetNodes();
-                startNode = NodeUtility.FindClosestNode(nodes, player.position);
-                endNode = NodeUtility.FindClosestNode(nodes, target.position);
-                this._result = await _dFS.StartDFS(startNode, endNode, nodes, this);
+                _algoBase = new DFS();
+                GetNodes(out nodes, out startNode, out endNode);
+
+                this._result = await ((DFS)_algoBase).StartAlgo(startNode, endNode, nodes, this);
 
                 //Invoke(nameof(StartAlgorithm), 2);
                 break;
             case NavigationAlgorithm.BFS:
-                newNodes = new List<AlgoNode>();
-                nodes = visualizer.GetNodes();
-                startNode = NodeUtility.FindClosestNode(nodes, player.position);
-                endNode = NodeUtility.FindClosestNode(nodes, target.position);
-                this._result = await _bFS.StartBFS(startNode, endNode, nodes, this);
+                _algoBase = new BFS();
+                GetNodes(out nodes, out startNode, out endNode);
 
+                this._result = await ((BFS)_algoBase).StartAlgo(startNode, endNode, nodes, this);
                 break;
             case NavigationAlgorithm.DIJKSTRA:
-                newNodes = new List<AlgoNode>();
-                nodes = visualizer.GetNodes();
-                startNode = NodeUtility.FindClosestNode(nodes, player.position);
-                endNode = NodeUtility.FindClosestNode(nodes, target.position);
-                this._result = await _dijkstra.StartDijkstra(startNode, endNode, nodes, this);
+                _algoBase = new Dijkstra();
+                GetNodes(out nodes, out startNode, out endNode);
 
+                this._result = await ((Dijkstra)_algoBase).StartAlgo(startNode, endNode, nodes, this);
+                break;
+            case NavigationAlgorithm.AStar:
+                _algoBase = new AStar();
+                GetNodes(out nodes, out startNode, out endNode);
+
+                this._result = await ((AStar)_algoBase).StartAlgo(startNode, endNode, nodes, this);
                 break;
         }
 
-
+        // after get result path
+        _timerIsRunning = false;
+        AddTime();
     }
 
-    List<AlgoNode> newNodes = new List<AlgoNode>();
+    private void AddTime()
+    {
+        float minutes = Mathf.Floor(_elapsedTime / 60);             // Get the total minutes
+        float seconds = Mathf.Floor(_elapsedTime % 60);             // Get the remaining seconds
+        float milliseconds = (_elapsedTime * 1000) % 1000;          // Get the remaining milliseconds
+
+        string timeFormatted = string.Format("{0:00}:{1:00}:{2:000}", minutes, seconds, milliseconds);
+        times.Add(_lastAlgo.ToString() + ":(" + timeFormatted + ")");
+    }
+
+    private void GetNodes(out List<AlgoNode> nodes, out AlgoNode startNode, out AlgoNode endNode)
+    {
+        _newNodes = new List<AlgoNode>();
+        nodes = visualizer.GetNodes();
+        startNode = NodeUtility.FindClosestNode(nodes, player.position);
+        endNode = NodeUtility.FindClosestNode(nodes, target.position);
+    }
+
+    List<AlgoNode> _newNodes = new List<AlgoNode>();
     public void DrawNode(AlgoNode node)
     {
-        foreach (var item in newNodes)
+        foreach (var item in _newNodes)
         {
             if (item == node)
             {
                 Debug.LogError("Stejny node");
             }
         }
-        newNodes.Add(node);
+        _newNodes.Add(node);
     }
 
     public void DrawNode()
@@ -162,19 +183,31 @@ public class NavigationManager : MonoBehaviour, IDrawingNode
             Gizmos.DrawSphere(player.position, 1f);
             Gizmos.DrawSphere(target.position, 1f);
         }
-        if (newNodes == null) return;
-        for (int i = 0; i < newNodes.Count; i++)
+        if (_oldResult != null)
+        {
+            Gizmos.color = Color.yellow;
+
+            foreach (var item in _oldResult)
+            {
+                Gizmos.DrawSphere(item.Position, .4f);
+
+            }
+        }
+        if (_newNodes == null) return;
+        for (int i = 0; i < _newNodes.Count; i++)
         {
             Gizmos.color = Color.red;
 
-            Gizmos.DrawSphere(newNodes[i].Position, .5f);
-            for (int j = 0; j < newNodes[i].Neighbors.Count; j++)
+            Gizmos.DrawSphere(_newNodes[i].Position, .5f);
+            for (int j = 0; j < _newNodes[i].Neighbors.Count; j++)
             {
                 Gizmos.color = Color.blue;
 
-                Gizmos.DrawSphere(newNodes[i].Neighbors[j].Position, .5f);
+                Gizmos.DrawSphere(_newNodes[i].Neighbors[j].Position, .5f);
             }
         }
+       
+
         if (_result == null) return;
         Gizmos.color = Color.black;
 
@@ -183,6 +216,8 @@ public class NavigationManager : MonoBehaviour, IDrawingNode
             Gizmos.DrawSphere(item.Position, .5f);
 
         }
+
+
 
         return;
         for (int i = 0; i < _nodes.Count; i++)

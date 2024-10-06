@@ -4,37 +4,34 @@ using System.Threading.Tasks;
 using Unity.VisualScripting;
 using UnityEngine;
 
-public class BFS
+public class BFS : AlgoBase
 {
-    Queue<AlgoNode> queue;
-    public async Task<List<AlgoNode>> StartBFS(AlgoNode startNode, AlgoNode endNode, List<AlgoNode> graph, IDrawingNode drawingNode)
+    Queue<AlgoNode> _queue;
+
+    public async override Task<List<AlgoNode>> StartAlgo(AlgoNode startNode, AlgoNode endNode, List<AlgoNode> graph, IDrawingNode drawingNode)
     {
         int c = 0;
+        _queue = new Queue<AlgoNode>();
 
-        queue = new Queue<AlgoNode>();
-
-        queue.Enqueue(startNode);
+        _queue.Enqueue(startNode);
         startNode.Visited = true;
 
-        while (queue.Count > 0)
+        while (_queue.Count > 0)
         {
-            await Task.Delay(5);
-
-            AlgoNode currentNode = queue.Dequeue();
+            await Task.Delay(1);
+            AlgoNode currentNode = _queue.Dequeue();
             drawingNode.DrawNode(currentNode);
 
             if (currentNode == endNode)
             {
-                Debug.Log("Getting path");
-                var path = NodeUtility.ReconstructPath(startNode, currentNode);
-                return await Task.FromResult(path);
+                return await GetResultPath(startNode, currentNode);
             }
 
             foreach (var neighbor in currentNode.Neighbors)
             {
                 if (!neighbor.Visited)
                 {
-                    queue.Enqueue(neighbor);
+                    _queue.Enqueue(neighbor);
                     neighbor.Visited = true;
                     neighbor.Parent = currentNode;
                 }
@@ -44,6 +41,6 @@ public class BFS
         }
 
         throw new System.Exception("Path not found");
-
     }
+
 }

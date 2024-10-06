@@ -3,32 +3,31 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEngine;
 
-public class Dijkstra
+public class Dijkstra : AlgoBase
 {
-    PriorityQueue<AlgoNode> pq;
-    public async Task<List<AlgoNode>> StartDijkstra(AlgoNode startNode, AlgoNode endNode, List<AlgoNode> graph, IDrawingNode drawingNode)
+    PriorityQueue<AlgoNode> _pq;
+
+    public async override Task<List<AlgoNode>> StartAlgo(AlgoNode startNode, AlgoNode endNode, List<AlgoNode> graph, IDrawingNode drawingNode)
     {
         int c = 0;
-        pq = new PriorityQueue<AlgoNode>();
+        _pq = new PriorityQueue<AlgoNode>();
 
         startNode.Parent = null;
         startNode.Value = 0; // Distance
 
-        pq.Enqueue(startNode, 0);
+        _pq.Enqueue(startNode, 0);
 
-        while (pq.Count > 0)
+        while (_pq.Count > 0)
         {
             await Task.Delay(1);
-            AlgoNode currentNode = pq.Dequeue();
+            AlgoNode currentNode = _pq.Dequeue();
 
             if (currentNode.Visited) continue;
             drawingNode.DrawNode(currentNode);
 
             if (currentNode == endNode)
             {
-                Debug.Log("Getting path");
-                var path = NodeUtility.ReconstructPath(startNode, currentNode);
-                return await Task.FromResult(path);
+                return await GetResultPath(startNode, currentNode);
             }
 
             currentNode.Visited = true;
@@ -43,7 +42,7 @@ public class Dijkstra
                 {
                     neighbor.Value = newDistance;
                     neighbor.Parent = currentNode;
-                    pq.Enqueue(neighbor, newDistance);
+                    _pq.Enqueue(neighbor, newDistance);
                 }
             }
             if (c > graph.Count + 150) break;
@@ -52,5 +51,6 @@ public class Dijkstra
 
         throw new System.Exception("Path not found");
     }
+
 }
 

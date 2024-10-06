@@ -152,7 +152,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 210f2f2a701c39846b293227b52070e3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  navigationAlgorithm: 3
+  navigationAlgorithm: 1
   player: {fileID: 1413486984}
   target: {fileID: 649426759}
   maxInteractions: 0
