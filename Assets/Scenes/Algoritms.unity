@@ -163,6 +163,7 @@ MonoBehaviour:
     m_Bits: 0
   area: {fileID: 0}
   visualizer: {fileID: 109823300}
+  times: []
   _elapsedTime: 0
 --- !u!4 &74082881
 Transform:
@@ -214,6 +215,7 @@ MonoBehaviour:
   _tilesParent: {fileID: 109823301}
   _minLenght: 3
   _distance: 2.9
+  _chanceToJoin: 100
   randomAngle: 0
   changeLength: 0
   distanceCheck: 1
@@ -477,7 +479,7 @@ MonoBehaviour:
   rootSentence: '[F][-F][+F][--F]'
   iterationLimit: 5
   randomIgnoreRuleModifer: 1
-  changeToIngoreRule: 0.862
+  changeToIngoreRule: 0.491
 --- !u!4 &1611538535
 Transform:
   m_ObjectHideFlags: 0

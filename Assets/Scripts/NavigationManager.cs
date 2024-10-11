@@ -2,6 +2,7 @@ using NaughtyAttributes;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using UnityEditor;
 using UnityEngine;
 using static GameManager;
 
@@ -211,10 +212,13 @@ public class NavigationManager : MonoBehaviour, IDrawingNode
         if (_result == null) return;
         Gizmos.color = Color.black;
 
+        int c = 0;
         foreach (var item in _result)
         {
-            Gizmos.DrawSphere(item.Position, .5f);
+            Handles.Label(item.Position + new Vector3(0, 1, 0), c.ToString());
 
+            Gizmos.DrawSphere(item.Position, .5f);
+            c++;
         }
 
 

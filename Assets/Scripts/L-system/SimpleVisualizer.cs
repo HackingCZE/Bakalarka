@@ -19,6 +19,7 @@ public class SimpleVisualizer : MonoBehaviour
     [SerializeField] Transform _tilesParent;
     [SerializeField] int _minLenght;
     [SerializeField] float _distance;
+    [SerializeField, Range(0, 100)] float _chanceToJoin = 50;
     public bool randomAngle = true;
     public bool changeLength = true;
     public bool distanceCheck = true;
@@ -50,7 +51,7 @@ public class SimpleVisualizer : MonoBehaviour
             case 1:
                 type = RoadTileType.RoadEnd;
                 break;
-            case 2:
+            case 2: // is curve or line
                 Vector3 dir1 = keyValue.Value[0].position - keyValue.Key.position;
                 Vector3 dir2 = keyValue.Value[1].position - keyValue.Key.position;
                 float angle = Mathf.Round(Vector3.Angle(dir1, dir2));
@@ -322,8 +323,55 @@ public class SimpleVisualizer : MonoBehaviour
         RecognizeTypeOfNodes();
     }
 
+    private Node FindNodeByPos(Vector3 pos)
+    {
+        foreach (var node in _nodes)
+        {
+            if (Vector3.Distance(node.Key.position, pos) < .2f) return node.Key;
+
+        }
+        return null;
+    }
+    List<JoinNode> _joinNodes;
+
+    public class JoinNode
+    {
+        public Node one;
+        public Node two;
+        public Vector3 pos;
+    }
     private void RecognizeTypeOfNodes()
     {
+
+        _joinNodes = new();
+        foreach (var node in _nodes)
+        {
+            if (node.Value.Count == 1)
+            {
+                if (UnityEngine.Random.Range(0, 100f) <= _chanceToJoin)
+                {
+                    var currentJoin = new JoinNode();
+                    var dir = (node.Key.position - node.Value[0].position).normalized * 3;
+                    currentJoin.one = node.Key;
+                    currentJoin.pos = node.Key.position + dir;
+
+                    var foundNode = FindNodeByPos(currentJoin.pos);
+                    if (foundNode != null)
+                    {
+                        currentJoin.two = foundNode;
+                        _joinNodes.Add(currentJoin);
+                    }
+
+                }
+            }
+        }
+
+        foreach (var item in _joinNodes)
+        {
+            if (!_nodes[item.one].Contains(item.two)) _nodes[item.one].Add(item.two);
+            if (!_nodes[item.two].Contains(item.one)) _nodes[item.two].Add(item.one);
+        }
+
         foreach (var node in _nodes)
         {
             RecognizeTypeOfNode(node);
@@ -404,6 +452,18 @@ public class SimpleVisualizer : MonoBehaviour
     private void OnDrawGizmosSelected()
     {
 
+        foreach (var item in _joinNodes)
+        {
+            Gizmos.color = Color.white;
+            Gizmos.DrawSphere(item.one.position + new Vector3(0, .5f, 0), .1f);
+            Gizmos.color = Color.red;
+
+            Gizmos.DrawLine(item.one.position + new Vector3(0, .5f, 0), item.pos + new Vector3(0, .5f, 0));
+            Gizmos.color = Color.blue;
+            Gizmos.DrawSphere(item.two.position + new Vector3(0, .8f, 0), .1f);
+        }
+
+        return;
         foreach (var item in _nodes)
         {
             Gizmos.color = Color.white;
