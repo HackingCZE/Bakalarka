@@ -3,9 +3,9 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine;
-using UnityEngine.Analytics;
 using UnityEngine.UIElements;
 
 public class SimpleVisualizer : MonoBehaviour
@@ -87,12 +87,13 @@ public class SimpleVisualizer : MonoBehaviour
         {
             foreach (var node in roadType.Value)
             {
+
                 float rotation = 0f;
                 Vector3 dir1, dir2, dir3;
                 switch (roadType.Key)
                 {
                     case RoadTileType.Junction4Dirs:
-                        Instantiate(_junction4Dirs, node.position, Quaternion.identity, _tilesParent);
+                        AddBuildinPoints(Instantiate(_junction4Dirs, node.position, Quaternion.identity, _tilesParent));
                         break;
                     case RoadTileType.Junction3Dirs:
                         dir1 = (node.list[0] - node.position).normalized;
@@ -111,9 +112,9 @@ public class SimpleVisualizer : MonoBehaviour
                         else if (up && left && right) rotation = -90f;
                         else if (down && left && right) rotation = 90f;
 
-                        Debug.Log(rotation + " - " + Quaternion.Euler(0, rotation, 0).eulerAngles.ToString());
+                        //Debug.Log(rotation + " - " + Quaternion.Euler(0, rotation, 0).eulerAngles.ToString());
 
-                        Instantiate(_junction3Dirs, node.position, Quaternion.Euler(0, rotation, 0), _tilesParent);
+                        AddBuildinPoints(Instantiate(_junction3Dirs, node.position, Quaternion.Euler(0, rotation, 0), _tilesParent));
                         break;
                     case RoadTileType.RoadCurve:
 
@@ -125,7 +126,7 @@ public class SimpleVisualizer : MonoBehaviour
                         if (Mathf.Abs(dir1.x) > Mathf.Abs(dir1.z)) rotation = dir1.x > 0 ? (dir2.z > 0 ? -90f : 0f) : (dir2.z > 0 ? 180f : 90f); // Soused1 je na ose X (vodorovnì
                         else rotation = dir1.z > 0 ? (dir2.x > 0 ? -90f : 180f) : (dir2.x > 0 ? 0f : 90f); // Soused1 je na ose Z (svisle)
 
-                        Instantiate(_roadCurve, node.position, Quaternion.Euler(0, rotation, 0), _tilesParent);
+                        AddBuildinPoints(Instantiate(_roadCurve, node.position, Quaternion.Euler(0, rotation, 0), _tilesParent));
                         break;
                     case RoadTileType.RoadLine:
                         dir1 = (node.list[0] - node.position).normalized;
@@ -135,14 +136,15 @@ public class SimpleVisualizer : MonoBehaviour
 
                         if (Mathf.Abs(dir1.x) > 0.1f && Mathf.Abs(dir2.x) > 0.1f) rotation = 90;
 
-                        Instantiate(_roadLine, node.position, Quaternion.Euler(0, rotation, 0), _tilesParent);
+
+                        AddBuildinPoints(Instantiate(_roadLine, node.position, Quaternion.Euler(0, rotation, 0), _tilesParent));
                         break;
                     case RoadTileType.RoadEnd:
                         dir1 = (node.list[0] - node.position).normalized;
 
                         float angle = Mathf.Atan2(dir1.x, dir1.z) * Mathf.Rad2Deg;
                         angle = Mathf.Round(angle / 90) * 90;
-                        Instantiate(_roadEnd, node.position, Quaternion.Euler(0, angle, 0), _tilesParent);
+                        AddBuildinPoints(Instantiate(_roadEnd, node.position, Quaternion.Euler(0, angle, 0), _tilesParent));
                         break;
                     case RoadTileType.None:
                         break;
@@ -154,7 +156,73 @@ public class SimpleVisualizer : MonoBehaviour
 
 
     }
+    List<List<BuildingPoint>> groups = new();
+    [Button("GetGroups")]
+    public void GetGroups()
+    {
+        GroupingPoints groupingPoints = new GroupingPoints();
+        points = RemoveDuplicates(points);
+        groups = groupingPoints.GroupPoints(points);
+    }
 
+    public List<BuildingPoint> RemoveDuplicates(List<BuildingPoint> allPoints)
+    {
+        List<BuildingPoint> toRemove = new();
+        foreach (var item in allPoints)
+        {
+            foreach (var item1 in allPoints)
+            {
+                if (!toRemove.Contains(item1) && Vector3.Distance(item.Position, item1.Position) < .15f) toRemove.Add(item1);
+            }
+        }
+
+        for (int i = 0; i < toRemove.Count; i++)
+        {
+            allPoints.Remove(toRemove[i]);
+        }
+
+        return allPoints;
+    }
+
+    public void AddBuildinPoints(GameObject obj)
+    {
+        TileStats tileStats = obj.GetComponent<TileStats>();
+
+        points.AddRange(tileStats.GetBuildingPoints());
+        Destroy(tileStats);
+    }
+
+    List<BuildingPoint> points = new();
+    public class BuildingPoint
+    {
+        public Vector3 Position { get; set; }
+        public Vector3 Direction { get; set; }
+        public float RotationY { get; set; }
+        public bool Visited { get; set; }
+
+        public BuildingPoint(Vector3 position, Vector3 direction, float rotationY)
+        {
+            this.Position = position;
+            this.Direction = direction;
+            this.RotationY = rotationY;
+        }
+
+        // Pøepsání Equals pro porovnání pozic
+        public override bool Equals(object obj)
+        {
+            if (obj is BuildingPoint other)
+            {
+                return Position == other.Position;
+            }
+            return false;
+        }
+
+        // Pøepsání GetHashCode, abychom mohli použít Distinct
+        public override int GetHashCode()
+        {
+            return Position.GetHashCode();
+        }
+    }
     public List<AlgoNode> GetNodes()
     {
         // Vytvoøíme mapu, abychom rychle našli a pøiøadili AlgoNode objekt k pozici
@@ -449,9 +517,39 @@ public class SimpleVisualizer : MonoBehaviour
         }
     }
 
-    private void OnDrawGizmosSelected()
+    private void OnDrawGizmos()
     {
+        for (int i = 0; i < points.Count; i++)
+        {
+            Gizmos.color = Color.white;
+            if (points[i].RotationY == 315) Gizmos.color = Color.black;
+            Gizmos.DrawSphere(points[i].Position + new Vector3(0, .5f, 0), .1f);
+            Handles.ArrowHandleCap(0, points[i].Position, Quaternion.LookRotation(points[i].Direction), 1f, EventType.Repaint);
+        }
+        Gizmos.color = Color.red;
+        foreach (var group in groups)
+        {
+            for (int i = 0; i < group.Count; i++)
+            {
+                Gizmos.color = Color.red;
 
+                if(i < group.Count-1)Gizmos.DrawLine(group[i].Position + new Vector3(0, .5f, 0), group[i + 1].Position + new Vector3(0, .5f, 0));
+                Handles.Label(group[i].Position + new Vector3(0, .8f, 0), i.ToString());
+                Handles.Label(group[i].Position + new Vector3(0, 1f, 0), group[i].Direction.ToString());
+                Handles.Label(group[i].Position + new Vector3(0, 1.2f, 0), group[i].RotationY.ToString());
+                if (i < group.Count-1) Handles.Label(group[i].Position + new Vector3(0, 1.5f, 0), ((group[i+1].Position - group[i].Position).normalized).ToString());
+
+                //Gizmos.color = Color.yellow;
+
+                //Gizmos.DrawWireSphere(group[i].Position, 1.95f);
+
+                //Gizmos.color = Color.green;
+                //Gizmos.DrawWireSphere(group[i].Position, 1.2f);
+
+            }
+        }
+
+        return;
         foreach (var item in _joinNodes)
         {
             Gizmos.color = Color.white;
@@ -463,7 +561,6 @@ public class SimpleVisualizer : MonoBehaviour
             Gizmos.DrawSphere(item.two.position + new Vector3(0, .8f, 0), .1f);
         }
 
-        return;
         foreach (var item in _nodes)
         {
             Gizmos.color = Color.white;
