@@ -108,7 +108,7 @@ public class NavigationManager : MonoBehaviour, IDrawingNode
             return new AlgorithmStats(algoResult.Algorithm, algoResult.Stopwatch.Elapsed, algoResult.VisitedNodes, algoResult.MemoryUsage, algoResult.Result.Count);
         });
 
-        return SortAlgorithmsByEfficiency(results); 
+        return results.OrderBy(a => a.GetEfficiencyScore()).ToList();
     }
 
     public List<AlgorithmStats> SortAlgorithmsByEfficiency(List<AlgorithmStats> algorithms)
@@ -116,7 +116,7 @@ public class NavigationManager : MonoBehaviour, IDrawingNode
         return algorithms
             .OrderBy(a => a.VisitedNodes)          // Pak podle navštívených uzlù (èím ménì, tím lepší)
             .ThenBy(a => a.MemoryUsage)           // Poté podle pamìti (èím ménì, tím lepší)
-            .ThenBy(a => a.ResultPathLenght)      // Nakonec podle délky cesty (èím kratší, tím lepší)
+            .ThenBy(a => a.ResultPathLength)      // Nakonec podle délky cesty (èím kratší, tím lepší)
             .ToList();
     }
 
@@ -291,15 +291,20 @@ public class NavigationManager : MonoBehaviour, IDrawingNode
         public TimeSpan Time { get; set; }
         public int VisitedNodes { get; set; }
         public int MemoryUsage { get; set; }
-        public int ResultPathLenght { get; set; }
+        public int ResultPathLength { get; set; }
 
-        public AlgorithmStats(NavigationAlgorithm algorithm, TimeSpan time, int visitedNodes, int memoryUsage, int resultPathLenght)
+        public float GetEfficiencyScore()
+        {
+            return (float)(0.5f * Time.TotalMilliseconds) + (2 * VisitedNodes) + (1.5f * ResultPathLength) + (MemoryUsage * 0.8f);
+        }
+
+        public AlgorithmStats(NavigationAlgorithm algorithm, TimeSpan time, int visitedNodes, int memoryUsage, int resultPathLength)
         {
             Algorithm = algorithm;
             Time = time;
             VisitedNodes = visitedNodes;
             MemoryUsage = memoryUsage;
-            ResultPathLenght = resultPathLenght;
+            ResultPathLength = resultPathLength;
         }
     }
 }

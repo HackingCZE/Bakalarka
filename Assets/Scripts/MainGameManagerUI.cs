@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
@@ -49,7 +50,7 @@ public class MainGameManagerUI : MonoBehaviour
                 DisableAll();
                 foreach(Button btn in _btns.GetComponentsInChildren<Button>())
                 {
-                    btn.GetComponent<Image>().color = new Color32(255, 255, 255, 255);
+                    btn.GetComponent<Image>().color = new Color(1, 1, 1, 1);
                     btn.interactable = true;
                 }
                 _blur.enabled = true;
@@ -59,7 +60,6 @@ public class MainGameManagerUI : MonoBehaviour
                 DisableAll();
                 foreach (Button btn in _btns.GetComponentsInChildren<Button>())
                 {
-                    btn.GetComponent<Image>().color = new Color32(255, 255, 255, 255);
                     btn.interactable = false;
                 }
                 _blur.enabled = true;
@@ -102,5 +102,20 @@ public class MainGameManagerUI : MonoBehaviour
         _btns.gameObject.SetActive(false);
         _skipBtn.gameObject.SetActive(false);
         _mid.gameObject.SetActive(false);
+    }
+
+    public void UpdateBtns(NavigationManager.NavigationAlgorithm algorithm)
+    {
+        foreach (var item in _btns.GetComponentsInChildren<VoteNavigationAlgorithm>())
+        {
+            if (item.navigationAlgorithm == algorithm)
+            {
+                item.GetComponent<Image>().color = new Color(37f / 255f, 214f / 255f, 37f / 255f, 255f / 255f); 
+            }
+            else
+            {
+                item.GetComponent<Image>().color = new Color(214f / 255f, 37f / 255f, 37f / 255f, 255f / 255f);
+            }
+        }
     }
 }

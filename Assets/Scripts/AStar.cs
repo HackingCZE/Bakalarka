@@ -12,9 +12,10 @@ public class AStar : AlgoBase
         Stopwatch.Start();
         int c = 0;
         _queue = new PriorityQueue<AlgoNode>();
+        float heuristicFactor = 0.5f;
 
         startNode.GScore = 0;
-        startNode.FScore = Vector3.Distance(startNode.Position, endNode.Position);
+        startNode.FScore = startNode.GScore + heuristicFactor * Vector3.Distance(startNode.Position, endNode.Position);
 
         _queue.Enqueue(startNode, startNode.FScore);
 
@@ -43,7 +44,7 @@ public class AStar : AlgoBase
                 if (newGScore < neighbor.GScore)
                 {
                     neighbor.GScore = newGScore;
-                    neighbor.FScore = neighbor.GScore + Vector3.Distance(neighbor.Position, endNode.Position);
+                    neighbor.FScore = neighbor.GScore + heuristicFactor * Vector3.Distance(neighbor.Position, endNode.Position);
                     neighbor.Parent = currentNode;
 
                     if (!_queue.Contains(neighbor))

@@ -60,11 +60,12 @@ public class MainGameManager : MonoBehaviour
         _algorithmStats = await NavigationManager.Instance.GetOrderOfAlgorithms();
     }
 
-    public bool CheckSelectedAlgorithm(VoteNavigationAlgorithm navigationAlgorithm)
+    public void CheckSelectedAlgorithm(VoteNavigationAlgorithm navigationAlgorithm)
     {
         if (_algorithmStats[0].Algorithm == navigationAlgorithm.navigationAlgorithm) _currentGameScore += 1 * Countdown.Instance.GetLastRemaining();
-        else _currentGameLives--;
+       // else _currentGameLives--;
 
+        MainGameManagerUI.Instance.UpdateBtns(_algorithmStats[0].Algorithm);
         MainGameManagerUI.Instance.UpdateScoreUI(_currentGameScore);
 
         if (_currentGameLives <= 0) EndGame();
@@ -72,10 +73,8 @@ public class MainGameManager : MonoBehaviour
         {
             MainGameManagerUI.Instance.SwitchState(MainGameManagerUI.UIStates.readyToNextLevel);
 
-            return true;
             // TODO : continue after click and show animation/vizualization finding path
         }
-        return false;
     }
 
     public void NextLevel()

@@ -76,6 +76,10 @@ public class SimpleVisualizer : MonoBehaviour
         _algoNodes.Clear();
         _points.Clear();
 
+        _chanceToJoin = Random.Range(30, 80);
+
+
+
         var gm = new GameObject();
         gm.transform.SetParent(_tilesParent);
         _currentTilesParent = gm.transform;
@@ -145,6 +149,7 @@ public class SimpleVisualizer : MonoBehaviour
     [Button]
     private void SpawnTiles()
     {
+        return;
         foreach (var roadType in _roadTypes)
         {
             foreach (var node in roadType.Value)
