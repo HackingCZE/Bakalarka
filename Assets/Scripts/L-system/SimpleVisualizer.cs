@@ -3,20 +3,37 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
+using TMPro;
 using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
-
+using Random = UnityEngine.Random;
 public class SimpleVisualizer : MonoBehaviour
 {
+    public static SimpleVisualizer Instance { get; private set; }
     public LSystemGenerator lSystem;
     [SerializeField] List<Node> _positions = new();
     [SerializeField] Dictionary<Node, List<Node>> _candidats = new();
     [SerializeField] Dictionary<Node, List<Node>> _nodes = new();
     [SerializeField] Dictionary<RoadTileType, List<Node>> _roadTypes = new();
-    [SerializeField] List<Joins> _joins = new();
+    List<List<BuildingPoint>> _groups = new();
+    List<JoinNode> _joinNodes = new List<JoinNode>();
+    List<BuildingPoint> _points = new();
+    List<AlgoNode> _algoNodes = new List<AlgoNode>();
+    [SerializeField] private int _length = 8;
+    int _defaltLenght = 0;
+    private float _angle = 90;
+
+    public int Length { get { return _length > 0 ? _length : 1; } set { _length = value; } }
+
+    [SerializeField] Transform _player, _target;
+
+
+    [SerializeField] bool _createOnAwake = false;
     [SerializeField] Transform _tilesParent;
+    Transform _currentTilesParent;
     [SerializeField] int _minLenght;
     [SerializeField] float _distance;
     [SerializeField, Range(0, 100)] float _chanceToJoin = 50;
@@ -30,6 +47,53 @@ public class SimpleVisualizer : MonoBehaviour
     public enum RoadTileType
     {
         Junction3Dirs, Junction4Dirs, RoadCurve, RoadLine, RoadEnd, None
+    }
+
+    private void Awake()
+    {
+        _defaltLenght = _length;
+        Instance = this;
+    }
+
+    private void Start()
+    {
+        if (_createOnAwake) Create();
+        //StartCoroutine(DynamicallyChange());
+    }
+
+    [Button]
+    public void Create()
+    {
+        if (_currentTilesParent!= null) Destroy(_currentTilesParent.gameObject);
+        PlacePoints();
+        Length = _defaltLenght;
+        _positions.Clear();
+        _candidats.Clear();
+        _nodes.Clear();
+        _roadTypes.Clear();
+        _groups.Clear();
+        _joinNodes.Clear();
+        _algoNodes.Clear();
+        _points.Clear();
+
+        var gm = new GameObject();
+        gm.transform.SetParent(_tilesParent);
+        _currentTilesParent = gm.transform;
+
+        var sequance = lSystem.GenerateSentence();
+        VisualizeSequance(sequance);
+
+
+    }
+
+    void PlacePoints()
+    {
+        _player.transform.position = new Vector3(Random.Range(-50f, 100f), 0, Random.Range(-50f, 50f));
+
+        do
+        {
+            _target.transform.position = new Vector3(Random.Range(-50f, 100f), 0, Random.Range(-50f, 100f));
+        } while (Vector3.Distance(_player.transform.position, _target.transform.position) < 20);
     }
 
     private void RecognizeTypeOfNode(KeyValuePair<Node, List<Node>> keyValue)
@@ -78,8 +142,6 @@ public class SimpleVisualizer : MonoBehaviour
         return neighbours;
     }
 
-    List<AlgoNode> _algoNodes = new List<AlgoNode>();
-
     [Button]
     private void SpawnTiles()
     {
@@ -93,7 +155,7 @@ public class SimpleVisualizer : MonoBehaviour
                 switch (roadType.Key)
                 {
                     case RoadTileType.Junction4Dirs:
-                        AddBuildinPoints(Instantiate(_junction4Dirs, node.position, Quaternion.identity, _tilesParent));
+                        AddBuildinPoints(Instantiate(_junction4Dirs, node.position, Quaternion.identity, _currentTilesParent));
                         break;
                     case RoadTileType.Junction3Dirs:
                         dir1 = (node.list[0] - node.position).normalized;
@@ -114,7 +176,7 @@ public class SimpleVisualizer : MonoBehaviour
 
                         //Debug.Log(rotation + " - " + Quaternion.Euler(0, rotation, 0).eulerAngles.ToString());
 
-                        AddBuildinPoints(Instantiate(_junction3Dirs, node.position, Quaternion.Euler(0, rotation, 0), _tilesParent));
+                        AddBuildinPoints(Instantiate(_junction3Dirs, node.position, Quaternion.Euler(0, rotation, 0), _currentTilesParent));
                         break;
                     case RoadTileType.RoadCurve:
 
@@ -126,7 +188,7 @@ public class SimpleVisualizer : MonoBehaviour
                         if (Mathf.Abs(dir1.x) > Mathf.Abs(dir1.z)) rotation = dir1.x > 0 ? (dir2.z > 0 ? -90f : 0f) : (dir2.z > 0 ? 180f : 90f); // Soused1 je na ose X (vodorovnì
                         else rotation = dir1.z > 0 ? (dir2.x > 0 ? -90f : 180f) : (dir2.x > 0 ? 0f : 90f); // Soused1 je na ose Z (svisle)
 
-                        AddBuildinPoints(Instantiate(_roadCurve, node.position, Quaternion.Euler(0, rotation, 0), _tilesParent));
+                        AddBuildinPoints(Instantiate(_roadCurve, node.position, Quaternion.Euler(0, rotation, 0), _currentTilesParent));
                         break;
                     case RoadTileType.RoadLine:
                         dir1 = (node.list[0] - node.position).normalized;
@@ -137,14 +199,14 @@ public class SimpleVisualizer : MonoBehaviour
                         if (Mathf.Abs(dir1.x) > 0.1f && Mathf.Abs(dir2.x) > 0.1f) rotation = 90;
 
 
-                        AddBuildinPoints(Instantiate(_roadLine, node.position, Quaternion.Euler(0, rotation, 0), _tilesParent));
+                        AddBuildinPoints(Instantiate(_roadLine, node.position, Quaternion.Euler(0, rotation, 0), _currentTilesParent));
                         break;
                     case RoadTileType.RoadEnd:
                         dir1 = (node.list[0] - node.position).normalized;
 
                         float angle = Mathf.Atan2(dir1.x, dir1.z) * Mathf.Rad2Deg;
                         angle = Mathf.Round(angle / 90) * 90;
-                        AddBuildinPoints(Instantiate(_roadEnd, node.position, Quaternion.Euler(0, angle, 0), _tilesParent));
+                        AddBuildinPoints(Instantiate(_roadEnd, node.position, Quaternion.Euler(0, angle, 0), _currentTilesParent));
                         break;
                     case RoadTileType.None:
                         break;
@@ -156,13 +218,13 @@ public class SimpleVisualizer : MonoBehaviour
 
 
     }
-    List<List<BuildingPoint>> groups = new();
+
     [Button("GetGroups")]
     public void GetGroups()
     {
         GroupingPoints groupingPoints = new GroupingPoints();
-        points = RemoveDuplicates(points);
-        groups = groupingPoints.GroupPoints(points);
+        _points = RemoveDuplicates(_points);
+        _groups = groupingPoints.GroupPoints(_points);
     }
 
     public List<BuildingPoint> RemoveDuplicates(List<BuildingPoint> allPoints)
@@ -188,41 +250,10 @@ public class SimpleVisualizer : MonoBehaviour
     {
         TileStats tileStats = obj.GetComponent<TileStats>();
 
-        points.AddRange(tileStats.GetBuildingPoints());
+        _points.AddRange(tileStats.GetBuildingPoints());
         Destroy(tileStats);
     }
 
-    List<BuildingPoint> points = new();
-    public class BuildingPoint
-    {
-        public Vector3 Position { get; set; }
-        public Vector3 Direction { get; set; }
-        public float RotationY { get; set; }
-        public bool Visited { get; set; }
-
-        public BuildingPoint(Vector3 position, Vector3 direction, float rotationY)
-        {
-            this.Position = position;
-            this.Direction = direction;
-            this.RotationY = rotationY;
-        }
-
-        // Pøepsání Equals pro porovnání pozic
-        public override bool Equals(object obj)
-        {
-            if (obj is BuildingPoint other)
-            {
-                return Position == other.Position;
-            }
-            return false;
-        }
-
-        // Pøepsání GetHashCode, abychom mohli použít Distinct
-        public override int GetHashCode()
-        {
-            return Position.GetHashCode();
-        }
-    }
     public List<AlgoNode> GetNodes()
     {
         // Vytvoøíme mapu, abychom rychle našli a pøiøadili AlgoNode objekt k pozici
@@ -255,39 +286,6 @@ public class SimpleVisualizer : MonoBehaviour
 
         // Vrátíme všechny AlgoNode jako List
         return algoNodeMap.Values.ToList();
-    }
-
-    [Serializable]
-    private class Joins
-    {
-        public Node start;
-        public Node end;
-        public Color color;
-    }
-
-    [SerializeField] private int _length = 8;
-    int defaltLenght = 0;
-    private float _angle = 90;
-
-    public int Length { get { return _length > 0 ? _length : 1; } set { _length = value; } }
-
-    private void Start()
-    {
-        defaltLenght = _length;
-        Create();
-        //StartCoroutine(DynamicallyChange());
-    }
-
-    [Button]
-    void Create()
-    {
-        Length = defaltLenght;
-        _positions.Clear();
-        _joins.Clear();
-        _candidats.Clear();
-
-        var sequance = lSystem.GenerateSentence();
-        VisualizeSequance(sequance);
     }
 
     IEnumerator DynamicallyChange()
@@ -400,14 +398,8 @@ public class SimpleVisualizer : MonoBehaviour
         }
         return null;
     }
-    List<JoinNode> _joinNodes;
 
-    public class JoinNode
-    {
-        public Node one;
-        public Node two;
-        public Vector3 pos;
-    }
+
     private void RecognizeTypeOfNodes()
     {
 
@@ -448,96 +440,28 @@ public class SimpleVisualizer : MonoBehaviour
         SpawnTiles();
     }
 
-    HashSet<Vector3Int> fixRoadCandidates = new HashSet<Vector3Int>();
-    Dictionary<Vector3Int, GameObject> roadDictionary = new Dictionary<Vector3Int, GameObject>();
-
-    public void PlaceStreetPos(Vector3 startPos, Vector3Int direction, int length)
-    {
-        var rotation = Quaternion.identity;
-
-        if (direction.x != 0)
-        {
-            rotation = Quaternion.Euler(0, 90, 0);
-        }
-        var pos = Vector3Int.RoundToInt(startPos + direction);
-        if (roadDictionary.ContainsKey(pos)) return;
-        var road = Instantiate(_roadLine, pos, rotation, _tilesParent);
-        roadDictionary.Add(pos, road);
-    }
-
-    private void GetJunctions()
-    {
-        List<Joins> newJoins = new(_joins);
-        while (newJoins.Count > 0)
-        {
-            var currentJoin = newJoins[0];
-            newJoins.RemoveAt(0);
-
-            Joins toAdd = null;
-            if (newJoins.Any(e =>
-            {
-                if (e.start == currentJoin.start || e.start == currentJoin.end) toAdd = e;
-
-                return toAdd != null;
-            }))
-            {
-                if (!_candidats.ContainsKey(toAdd.start))
-                {
-                    _candidats.Add(toAdd.start, new());
-                }
-                _candidats[toAdd.start].Add(toAdd.end);
-            }
-
-            if (newJoins.Any(e =>
-            {
-                if (e.end == currentJoin.start || e.end == currentJoin.end) toAdd = e;
-
-                return toAdd != null;
-            }))
-            {
-                if (!_candidats.ContainsKey(toAdd.end))
-                {
-                    _candidats.Add(toAdd.end, new());
-                }
-                _candidats[toAdd.end].Add(toAdd.start);
-            }
-        }
-
-    }
-
-    [Button]
-    public void SpawnRoadTiles()
-    {
-        foreach (var node in _candidats)
-        {
-            if (node.Value.Count == 4)
-            {
-                Instantiate(_junction4Dirs, node.Key.position, Quaternion.identity, _tilesParent);
-            }
-        }
-    }
 
     private void OnDrawGizmos()
     {
-        for (int i = 0; i < points.Count; i++)
+        for (int i = 0; i < _points.Count; i++)
         {
             Gizmos.color = Color.white;
-            if (points[i].RotationY == 315) Gizmos.color = Color.black;
-            Gizmos.DrawSphere(points[i].Position + new Vector3(0, .5f, 0), .1f);
-            Handles.ArrowHandleCap(0, points[i].Position, Quaternion.LookRotation(points[i].Direction), 1f, EventType.Repaint);
+            if (_points[i].RotationY == 315) Gizmos.color = Color.black;
+            Gizmos.DrawSphere(_points[i].Position + new Vector3(0, .5f, 0), .1f);
+            Handles.ArrowHandleCap(0, _points[i].Position, Quaternion.LookRotation(_points[i].Direction), 1f, EventType.Repaint);
         }
         Gizmos.color = Color.red;
-        foreach (var group in groups)
+        foreach (var group in _groups)
         {
             for (int i = 0; i < group.Count; i++)
             {
                 Gizmos.color = Color.red;
 
-                if(i < group.Count-1)Gizmos.DrawLine(group[i].Position + new Vector3(0, .5f, 0), group[i + 1].Position + new Vector3(0, .5f, 0));
+                if (i < group.Count - 1) Gizmos.DrawLine(group[i].Position + new Vector3(0, .5f, 0), group[i + 1].Position + new Vector3(0, .5f, 0));
                 Handles.Label(group[i].Position + new Vector3(0, .8f, 0), i.ToString());
                 Handles.Label(group[i].Position + new Vector3(0, 1f, 0), group[i].Direction.ToString());
                 Handles.Label(group[i].Position + new Vector3(0, 1.2f, 0), group[i].RotationY.ToString());
-                if (i < group.Count-1) Handles.Label(group[i].Position + new Vector3(0, 1.5f, 0), ((group[i+1].Position - group[i].Position).normalized).ToString());
+                if (i < group.Count - 1) Handles.Label(group[i].Position + new Vector3(0, 1.5f, 0), ((group[i + 1].Position - group[i].Position).normalized).ToString());
 
                 //Gizmos.color = Color.yellow;
 
@@ -636,15 +560,6 @@ public class SimpleVisualizer : MonoBehaviour
         //}
     }
 
-    private void DrawLine(Node start, Node end, Color color)
-    {
-        _joins.Add(new Joins()
-        {
-            start = start,
-            end = end,
-            color = color,
-        });
-    }
 
     public enum EncodingLetters
     {
@@ -670,4 +585,44 @@ public class SimpleVisualizer : MonoBehaviour
             this.position2 = position;
         }
     }
+
+    [Serializable]
+    public class JoinNode
+    {
+        public Node one;
+        public Node two;
+        public Vector3 pos;
+    }
+
+    public class BuildingPoint
+    {
+        public Vector3 Position { get; set; }
+        public Vector3 Direction { get; set; }
+        public float RotationY { get; set; }
+        public bool Visited { get; set; }
+
+        public BuildingPoint(Vector3 position, Vector3 direction, float rotationY)
+        {
+            this.Position = position;
+            this.Direction = direction;
+            this.RotationY = rotationY;
+        }
+
+        // Pøepsání Equals pro porovnání pozic
+        public override bool Equals(object obj)
+        {
+            if (obj is BuildingPoint other)
+            {
+                return Position == other.Position;
+            }
+            return false;
+        }
+
+        // Pøepsání GetHashCode, abychom mohli použít Distinct
+        public override int GetHashCode()
+        {
+            return Position.GetHashCode();
+        }
+    }
+
 }

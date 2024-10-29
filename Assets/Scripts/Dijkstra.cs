@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using UnityEditor.Search;
 using UnityEngine;
 
 public class Dijkstra : AlgoBase
@@ -9,6 +10,8 @@ public class Dijkstra : AlgoBase
 
     public async override Task<List<AlgoNode>> StartAlgo(AlgoNode startNode, AlgoNode endNode, List<AlgoNode> graph, IDrawingNode drawingNode)
     {
+        Stopwatch.Start();
+
         int c = 0;
         _pq = new PriorityQueue<AlgoNode>();
 
@@ -31,6 +34,7 @@ public class Dijkstra : AlgoBase
             }
 
             currentNode.Visited = true;
+            VisitedNodes++;
 
             foreach (var neighbor in currentNode.Neighbors)
             {
@@ -42,7 +46,9 @@ public class Dijkstra : AlgoBase
                 {
                     neighbor.Value = newDistance;
                     neighbor.Parent = currentNode;
+
                     _pq.Enqueue(neighbor, newDistance);
+                    MemoryUsage = Mathf.Max(MemoryUsage, _pq.Count);
                 }
             }
             if (c > graph.Count + 150) break;

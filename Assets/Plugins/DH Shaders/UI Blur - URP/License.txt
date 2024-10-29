@@ -1,0 +1,23 @@
+UI Blur (1.2)
+Created and distributed by Dominik Hurta.(2024)
+Using Unity 2022.2.0f1
+
+---------------------------------------------------------------------------
+
+* You can use it in personal, educational and commercial projects.
+
+(material 'ui_blur_mat') -> (works for UI elements and gameobjects in scene)
+* To make it works, Opaque Texture property should be enabled in the Render Pipeline Asset.
+* It's recomended to configure Opaque Downsampling to 4x Box . (URP settings include this package)
+
+(material 'ui_blur_mat_transparent') -> (works just for gameobjects in scene)
+* To make it works, you need to create a second camera in the scene from the MainCamera that has the "UI" option in "Culling Mask" turned off
+
+* If you want to apply the material to a 2D object, you should create a custom material (Universal Render Pipeline/(Unlit or Lit)) for each sprite and apply it to the 2D object.
+* Use the UIBlurController script to control the amount of blur.
+
+* The package contains two shapes -> a circle shape and a square shape, but you can use your own, it should work.
+
+---------------------------------------------------------------------------
+
+	

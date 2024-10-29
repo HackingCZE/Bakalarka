@@ -9,6 +9,8 @@ public class DFS : AlgoBase
 
     public async override Task<List<AlgoNode>> StartAlgo(AlgoNode startNode, AlgoNode endNode, List<AlgoNode> graph, IDrawingNode drawingNode)
     {
+        Stopwatch.Start();
+
         int c = 0;
         _stack = new Stack<AlgoNode>();
 
@@ -16,7 +18,7 @@ public class DFS : AlgoBase
 
         while (_stack.Count > 0)
         {
-            await Task.Delay(1);
+            await Task.Yield();
             AlgoNode currentNode = _stack.Pop();
 
             if (currentNode == endNode)
@@ -27,6 +29,8 @@ public class DFS : AlgoBase
             if (!currentNode.Visited)
             {
                 currentNode.Visited = true;
+                VisitedNodes++;
+
                 drawingNode.DrawNode(currentNode);
 
                 foreach (var neighbor in currentNode.Neighbors)
@@ -34,6 +38,7 @@ public class DFS : AlgoBase
                     if (!neighbor.Visited)
                     {
                         _stack.Push(neighbor);
+                        MemoryUsage = Mathf.Max(MemoryUsage, _stack.Count);
                         neighbor.Parent = currentNode;
                     }
                 }

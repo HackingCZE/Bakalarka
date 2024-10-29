@@ -1,13 +1,18 @@
 using NaughtyAttributes;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
 using static GameManager;
 
 public class NavigationManager : MonoBehaviour, IDrawingNode
 {
+    public static NavigationManager Instance { get; private set; }
     public NavigationAlgorithm navigationAlgorithm;
     NavigationAlgorithm _lastAlgo;
     public Transform player;
@@ -27,10 +32,17 @@ public class NavigationManager : MonoBehaviour, IDrawingNode
     private List<AlgoNode> _result, _oldResult;
     private List<Line> _lines;
 
-    [SerializeField] private float _elapsedTime = 0f;
-    bool _timerIsRunning;
     RRTStar _rRT;
     AlgoBase _algoBase;
+    AlgoNode _startNode = null, _endNode = null;
+    List<AlgoNode> _mapNodes = new List<AlgoNode>();
+
+    private void Awake()
+    {
+        Instance = this;
+    }
+
+
     private void Start()
     {
         _rRT = new RRTStar();
@@ -39,6 +51,7 @@ public class NavigationManager : MonoBehaviour, IDrawingNode
         _path = new List<TreeCollectionItem>();
     }
 
+    [Serializable]
     public enum NavigationAlgorithm
     {
         RRT,
@@ -48,13 +61,6 @@ public class NavigationManager : MonoBehaviour, IDrawingNode
         DIJKSTRA
     }
 
-    private void Update()
-    {
-        if (_timerIsRunning)
-        {
-            _elapsedTime += Time.deltaTime;
-        }
-    }
 
     [Button]
     public void GetN()
@@ -62,83 +68,114 @@ public class NavigationManager : MonoBehaviour, IDrawingNode
         _newNodes = visualizer.GetNodes();
     }
 
-    [Button]
-    public async void StartAlgorithm()
+    private void InitFinding()
     {
-        _timerIsRunning = true;
-        _elapsedTime = 0f;
         _lastAlgo = navigationAlgorithm;
         _oldResult = _result;
         _result = new();
         _nodes = new List<TreeCollectionItem>();
         _lines = new List<Line>();
         _path = new List<TreeCollectionItem>();
-        List<AlgoNode> nodes = new List<AlgoNode>();
-        AlgoNode startNode = null, endNode = null;
+        _startNode = null;
+        _endNode = null;
+        _mapNodes = new List<AlgoNode>();
+    }
+
+    [Button]
+    public async void StartAlgorithm()
+    {
+        this._result = (await RunAlgoInThread(navigationAlgorithm)).Result;
+
+        // after get result path
+    }
+
+    
+    public async Task<List<AlgorithmStats>> GetOrderOfAlgorithms()
+    {
+        List<Task<AlgoBase>> tasks = new List<Task<AlgoBase>>()
+        {
+             RunAlgoInThread(NavigationAlgorithm.AStar),
+             RunAlgoInThread(NavigationAlgorithm.BFS),
+             RunAlgoInThread(NavigationAlgorithm.DIJKSTRA),
+        };
+
+        await Task.WhenAll(tasks);
+
+        var results = tasks.ConvertAll(task =>
+        {
+            var algoResult = task.Result;
+
+            return new AlgorithmStats(algoResult.Algorithm, algoResult.Stopwatch.Elapsed, algoResult.VisitedNodes, algoResult.MemoryUsage, algoResult.Result.Count);
+        });
+
+        return SortAlgorithmsByEfficiency(results); 
+    }
+
+    public List<AlgorithmStats> SortAlgorithmsByEfficiency(List<AlgorithmStats> algorithms)
+    {
+        return algorithms
+            .OrderBy(a => a.VisitedNodes)          // Pak podle navštívených uzlù (èím ménì, tím lepší)
+            .ThenBy(a => a.MemoryUsage)           // Poté podle pamìti (èím ménì, tím lepší)
+            .ThenBy(a => a.ResultPathLenght)      // Nakonec podle délky cesty (èím kratší, tím lepší)
+            .ToList();
+    }
+
+    private async Task<AlgoBase> RunAlgoInThread(NavigationAlgorithm navigationAlgorithm)
+    {
+        InitFinding();
+
 
         switch (navigationAlgorithm)
         {
-            case NavigationAlgorithm.RRT:
-                var val = await ((RRTStar)_rRT).Interation(player.position, target.position, maxInteractions, maxStepLenght, area, threshold, barrierLayer, this);
-
-                this._path = val.recontructedPath;
-
-                //TryAddNewNode(((RRT)_rRT).treeCollection.root);
-                break;
             case NavigationAlgorithm.DFS:
                 _algoBase = new DFS();
-                GetNodes(out nodes, out startNode, out endNode);
+                _algoBase.Algorithm = navigationAlgorithm;
 
-                this._result = await ((DFS)_algoBase).StartAlgo(startNode, endNode, nodes, this);
+                GetNodes(out _mapNodes, out _startNode, out _endNode);
 
-                //Invoke(nameof(StartAlgorithm), 2);
-                break;
+                return await ((DFS)_algoBase).RunStartAlgoInThread(_startNode, _endNode, _mapNodes, this);
+            //Invoke(nameof(StartAlgorithm), 2);
             case NavigationAlgorithm.BFS:
                 _algoBase = new BFS();
-                GetNodes(out nodes, out startNode, out endNode);
+                _algoBase.Algorithm = navigationAlgorithm;
 
-                this._result = await ((BFS)_algoBase).StartAlgo(startNode, endNode, nodes, this);
-                break;
+                GetNodes(out _mapNodes, out _startNode, out _endNode);
+
+                return await ((BFS)_algoBase).RunStartAlgoInThread(_startNode, _endNode, _mapNodes, this);
             case NavigationAlgorithm.DIJKSTRA:
                 _algoBase = new Dijkstra();
-                GetNodes(out nodes, out startNode, out endNode);
+                _algoBase.Algorithm = navigationAlgorithm;
 
-                this._result = await ((Dijkstra)_algoBase).StartAlgo(startNode, endNode, nodes, this);
-                break;
+                GetNodes(out _mapNodes, out _startNode, out _endNode);
+
+                return await ((Dijkstra)_algoBase).RunStartAlgoInThread(_startNode, _endNode, _mapNodes, this);
             case NavigationAlgorithm.AStar:
                 _algoBase = new AStar();
-                GetNodes(out nodes, out startNode, out endNode);
+                _algoBase.Algorithm = navigationAlgorithm;
 
-                this._result = await ((AStar)_algoBase).StartAlgo(startNode, endNode, nodes, this);
-                break;
+                GetNodes(out _mapNodes, out _startNode, out _endNode);
+
+                return await ((AStar)_algoBase).RunStartAlgoInThread(_startNode, _endNode, _mapNodes, this);
         }
-
-        // after get result path
-        _timerIsRunning = false;
-        AddTime();
+        return null;
     }
 
-    private void AddTime()
-    {
-        float minutes = Mathf.Floor(_elapsedTime / 60);             // Get the total minutes
-        float seconds = Mathf.Floor(_elapsedTime % 60);             // Get the remaining seconds
-        float milliseconds = (_elapsedTime * 1000) % 1000;          // Get the remaining milliseconds
-
-        string timeFormatted = string.Format("{0:00}:{1:00}:{2:000}", minutes, seconds, milliseconds);
-        times.Add(_lastAlgo.ToString() + ":(" + timeFormatted + ")");
-    }
 
     private void GetNodes(out List<AlgoNode> nodes, out AlgoNode startNode, out AlgoNode endNode)
     {
         _newNodes = new List<AlgoNode>();
         nodes = visualizer.GetNodes();
         startNode = NodeUtility.FindClosestNode(nodes, player.position);
+        player.position = startNode.Position;
         endNode = NodeUtility.FindClosestNode(nodes, target.position);
+        target.position = endNode.Position;
+
     }
 
     List<AlgoNode> _newNodes = new List<AlgoNode>();
     public void DrawNode(AlgoNode node)
     {
+        return;
         foreach (var item in _newNodes)
         {
             if (item == node)
@@ -207,7 +244,7 @@ public class NavigationManager : MonoBehaviour, IDrawingNode
                 Gizmos.DrawSphere(_newNodes[i].Neighbors[j].Position, .5f);
             }
         }
-       
+
 
         if (_result == null) return;
         Gizmos.color = Color.black;
@@ -245,6 +282,24 @@ public class NavigationManager : MonoBehaviour, IDrawingNode
             if (i == _nodes.Count - 1) Gizmos.color = Color.blue;
             if (i == 0) Gizmos.color = Color.yellow;
             Gizmos.DrawSphere(node.Position, .5f);
+        }
+    }
+
+    public class AlgorithmStats
+    {
+        public NavigationAlgorithm Algorithm { get; set; }
+        public TimeSpan Time { get; set; }
+        public int VisitedNodes { get; set; }
+        public int MemoryUsage { get; set; }
+        public int ResultPathLenght { get; set; }
+
+        public AlgorithmStats(NavigationAlgorithm algorithm, TimeSpan time, int visitedNodes, int memoryUsage, int resultPathLenght)
+        {
+            Algorithm = algorithm;
+            Time = time;
+            VisitedNodes = visitedNodes;
+            MemoryUsage = memoryUsage;
+            ResultPathLenght = resultPathLenght;
         }
     }
 }

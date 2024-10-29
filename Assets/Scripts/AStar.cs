@@ -9,6 +9,7 @@ public class AStar : AlgoBase
 
     public override async Task<List<AlgoNode>> StartAlgo(AlgoNode startNode, AlgoNode endNode, List<AlgoNode> graph, IDrawingNode drawingNode)
     {
+        Stopwatch.Start();
         int c = 0;
         _queue = new PriorityQueue<AlgoNode>();
 
@@ -30,6 +31,8 @@ public class AStar : AlgoBase
             }
 
             currentNode.Visited = true;
+            VisitedNodes++;
+
 
             foreach (var neighbor in currentNode.Neighbors)
             {
@@ -46,6 +49,7 @@ public class AStar : AlgoBase
                     if (!_queue.Contains(neighbor))
                     {
                         _queue.Enqueue(neighbor, neighbor.FScore);
+                        MemoryUsage = Mathf.Max(MemoryUsage, _queue.Count);
                     }
                 }
             }
