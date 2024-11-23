@@ -160,6 +160,14 @@ public class NavigationManager : MonoBehaviour, IDrawingNode
         return null;
     }
 
+    [Button]
+    public void CheckPlanar()
+    {
+        GetNodes(out _mapNodes, out _startNode, out _endNode);
+
+        GetComponent<PlanarityChecker>().StartPlanar(_mapNodes);
+    }
+
 
     private void GetNodes(out List<AlgoNode> nodes, out AlgoNode startNode, out AlgoNode endNode)
     {

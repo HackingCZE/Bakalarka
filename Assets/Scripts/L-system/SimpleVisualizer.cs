@@ -149,7 +149,6 @@ public class SimpleVisualizer : MonoBehaviour
     [Button]
     private void SpawnTiles()
     {
-        return;
         foreach (var roadType in _roadTypes)
         {
             foreach (var node in roadType.Value)
