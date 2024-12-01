@@ -21,7 +21,7 @@ public class NavigationManager : MonoBehaviour, IDrawingNode
     public float threshold, maxStepLenght;
     public LayerMask barrierLayer;
     [SerializeField] GenerationArea area;
-    [SerializeField] SimpleVisualizer visualizer;
+    [SerializeField] LSystemVisualizer visualizer; 
 
     public List<string> times = new List<string>();
 

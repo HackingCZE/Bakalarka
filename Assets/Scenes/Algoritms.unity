@@ -228,7 +228,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 0
   area: {fileID: 0}
-  visualizer: {fileID: 109823300}
+  visualizer: {fileID: 109823302}
   times: []
 --- !u!4 &74082881
 Transform:
@@ -312,6 +312,7 @@ GameObject:
   m_Component:
   - component: {fileID: 109823301}
   - component: {fileID: 109823300}
+  - component: {fileID: 109823302}
   m_Layer: 0
   m_Name: SimpleVisualizer
   m_TagString: Untagged
@@ -326,7 +327,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 109823299}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 66a4c3169b40a42418c8d14411cf3e68, type: 3}
   m_Name: 
@@ -370,6 +371,30 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &109823302
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 109823299}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ae4d5133fe4283044951386dc6c37e47, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  lSystemGenerator: {fileID: 1611538534}
+  _chanceToJoin: 80
+  _junction4Dirs: {fileID: 8167769884466882087, guid: f837e483ff52eea4f8e616ed32a3a3ca,
+    type: 3}
+  _junction3Dirs: {fileID: 525253978693045133, guid: 426f2bdf17193bc4e9957b7eae32ba1d,
+    type: 3}
+  _roadLine: {fileID: 6693510168765338992, guid: 86fe0b19bb73f484a9be05aeeafffe2e,
+    type: 3}
+  _roadEnd: {fileID: 6693510168765338992, guid: a0ff47b6c8ea5f745817cfc951034130,
+    type: 3}
+  _roadCurve: {fileID: 3639866720136062770, guid: 0d4b9facdbead404aa6e4d646ea28c11,
+    type: 3}
 --- !u!1 &219281811
 GameObject:
   m_ObjectHideFlags: 0
