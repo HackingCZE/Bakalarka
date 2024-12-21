@@ -1,11 +1,12 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using static SimpleVisualizer;
 
 public class AlgoNode
 {
     public Vector3 Position { get; set; }
-    public List<AlgoNode> Neighbors { get; set; } = new List<AlgoNode>();
+    public List<AlgoNode> Neighbours { get; set; } = new List<AlgoNode>();
     public AlgoNode Parent { get; set; }
 
     public float Value { get; set; } = float.PositiveInfinity;
@@ -13,6 +14,7 @@ public class AlgoNode
     public float FScore { get; set; } = float.PositiveInfinity;
     public float Cost { get; set; }
     public bool Visited { get; set; } = false;
+    public RoadTileType Type { get; set; }
 
  
 
@@ -25,6 +27,13 @@ public class AlgoNode
     {
         Position = position;
         Parent = parent;
+    }
+
+    public AlgoNode(Vector3 position, AlgoNode parent, RoadTileType type)
+    {
+        Position = position;
+        Parent = parent;
+        Type = type;
     }
 
     public override bool Equals(object obj)

@@ -38,7 +38,7 @@ public class PlanarityChecker : MonoBehaviour
         int edgeCount = 0;
         foreach (AlgoNode node in graph)
         {
-            edgeCount += node.Neighbors.Count;
+            edgeCount += node.Neighbours.Count;
         }
 
         // Každá hrana je poèítána dvakrát (od obou uzlù)
@@ -53,7 +53,7 @@ public class PlanarityChecker : MonoBehaviour
         // Získání všech hran jako dvojic bodù
         foreach (AlgoNode node in graph)
         {
-            foreach (AlgoNode neighbor in node.Neighbors)
+            foreach (AlgoNode neighbor in node.Neighbours)
             {
                 // Zamezte duplicitnímu pøidání hran (každá hrana je oboustranná)
                 if (!edges.Contains((neighbor.Position, node.Position)))

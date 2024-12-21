@@ -64,7 +64,7 @@ public class LSystemVisualizer : MonoBehaviour
 
         foreach (var currentNode in _nodes)
         {
-            AlgoNode algoNode = new AlgoNode(currentNode.Position, null);  
+            AlgoNode algoNode = new AlgoNode(currentNode.Position, null, currentNode.Type);  
             algoNodeMap[currentNode.Position] = algoNode;
         }
 
@@ -77,7 +77,7 @@ public class LSystemVisualizer : MonoBehaviour
             {
                 if (algoNodeMap.TryGetValue(neighbor.Position, out AlgoNode neighborAlgoNode))
                 {
-                    algoNode.Neighbors.Add(neighborAlgoNode);
+                    algoNode.Neighbours.Add(neighborAlgoNode);
                 }
             }
         }
@@ -336,6 +336,7 @@ public class LSystemVisualizer : MonoBehaviour
         if (type == RoadTileType.None) return;
         if (!_roadTypes.ContainsKey(type)) _roadTypes[type] = new();
 
+        node.Type = type;
         _roadTypes[type].Add(node);
     }
 
@@ -375,6 +376,7 @@ public class LSystemVisualizer : MonoBehaviour
         public Vector3 Position { get; set; }
         public Vector3 Direction { get; set; }
         public List<Node> Neighbours { get; set; } = new();
+        public RoadTileType Type { get; set; }
 
         public Node(Vector3 position)
         {

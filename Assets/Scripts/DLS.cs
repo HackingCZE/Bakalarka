@@ -1,19 +1,22 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using UnityEngine;
 
-public class DFS : AlgoBase
+public class DLS : AlgoBase
 {
-    Stack<AlgoNode> _stack;
-    // standardní iterativní DFS
+    private Stack<AlgoNode> _stack;
+    private int _depthLimit = 25;
+
+
     public async override Task<List<AlgoNode>> StartAlgo(AlgoNode startNode, AlgoNode endNode, List<AlgoNode> graph, IDrawingNode drawingNode)
     {
         Stopwatch.Start();
 
         int c = 0;
         _stack = new Stack<AlgoNode>();
-
+        startNode.Cost = 0; 
         _stack.Push(startNode);
 
         while (_stack.Count > 0)
@@ -33,24 +36,25 @@ public class DFS : AlgoBase
 
                 drawingNode.DrawNode(currentNode);
 
-                foreach (var neighbor in currentNode.Neighbours)
+                if (currentNode.Cost < _depthLimit)
                 {
-                    if (!neighbor.Visited)
+                    foreach (var neighbor in currentNode.Neighbours)
                     {
-                        _stack.Push(neighbor);
-                        MemoryUsage = Mathf.Max(MemoryUsage, _stack.Count);
-                        neighbor.Parent = currentNode;
+                        if (!neighbor.Visited)
+                        {
+                            neighbor.Cost = currentNode.Cost + 1; // add depth
+                            _stack.Push(neighbor);
+                            MemoryUsage = Mathf.Max(MemoryUsage, _stack.Count);
+                            neighbor.Parent = currentNode;
+                        }
                     }
                 }
-
             }
+
             if (c > graph.Count + 150) break;
             c++;
         }
 
         throw new System.Exception("Path not found");
     }
-   
 }
-
-

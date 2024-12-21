@@ -283,7 +283,7 @@ public class SimpleVisualizer : MonoBehaviour
             {
                 if (algoNodeMap.TryGetValue(neighbor.position, out AlgoNode neighborAlgoNode))
                 {
-                    algoNode.Neighbors.Add(neighborAlgoNode);
+                    algoNode.Neighbours.Add(neighborAlgoNode);
                 }
             }
         }
@@ -444,7 +444,7 @@ public class SimpleVisualizer : MonoBehaviour
             RecognizeTypeOfNode(node);
         }
 
-        SpawnTiles();
+       // SpawnTiles();
     }
 
 

@@ -30,7 +30,7 @@ public class BFS : AlgoBase
                 return await GetResultPath(startNode, currentNode);
             }
 
-            foreach (var neighbor in currentNode.Neighbors)
+            foreach (var neighbor in currentNode.Neighbours)
             {
                 if (!neighbor.Visited)
                 {

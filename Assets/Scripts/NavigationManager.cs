@@ -4,11 +4,14 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
 using static GameManager;
+using static NavigationManager;
+using static UnityEngine.Rendering.DebugUI;
 
 public class NavigationManager : MonoBehaviour, IDrawingNode
 {
@@ -55,11 +58,26 @@ public class NavigationManager : MonoBehaviour, IDrawingNode
     [Serializable]
     public enum NavigationAlgorithm
     {
-        RRT,
-        AStar,
+        [AlgorithmType(typeof(DFS))]
         DFS,
+
+        [AlgorithmType(typeof(BFS))]
         BFS,
-        DIJKSTRA
+
+        [AlgorithmType(typeof(Dijkstra))]
+        DIJKSTRA,
+
+        [AlgorithmType(typeof(AStar))]
+        AStar,
+
+        [AlgorithmType(typeof(RandomizedDFS))]
+        RandomizedDFS,
+
+        [AlgorithmType(typeof(DLS))]
+        DLS,
+
+        [AlgorithmType(typeof(RandomizedWalk))]
+        RandomizedWalk
     }
 
 
@@ -91,13 +109,16 @@ public class NavigationManager : MonoBehaviour, IDrawingNode
         // after get result path
     }
 
-    
+
     public async Task<List<AlgorithmStats>> GetOrderOfAlgorithms()
     {
         List<Task<AlgoBase>> tasks = new List<Task<AlgoBase>>()
         {
              RunAlgoInThread(NavigationAlgorithm.BFS),
+             RunAlgoInThread(NavigationAlgorithm.AStar),
              RunAlgoInThread(NavigationAlgorithm.DIJKSTRA),
+             RunAlgoInThread(NavigationAlgorithm.RandomizedWalk),
+             RunAlgoInThread(NavigationAlgorithm.RandomizedDFS),
              RunAlgoInThread(NavigationAlgorithm.DFS)        
         };
 
@@ -107,7 +128,7 @@ public class NavigationManager : MonoBehaviour, IDrawingNode
         {
             var algoResult = task.Result;
 
-            return new AlgorithmStats(algoResult.Algorithm, algoResult.Stopwatch.Elapsed, algoResult.VisitedNodes, algoResult.MemoryUsage, algoResult.Result.Count);
+            return new AlgorithmStats(algoResult.Algorithm, algoResult.Stopwatch.Elapsed, algoResult.VisitedNodes, algoResult.MemoryUsage, algoResult.Result.Count, algoResult.Result);
         });
 
         return results.OrderBy(a => a.GetEfficiencyScore()).ToList();
@@ -126,40 +147,13 @@ public class NavigationManager : MonoBehaviour, IDrawingNode
     {
         InitFinding();
 
+        var algorithmType = navigationAlgorithm.GetAlgorithmType();
+        _algoBase = (AlgoBase)Activator.CreateInstance(algorithmType);
+        _algoBase.Algorithm = navigationAlgorithm;
 
-        switch (navigationAlgorithm)
-        {
-            case NavigationAlgorithm.DFS:
-                _algoBase = new DFS();
-                _algoBase.Algorithm = navigationAlgorithm;
+        GetNodes(out _mapNodes, out _startNode, out _endNode);
 
-                GetNodes(out _mapNodes, out _startNode, out _endNode);
-
-                return await ((DFS)_algoBase).RunStartAlgoInThread(_startNode, _endNode, _mapNodes, this);
-            //Invoke(nameof(StartAlgorithm), 2);
-            case NavigationAlgorithm.BFS:
-                _algoBase = new BFS();
-                _algoBase.Algorithm = navigationAlgorithm;
-
-                GetNodes(out _mapNodes, out _startNode, out _endNode);
-
-                return await ((BFS)_algoBase).RunStartAlgoInThread(_startNode, _endNode, _mapNodes, this);
-            case NavigationAlgorithm.DIJKSTRA:
-                _algoBase = new Dijkstra();
-                _algoBase.Algorithm = navigationAlgorithm;
-
-                GetNodes(out _mapNodes, out _startNode, out _endNode);
-
-                return await ((Dijkstra)_algoBase).RunStartAlgoInThread(_startNode, _endNode, _mapNodes, this);
-            case NavigationAlgorithm.AStar:
-                _algoBase = new AStar();
-                _algoBase.Algorithm = navigationAlgorithm;
-
-                GetNodes(out _mapNodes, out _startNode, out _endNode);
-
-                return await ((AStar)_algoBase).RunStartAlgoInThread(_startNode, _endNode, _mapNodes, this);
-        }
-        return null;
+        return await(_algoBase).RunStartAlgoInThread(_startNode, _endNode, _mapNodes, this);
     }
 
     [Button]
@@ -249,11 +243,11 @@ public class NavigationManager : MonoBehaviour, IDrawingNode
             Gizmos.color = Color.red;
 
             Gizmos.DrawSphere(_newNodes[i].Position, .5f);
-            for (int j = 0; j < _newNodes[i].Neighbors.Count; j++)
+            for (int j = 0; j < _newNodes[i].Neighbours.Count; j++)
             {
                 Gizmos.color = Color.blue;
 
-                Gizmos.DrawSphere(_newNodes[i].Neighbors[j].Position, .5f);
+                Gizmos.DrawSphere(_newNodes[i].Neighbours[j].Position, .5f);
             }
         }
 
@@ -304,19 +298,126 @@ public class NavigationManager : MonoBehaviour, IDrawingNode
         public int VisitedNodes { get; set; }
         public int MemoryUsage { get; set; }
         public int ResultPathLength { get; set; }
+        public List<Vector3> Path { get; set; }
 
         public float GetEfficiencyScore()
         {
-            return (float)(VisitedNodes);
+            return 1;
         }
 
-        public AlgorithmStats(NavigationAlgorithm algorithm, TimeSpan time, int visitedNodes, int memoryUsage, int resultPathLength)
+        public AlgorithmStats(NavigationAlgorithm algorithm, TimeSpan time, int visitedNodes, int memoryUsage, int resultPathLength, List<AlgoNode> path)
         {
             Algorithm = algorithm;
             Time = time;
             VisitedNodes = visitedNodes;
             MemoryUsage = memoryUsage;
             ResultPathLength = resultPathLength;
+
+            List<Vector3> newPath = new();
+
+            foreach (var item in path)
+            {
+                if(item.Type == SimpleVisualizer.RoadTileType.RoadCurve)
+                {
+                    var dir1 = (item.Neighbours[0].Position - item.Position).normalized;
+                    var dir2 = (item.Neighbours[1].Position - item.Position).normalized;
+
+                    var rotation = 0f;// Reset rotation
+
+                    // Determine rotation based on the curve's neighbor alignment
+                    if (Mathf.Abs(dir1.x) > Mathf.Abs(dir1.z))
+                        rotation = dir1.x > 0 ? (dir2.z > 0 ? -90f : 0f) : (dir2.z > 0 ? 180f : 90f); // Soused1 je na ose X (vodorovnì)
+                    else
+                        rotation = dir1.z > 0 ? (dir2.x > 0 ? -90f : 180f) : (dir2.x > 0 ? 0f : 90f); // Soused1 je na ose Z (svisle)
+
+                    float value1 = 1;
+                    float value2 = .35f;
+
+                    Vector3 point1 = Vector3.zero, point2 = Vector3.zero, point3 = Vector3.zero;
+                    if (rotation == 0)
+                    {
+                        point1 = item.Position + new Vector3(value1, 0, 0);
+                        point2 = item.Position + new Vector3(0, 0, -value1);
+                        point3 = item.Position + new Vector3(value2, 0, -value2);
+                    }
+                    else if (rotation == 90)
+                    {
+                        point1 = item.Position + new Vector3(-value1, 0, 0);
+                        point2 = item.Position + new Vector3(0, 0, -value1);
+                        point3 = item.Position + new Vector3(-value2, 0, -value2);
+                    }
+                    else if (rotation == -90 || rotation == 270)
+                    {
+                        point1 = item.Position + new Vector3(value1, 0, 0);
+                        point2 = item.Position + new Vector3(0, 0, value1);
+                        point3 = item.Position + new Vector3(value2, 0, value2);
+                    }
+                    else if (rotation == 180)
+                    {
+                        point1 = item.Position + new Vector3(-value1, 0, 0);
+                        point2 = item.Position + new Vector3(0, 0, value1);
+                        point3 = item.Position + new Vector3(-value2, 0, value2);
+                    }
+
+                    var previousItem = newPath.Count > 0 ? newPath[newPath.Count - 1] : Vector3.zero;
+
+                    if (previousItem != null)
+                    {
+                        // Vzdálenosti mezi pøedchozím prvkem a body
+                        float distanceToPoint1 = Vector3.Distance(previousItem, point1);
+                        float distanceToPoint2 = Vector3.Distance(previousItem, point2);
+
+                        // Pøidání bodù na základì vzdálenosti
+                        if (distanceToPoint1 < distanceToPoint2)
+                        {
+                            newPath.Add(point1);
+                            newPath.Add(point3);
+                            newPath.Add(point2);
+                        }
+                        else
+                        {
+                            newPath.Add(point2);
+                            newPath.Add(point3);
+                            newPath.Add(point1);
+                        }
+                    }
+                    else
+                    {
+                        // Pokud neexistuje pøedchozí prvek, pøidáme body bez ohledu na poøadí
+                        newPath.Add(point1);
+                        newPath.Add(point3);
+                        newPath.Add(point2);
+                    }
+                }
+                else
+                {
+                    // Pokud není RoadCurve, pøidáme pøímo položku
+                    newPath.Add(item.Position);
+                }
+            }
+
+            Path = newPath;
         }
+    }
+}
+
+[AttributeUsage(AttributeTargets.Field)]
+public class AlgorithmTypeAttribute : Attribute
+{
+    public Type AlgorithmType { get; }
+
+    public AlgorithmTypeAttribute(Type algorithmType)
+    {
+        AlgorithmType = algorithmType;
+    }
+}
+
+public static class NavigationAlgorithmExtensions
+{
+    public static Type GetAlgorithmType(this NavigationAlgorithm algorithm)
+    {
+        var memberInfo = typeof(NavigationAlgorithm).GetMember(algorithm.ToString()).FirstOrDefault();
+        var attribute = memberInfo?.GetCustomAttribute<AlgorithmTypeAttribute>();
+        return attribute?.AlgorithmType ?? throw new ArgumentException($"No AlgorithmType defined for {algorithm}");
     }
 }

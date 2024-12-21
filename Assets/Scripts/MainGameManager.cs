@@ -10,6 +10,8 @@ public class MainGameManager : MonoBehaviour
 {
     public static MainGameManager Instance { get; private set; }
     [SerializeField] List<AlgorithmStats> _algorithmStats = new List<AlgorithmStats>();
+    [SerializeField] SpreadAlgorithms _spreadAlgorithms;
+    
 
     int _currentGameScore = 0;
     int _currentGameLives = 0;
@@ -58,7 +60,9 @@ public class MainGameManager : MonoBehaviour
     private async void GenerateMap()
     {
          SimpleVisualizer.Instance.Create();
+         LSystemVisualizer.Instance.VisualizeMap();
         _algorithmStats = await NavigationManager.Instance.GetOrderOfAlgorithms();
+        _spreadAlgorithms.SpreadOnXAxis(_algorithmStats);
         Debug.Log(_algorithmStats[0].Algorithm.ToString());
     }
 

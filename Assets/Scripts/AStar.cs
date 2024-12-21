@@ -35,7 +35,7 @@ public class AStar : AlgoBase
             VisitedNodes++;
 
 
-            foreach (var neighbor in currentNode.Neighbors)
+            foreach (var neighbor in currentNode.Neighbours)
             {
                 if (neighbor.Visited) continue;
 

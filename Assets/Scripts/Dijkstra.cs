@@ -36,7 +36,7 @@ public class Dijkstra : AlgoBase
             currentNode.Visited = true;
             VisitedNodes++;
 
-            foreach (var neighbor in currentNode.Neighbors)
+            foreach (var neighbor in currentNode.Neighbours)
             {
                 var edgeWeight = Vector3.Distance(currentNode.Position, neighbor.Position);
 

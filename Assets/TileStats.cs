@@ -16,7 +16,7 @@ public class TileStats : MonoBehaviour
         foreach (Transform t in points)
         {
             result.Add(new BuildingPoint(t.position, t.transform.right, t.transform.localEulerAngles.y));
-            Debug.Log(t.transform.localEulerAngles.y);
+            //Debug.Log(t.transform.localEulerAngles.y);
         }
         return result;
     }
