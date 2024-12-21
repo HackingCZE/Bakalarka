@@ -14,6 +14,7 @@ public class MainGameManager : MonoBehaviour
     int _currentGameScore = 0;
     int _currentGameLives = 0;
     int _currentGameLevel = 0;
+    [SerializeField] int _startLives = 3;
 
     private void Awake()
     {
@@ -40,7 +41,7 @@ public class MainGameManager : MonoBehaviour
 
     public void StartGame()
     {
-        _currentGameLives = 3;
+        _currentGameLives = _startLives;
         _currentGameLevel = 1;
         GenerateMap();
 
@@ -58,12 +59,13 @@ public class MainGameManager : MonoBehaviour
     {
          SimpleVisualizer.Instance.Create();
         _algorithmStats = await NavigationManager.Instance.GetOrderOfAlgorithms();
+        Debug.Log(_algorithmStats[0].Algorithm.ToString());
     }
 
     public void CheckSelectedAlgorithm(VoteNavigationAlgorithm navigationAlgorithm)
     {
         if (_algorithmStats[0].Algorithm == navigationAlgorithm.navigationAlgorithm) _currentGameScore += 1 * Countdown.Instance.GetLastRemaining();
-       // else _currentGameLives--;
+        else _currentGameLives--;
 
         MainGameManagerUI.Instance.UpdateBtns(_algorithmStats[0].Algorithm);
         MainGameManagerUI.Instance.UpdateScoreUI(_currentGameScore);

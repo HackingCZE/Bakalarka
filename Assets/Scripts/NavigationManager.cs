@@ -22,6 +22,7 @@ public class NavigationManager : MonoBehaviour, IDrawingNode
     public LayerMask barrierLayer;
     [SerializeField] GenerationArea area;
     [SerializeField] LSystemVisualizer visualizer; 
+    [SerializeField] SimpleVisualizer visualizer1; 
 
     public List<string> times = new List<string>();
 
@@ -65,7 +66,8 @@ public class NavigationManager : MonoBehaviour, IDrawingNode
     [Button]
     public void GetN()
     {
-        _newNodes = visualizer.GetNodes();
+        if(visualizer != null)_newNodes = visualizer.GetNodes();
+        if(visualizer1 != null)_newNodes = visualizer1.GetNodes();
     }
 
     private void InitFinding()
@@ -94,9 +96,9 @@ public class NavigationManager : MonoBehaviour, IDrawingNode
     {
         List<Task<AlgoBase>> tasks = new List<Task<AlgoBase>>()
         {
-             RunAlgoInThread(NavigationAlgorithm.AStar),
              RunAlgoInThread(NavigationAlgorithm.BFS),
              RunAlgoInThread(NavigationAlgorithm.DIJKSTRA),
+             RunAlgoInThread(NavigationAlgorithm.DFS)        
         };
 
         await Task.WhenAll(tasks);
@@ -172,7 +174,9 @@ public class NavigationManager : MonoBehaviour, IDrawingNode
     private void GetNodes(out List<AlgoNode> nodes, out AlgoNode startNode, out AlgoNode endNode)
     {
         _newNodes = new List<AlgoNode>();
-        nodes = visualizer.GetNodes();
+        nodes = new();
+        if (visualizer != null) nodes = visualizer.GetNodes();
+        if (visualizer1 != null) nodes = visualizer1.GetNodes();
         startNode = NodeUtility.FindClosestNode(nodes, player.position);
         player.position = startNode.Position;
         endNode = NodeUtility.FindClosestNode(nodes, target.position);
@@ -303,7 +307,7 @@ public class NavigationManager : MonoBehaviour, IDrawingNode
 
         public float GetEfficiencyScore()
         {
-            return (float)(0.5f * Time.TotalMilliseconds) + (2 * VisitedNodes) + (1.5f * ResultPathLength) + (MemoryUsage * 0.8f);
+            return (float)(VisitedNodes);
         }
 
         public AlgorithmStats(NavigationAlgorithm algorithm, TimeSpan time, int visitedNodes, int memoryUsage, int resultPathLength)

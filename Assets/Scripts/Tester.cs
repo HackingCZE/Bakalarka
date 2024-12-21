@@ -15,6 +15,18 @@ public class Tester : MonoBehaviour
             SimpleVisualizer.Instance.Create();
             var _algorithmStats = await NavigationManager.Instance.GetOrderOfAlgorithms();
             algorithms.Add(_algorithmStats[0].Algorithm);
+            foreach (var item in _algorithmStats)
+            {
+                Debug.Log("--------------");
+                Debug.Log("Algorithm: " + item.Algorithm.ToString());
+                Debug.Log("Nodes: " + item.VisitedNodes.ToString());
+                Debug.Log("Length: " + item.ResultPathLength.ToString());
+                Debug.Log("Memory: " + item.MemoryUsage.ToString());
+                Debug.Log("Time: " + item.Time.ToString());
+                Debug.Log("--------------");
+
+            }
+
         }
     }
 }

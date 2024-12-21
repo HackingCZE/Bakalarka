@@ -22,7 +22,7 @@ public class Dijkstra : AlgoBase
 
         while (_pq.Count > 0)
         {
-            await Task.Delay(1);
+            await Task.Yield();
             AlgoNode currentNode = _pq.Dequeue();
 
             if (currentNode.Visited) continue;
