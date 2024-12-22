@@ -10,13 +10,29 @@ public class Tester : MonoBehaviour
     [Button]
     public async void StartTest()
     {
-        CSVGenerator csv = new CSVGenerator("Assets/Output.csv", "Algorithm", "Time", "VisitedNodes", "MemoryUsage", "ResultPathLength");
+        CSVGenerator csv = new CSVGenerator("Assets/Output.csv");
 
-        for (int i = 0; i < 100; i++)
+        for (int i = 0; i < 250; i++)
         {
-            SimpleVisualizer.Instance.Create();
+
+            LSystemVisualizer.Instance.VisualizeMap();
             var _algorithmStats = await NavigationManager.Instance.GetOrderOfAlgorithms();
-            algorithms.Add(_algorithmStats[0].Algorithm);
+            if(_algorithmStats[0].ResultPathLength == 1)
+            {
+                LSystemVisualizer.Instance.SpawnTiles();
+
+                return;
+            }
+            algorithms.Add(_algorithmStats[0].Algorithm); 
+            csv.AddRow(new string[] {
+                    "Test("+i+")",
+                    "NodesCount: "+_algorithmStats[0].NodesCount.ToString(),
+                    "ChanceToJoin: "+Mathf.Round(LSystemVisualizer.Instance.GetCurrentChanceToJoin),
+                    "IsPlanar: " + NavigationManager.Instance.CheckPlanar().ToString(),
+                    "DistanceBetweenPoints: " + Mathf.Round(NavigationManager.Instance.DistanceBetweenPoints)
+                });
+
+            csv.AddRow("Algorithm", "Time", "VisitedNodes", "MemoryUsage", "ResultPathLength");
             foreach (var item in _algorithmStats)
             {
                 csv.AddRow(new string[] {

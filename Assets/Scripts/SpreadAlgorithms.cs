@@ -13,6 +13,8 @@ public class SpreadAlgorithms : MonoBehaviour
     public Material material;
     private MaterialPropertyBlock materialBlock;
 
+    private List<Coroutine> _coroutines;
+
     public List<ColorAlgorithm> _algorithms;
     public float speed = 2f;
 
@@ -21,8 +23,9 @@ public class SpreadAlgorithms : MonoBehaviour
     public float width = .2f;
 
     // Metoda pro rozmístìní algoritmù podle seznamu hodnot
-    public void SpreadOnXAxis(List<AlgorithmStats> values)
+    public void SpreadOnAxis(List<AlgorithmStats> values)
     {
+        _coroutines = new();
         materialBlock = new MaterialPropertyBlock();
         // Zrušíme pøedchozí instancování algoritmù (pokud existují)
         foreach (var stat in values)
@@ -54,15 +57,31 @@ public class SpreadAlgorithms : MonoBehaviour
 
             float xPos = (i * scale) - centerX + spreads[i].TrailRenderer.transform.position.x;
             float zPos = (i * scale) - centerX + spreads[i].TrailRenderer.transform.position.z;
-            float yPos = (i * (scale/5)) + spreads[i].TrailRenderer.transform.position.y;
+            float yPos = (i * (scale / 4.5f)) + spreads[i].TrailRenderer.transform.position.y;
 
             // Nastavení pozice objektu
             spreads[i].TrailRenderer.transform.localPosition = new Vector3(xPos, yPos, zPos);
         }
         foreach (var item in spreads)
         {
-            StartCoroutine(MoveSpread(item));
+            _coroutines.Add(StartCoroutine(MoveSpread(item)));
         }
+    }
+
+    public void Clear()
+    {
+        foreach (var item in _coroutines)
+        {
+            if (item != null) StopCoroutine(item);
+        }
+        _coroutines.Clear();
+
+        foreach (var item in spreads)
+        {
+            Destroy(item.TrailRenderer.transform.parent.gameObject);
+        }
+
+        spreads.Clear();
     }
 
     public IEnumerator MoveSpread(Spread item)
@@ -75,7 +94,7 @@ public class SpreadAlgorithms : MonoBehaviour
 
     private IEnumerator MoveToPosition(GameObject obj, Vector3 targetPosition)
     {
-        while (obj.transform.position != targetPosition)
+        while (obj != null && obj.transform.position != targetPosition)
         {
             obj.transform.position = Vector3.MoveTowards(obj.transform.position, targetPosition, speed * Time.deltaTime);
 
@@ -83,7 +102,7 @@ public class SpreadAlgorithms : MonoBehaviour
             yield return null;
         }
 
-        obj.transform.position = targetPosition;
+        if (obj != null) obj.transform.position = targetPosition;
     }
 
 

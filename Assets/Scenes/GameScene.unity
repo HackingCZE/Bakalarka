@@ -1277,7 +1277,7 @@ MonoBehaviour:
   _rotationAmout: 1
   _zoomAmount: {x: 0, y: -10, z: 10}
   _maxZoomAmount: {x: 0, y: 350, z: -350}
-  _minZoomAmount: {x: 0, y: 100, z: -100}
+  _minZoomAmount: {x: 0, y: 10, z: -10}
   _cam: {fileID: 648313000}
 --- !u!4 &419023210
 Transform:
@@ -2388,8 +2388,8 @@ Transform:
   m_GameObject: {fileID: 1568811565}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_LocalScale: {x: 2, y: 2, z: 2}
+  m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 727316973}
   m_RootOrder: -1
@@ -2508,6 +2508,7 @@ MonoBehaviour:
   visualizer: {fileID: 1226490065}
   visualizer1: {fileID: 0}
   times: []
+  DistanceBetweenPoints: 0
 --- !u!4 &1630149356
 Transform:
   m_ObjectHideFlags: 0
@@ -2950,8 +2951,8 @@ Transform:
   m_GameObject: {fileID: 1708048556}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_LocalScale: {x: 2, y: 2, z: 2}
+  m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 1659855456}
   m_RootOrder: -1
@@ -3350,7 +3351,7 @@ Canvas:
   serializedVersion: 3
   m_RenderMode: 1
   m_Camera: {fileID: 648313000}
-  m_PlaneDistance: 100
+  m_PlaneDistance: 10
   m_PixelPerfect: 0
   m_ReceivesEvents: 1
   m_OverrideSorting: 0

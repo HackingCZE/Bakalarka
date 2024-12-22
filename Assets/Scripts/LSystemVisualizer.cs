@@ -18,6 +18,8 @@ public class LSystemVisualizer : MonoBehaviour
     [SerializeField, Range(0, 100)] private float _chanceToJoin = 80;
     Transform _currentTilesParent, _tilesParent;
 
+    [SerializeField] private bool _withTiles = true;
+
     // list
     private List<Node> _nodes;
     private List<Edge> _edges;
@@ -40,6 +42,8 @@ public class LSystemVisualizer : MonoBehaviour
         DontDestroyOnLoad(Instance);
     }
 
+    public float GetCurrentChanceToJoin => _chanceToJoin;
+
     public void InitValues()
     {
         if (_currentTilesParent != null) Destroy(_currentTilesParent.gameObject);
@@ -49,7 +53,7 @@ public class LSystemVisualizer : MonoBehaviour
 
         // TODO reset cam
 
-        _chanceToJoin = Random.Range(30, 80);
+        _chanceToJoin = Random.Range(30f, 80f);
 
 
         _nodes = new();
@@ -89,6 +93,7 @@ public class LSystemVisualizer : MonoBehaviour
     public void VisualizeMap()
     {
         this.InitValues();
+        NavigationManager.Instance.PlacePoints();
         var lSystemSentence = lSystemGenerator.GenerateSentence();
 
         Stack<Node> savePoints = new();
@@ -210,7 +215,7 @@ public class LSystemVisualizer : MonoBehaviour
             RecognizeTypeOfNode(node);
         }
 
-        SpawnTiles();
+        if(_withTiles) SpawnTiles();
     }
 
     public void AddBuildingPoints(GameObject obj)
@@ -221,7 +226,7 @@ public class LSystemVisualizer : MonoBehaviour
         Destroy(tileStats);
     }
 
-    private void SpawnTiles()
+    public void SpawnTiles()
     {
         foreach (var roadType in _roadTypes)
         {

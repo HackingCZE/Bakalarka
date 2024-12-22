@@ -62,7 +62,7 @@ public class MainGameManagerUI : MonoBehaviour
                 {
                     btn.interactable = false;
                 }
-                _blur.enabled = true;
+                //_blur.enabled = true;
                 _btns.gameObject.SetActive(true);
                 _nextBtn.gameObject.SetActive(true);
                 break;
@@ -91,6 +91,7 @@ public class MainGameManagerUI : MonoBehaviour
 
     public void NextLevel()
     {
+        
         MainGameManager.Instance.NextLevel();
     }
 

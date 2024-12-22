@@ -12,7 +12,7 @@ public class AStar : AlgoBase
         Stopwatch.Start();
         int c = 0;
         _queue = new PriorityQueue<AlgoNode>();
-        float heuristicFactor = 0.5f;
+        float heuristicFactor = 1f;
 
         startNode.GScore = 0;
         startNode.FScore = startNode.GScore + heuristicFactor * Vector3.Distance(startNode.Position, endNode.Position);
@@ -21,7 +21,7 @@ public class AStar : AlgoBase
 
         while (_queue.Count > 0)
         {
-            await Task.Delay(1);
+            await Task.Yield();
 
             AlgoNode currentNode = _queue.Dequeue();
             drawingNode.DrawNode(currentNode);

@@ -11,7 +11,10 @@ using UnityEditor;
 using UnityEngine;
 using static GameManager;
 using static NavigationManager;
+using static UnityEditor.Experimental.GraphView.GraphView;
+using static UnityEngine.GraphicsBuffer;
 using static UnityEngine.Rendering.DebugUI;
+using Random = UnityEngine.Random;
 
 public class NavigationManager : MonoBehaviour, IDrawingNode
 {
@@ -29,7 +32,7 @@ public class NavigationManager : MonoBehaviour, IDrawingNode
 
     public List<string> times = new List<string>();
 
-
+    public float DistanceBetweenPoints;
 
     private List<TreeCollectionItem> _nodes;
     private List<TreeCollectionItem> _path;
@@ -77,7 +80,13 @@ public class NavigationManager : MonoBehaviour, IDrawingNode
         DLS,
 
         [AlgorithmType(typeof(RandomizedWalk))]
-        RandomizedWalk
+        RandomizedWalk,
+            
+        [AlgorithmType(typeof(BidirectionalBFS))]
+        BidirectionalBFS,
+
+        [AlgorithmType(typeof(BidirectionalDFS))]
+        BidirectionalDFS
     }
 
 
@@ -109,9 +118,26 @@ public class NavigationManager : MonoBehaviour, IDrawingNode
         // after get result path
     }
 
+    public void PlacePoints()
+    {
+        float val = 50;
+        if (visualizer != null) val = visualizer.GetNodes().Count;
+        if (visualizer1 != null) val = visualizer1.GetNodes().Count;
+        player.transform.position = new Vector3(Random.Range(-50f - val /2, 50f + val / 2), 0, Random.Range(-50f - val / 2, 50f + val / 2));
+
+        do
+        {
+            target.transform.position = new Vector3(Random.Range(-50f - val / 2, 50f + val / 2), 0, Random.Range(-50f - val / 2, 50f + val / 2));
+        } while (Vector3.Distance(player.transform.position, target.transform.position) <= 40 ||
+           player.transform.position == target.transform.position);
+
+        DistanceBetweenPoints = Vector3.Distance(player.transform.position, target.transform.position);
+    }
+
 
     public async Task<List<AlgorithmStats>> GetOrderOfAlgorithms()
     {
+
         List<Task<AlgoBase>> tasks = new List<Task<AlgoBase>>()
         {
              RunAlgoInThread(NavigationAlgorithm.BFS),
@@ -119,6 +145,8 @@ public class NavigationManager : MonoBehaviour, IDrawingNode
              RunAlgoInThread(NavigationAlgorithm.DIJKSTRA),
              RunAlgoInThread(NavigationAlgorithm.RandomizedWalk),
              RunAlgoInThread(NavigationAlgorithm.RandomizedDFS),
+             RunAlgoInThread(NavigationAlgorithm.BidirectionalBFS),
+             RunAlgoInThread(NavigationAlgorithm.BidirectionalDFS),
              RunAlgoInThread(NavigationAlgorithm.DFS)        
         };
 
@@ -128,7 +156,7 @@ public class NavigationManager : MonoBehaviour, IDrawingNode
         {
             var algoResult = task.Result;
 
-            return new AlgorithmStats(algoResult.Algorithm, algoResult.Stopwatch.Elapsed, algoResult.VisitedNodes, algoResult.MemoryUsage, algoResult.Result.Count, algoResult.Result);
+            return new AlgorithmStats(algoResult.Algorithm, algoResult.Stopwatch.Elapsed, algoResult.VisitedNodes, algoResult.MemoryUsage, algoResult.Result.Count, algoResult.Result, algoResult.NodesCount);
         });
 
         return results.OrderBy(a => a.GetEfficiencyScore()).ToList();
@@ -157,11 +185,11 @@ public class NavigationManager : MonoBehaviour, IDrawingNode
     }
 
     [Button]
-    public void CheckPlanar()
+    public bool CheckPlanar()
     {
         GetNodes(out _mapNodes, out _startNode, out _endNode);
 
-        GetComponent<PlanarityChecker>().StartPlanar(_mapNodes);
+        return GetComponent<PlanarityChecker>().StartPlanar(_mapNodes);
     }
 
 
@@ -298,6 +326,7 @@ public class NavigationManager : MonoBehaviour, IDrawingNode
         public int VisitedNodes { get; set; }
         public int MemoryUsage { get; set; }
         public int ResultPathLength { get; set; }
+        public int NodesCount { get; set; }
         public List<Vector3> Path { get; set; }
 
         public float GetEfficiencyScore()
@@ -305,9 +334,10 @@ public class NavigationManager : MonoBehaviour, IDrawingNode
             return 1;
         }
 
-        public AlgorithmStats(NavigationAlgorithm algorithm, TimeSpan time, int visitedNodes, int memoryUsage, int resultPathLength, List<AlgoNode> path)
+        public AlgorithmStats(NavigationAlgorithm algorithm, TimeSpan time, int visitedNodes, int memoryUsage, int resultPathLength, List<AlgoNode> path, int nodesCount)
         {
             Algorithm = algorithm;
+            NodesCount = nodesCount;
             Time = time;
             VisitedNodes = visitedNodes;
             MemoryUsage = memoryUsage;
@@ -315,9 +345,10 @@ public class NavigationManager : MonoBehaviour, IDrawingNode
 
             List<Vector3> newPath = new();
 
-            foreach (var item in path)
+            for (int i = 0; i < path.Count; i++)
             {
-                if(item.Type == SimpleVisualizer.RoadTileType.RoadCurve)
+                var item = path[i];
+                if (item.Type == SimpleVisualizer.RoadTileType.RoadCurve && newPath.Count > 0 && i != path.Count - 1)
                 {
                     var dir1 = (item.Neighbours[0].Position - item.Position).normalized;
                     var dir2 = (item.Neighbours[1].Position - item.Position).normalized;

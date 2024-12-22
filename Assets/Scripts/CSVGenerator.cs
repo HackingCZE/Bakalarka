@@ -5,14 +5,12 @@ using System.Text;
 
 public class CSVGenerator
 {
-    private List<string> columns; // Názvy sloupcù
     private List<string[]> rows; // Øádky dat
     private string filePath; // Cesta k souboru
 
-    public CSVGenerator(string filePath, params string[] columnNames)
+    public CSVGenerator(string filePath)
     {
         this.filePath = filePath;
-        columns = new List<string>(columnNames);
         rows = new List<string[]>();
     }
 
@@ -22,10 +20,6 @@ public class CSVGenerator
     /// <param name="values">Hodnoty pro nový øádek</param>
     public void AddRow(params string[] values)
     {
-        if (values.Length != columns.Count)
-        {
-            throw new ArgumentException("Poèet hodnot neodpovídá poètu sloupcù.");
-        }
 
         rows.Add(values);
     }
@@ -37,8 +31,6 @@ public class CSVGenerator
     {
         StringBuilder sb = new StringBuilder();
 
-        // Zapisujeme názvy sloupcù
-        sb.AppendLine(string.Join(";", columns));
 
         // Zapisujeme data
         foreach (var row in rows)

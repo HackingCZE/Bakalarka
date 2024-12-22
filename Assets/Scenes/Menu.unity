@@ -814,13 +814,17 @@ MonoBehaviour:
   - algorithm: 2
     color: {r: 0.9384004, g: 1, b: 0, a: 1}
   - algorithm: 3
-    color: {r: 0, g: 1, b: 0.48144865, a: 1}
+    color: {r: 0, g: 1, b: 0.8089638, a: 1}
   - algorithm: 4
     color: {r: 0, g: 0.23288822, b: 1, a: 1}
   - algorithm: 5
     color: {r: 0.5568781, g: 0, b: 1, a: 1}
   - algorithm: 6
     color: {r: 1, g: 0, b: 0.22297573, a: 1}
+  - algorithm: 7
+    color: {r: 0.3018868, g: 0.13243146, b: 0.1341086, a: 1}
+  - algorithm: 8
+    color: {r: 0, g: 0, b: 0, a: 1}
   speed: 10
   scale: 0.16
   width: 0.13

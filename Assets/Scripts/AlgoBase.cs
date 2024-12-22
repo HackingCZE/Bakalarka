@@ -13,6 +13,7 @@ public abstract class AlgoBase : IAlgo
     public Stopwatch Stopwatch { get; private set; }
     public int VisitedNodes { get; set; }
     public int MemoryUsage { get; set; }
+    public int NodesCount { get; set; }
     public List<AlgoNode> Result { get; set; }
     public NavigationAlgorithm Algorithm { get; set; }
 
@@ -23,7 +24,7 @@ public abstract class AlgoBase : IAlgo
 
     public async Task<List<AlgoNode>> GetResultPath(AlgoNode startNode, AlgoNode currentNode)
     {
-        Debug.Log("Getting path");
+        //Debug.Log("Getting path");
         var path = NodeUtility.ReconstructPath(startNode, currentNode);
 
         Stopwatch.Stop();
@@ -31,6 +32,7 @@ public abstract class AlgoBase : IAlgo
     }
     public async Task<AlgoBase> RunStartAlgoInThread(AlgoNode startNode, AlgoNode endNode, List<AlgoNode> graph, IDrawingNode drawingNode)
     {
+        NodesCount = graph.Count;
         Result = await Task.Run(() => StartAlgo(startNode, endNode, graph, drawingNode));
         return this;
     }

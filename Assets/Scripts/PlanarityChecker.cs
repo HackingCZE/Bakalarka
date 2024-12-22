@@ -4,12 +4,12 @@ using UnityEngine;
 
 public class PlanarityChecker : MonoBehaviour
 {
-    public void StartPlanar(List<AlgoNode> graph)
+    public bool StartPlanar(List<AlgoNode> graph)
     {
         bool isPlanar = CheckPlanarity(graph);
 
-        // Výpis výsledku do konzole
-        Debug.Log("Is the graph planar? " + isPlanar);
+        //Debug.Log("Is the graph planar? " + isPlanar);
+        return isPlanar;
     }
     // Kontrola rovinnosti
     bool CheckPlanarity(List<AlgoNode> graph)

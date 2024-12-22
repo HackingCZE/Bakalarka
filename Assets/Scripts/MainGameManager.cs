@@ -62,7 +62,6 @@ public class MainGameManager : MonoBehaviour
          SimpleVisualizer.Instance.Create();
          LSystemVisualizer.Instance.VisualizeMap();
         _algorithmStats = await NavigationManager.Instance.GetOrderOfAlgorithms();
-        _spreadAlgorithms.SpreadOnXAxis(_algorithmStats);
         Debug.Log(_algorithmStats[0].Algorithm.ToString());
     }
 
@@ -79,12 +78,15 @@ public class MainGameManager : MonoBehaviour
         {
             MainGameManagerUI.Instance.SwitchState(MainGameManagerUI.UIStates.readyToNextLevel);
 
+            _spreadAlgorithms.SpreadOnAxis(_algorithmStats);
+
             // TODO : continue after click and show animation/vizualization finding path
         }
     }
 
     public void NextLevel()
     {
+        _spreadAlgorithms.Clear();
         _currentGameLevel++;
         GenerateMap();
         MainGameManagerUI.Instance.SwitchState(MainGameManagerUI.UIStates.freeview);

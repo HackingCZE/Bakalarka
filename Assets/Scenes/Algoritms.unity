@@ -228,9 +228,10 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 0
   area: {fileID: 0}
-  visualizer: {fileID: 0}
-  visualizer1: {fileID: 109823300}
+  visualizer: {fileID: 109823302}
+  visualizer1: {fileID: 0}
   times: []
+  DistanceBetweenPoints: 0
 --- !u!4 &74082881
 Transform:
   m_ObjectHideFlags: 0
@@ -386,6 +387,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   lSystemGenerator: {fileID: 1611538534}
   _chanceToJoin: 80
+  _withTiles: 0
   _junction4Dirs: {fileID: 8167769884466882087, guid: f837e483ff52eea4f8e616ed32a3a3ca,
     type: 3}
   _junction3Dirs: {fileID: 525253978693045133, guid: 426f2bdf17193bc4e9957b7eae32ba1d,
