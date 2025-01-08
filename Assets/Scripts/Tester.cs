@@ -64,4 +64,33 @@ public class Tester : MonoBehaviour
 
         csv.SaveToFile();
     }
+
+    [Header("Grid Settings")]
+    public int gridSizeX = 10; // Poèet bunìk na ose X
+    public int gridSizeZ = 10; // Poèet bunìk na ose Z
+    public float cellSize = 1f; // Velikost jedné buòky
+
+    [Header("Grid Appearance")]
+    public Color gridColor = Color.green; // Barva møížky
+
+    private void OnDrawGizmos()
+    {
+        Gizmos.color = gridColor;
+
+        // Vykreslení èar na ose X
+        for (int x = 0; x <= gridSizeX; x++)
+        {
+            Vector3 start = new Vector3(x * cellSize, 0, 0);
+            Vector3 end = new Vector3(x * cellSize, 0, gridSizeZ * cellSize);
+            Gizmos.DrawLine(transform.position + start, transform.position + end);
+        }
+
+        // Vykreslení èar na ose Z
+        for (int z = 0; z <= gridSizeZ; z++)
+        {
+            Vector3 start = new Vector3(0, 0, z * cellSize);
+            Vector3 end = new Vector3(gridSizeX * cellSize, 0, z * cellSize);
+            Gizmos.DrawLine(transform.position + start, transform.position + end);
+        }
+    }
 }

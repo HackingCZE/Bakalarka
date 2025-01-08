@@ -31,7 +31,7 @@ public class SpreadAlgorithms : MonoBehaviour
         foreach (var stat in values)
         {
             var parent = new GameObject(stat.Algorithm.ToString());
-            parent.transform.position = stat.Path[0];
+            parent.transform.position = new Vector3(stat.Path[0].x, stat.Path[0].y + 1, stat.Path[0].z);
             var gm = new GameObject(stat.Algorithm.ToString());
             gm.transform.SetParent(parent.transform);
             gm.AddComponent<TrailRenderer>();
@@ -44,6 +44,8 @@ public class SpreadAlgorithms : MonoBehaviour
             trailRenderer.startWidth = width;
             trailRenderer.endWidth = width;
             trailRenderer.numCapVertices = 90;
+            trailRenderer.shadowBias = 0;
+            trailRenderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
             spreads.Add(new Spread(trailRenderer, stat));
         }
 
@@ -88,7 +90,7 @@ public class SpreadAlgorithms : MonoBehaviour
     {
         foreach (var targetPosition in item.AlgorithmStats.Path)
         {
-            yield return StartCoroutine(MoveToPosition(item.TrailRenderer.transform.parent.gameObject, targetPosition));
+            yield return StartCoroutine(MoveToPosition(item.TrailRenderer.transform.parent.gameObject, new Vector3(targetPosition.x, targetPosition.y + 1, targetPosition.z)));
         }
     }
 

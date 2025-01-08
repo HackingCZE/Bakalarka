@@ -222,8 +222,8 @@ public class LSystemVisualizer : MonoBehaviour
     {
         TileStats tileStats = obj.GetComponent<TileStats>();
 
-        _points.AddRange(tileStats.GetBuildingPoints());
-        Destroy(tileStats);
+        //_points.AddRange(tileStats.GetBuildingPoints());
+        //Destroy(tileStats);
     }
 
     public void SpawnTiles()
