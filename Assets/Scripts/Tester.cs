@@ -93,4 +93,79 @@ public class Tester : MonoBehaviour
             Gizmos.DrawLine(transform.position + start, transform.position + end);
         }
     }
+
+    public List<Vector3> points; // Seznam bodù cesty
+    public float radius = 0.1f; // Polomìr trubice
+    public int segments = 8; // Poèet segmentù pro kruhovou základnu
+
+
+    [ContextMenu("GenrateTubeMesh")]
+    void GenerateTube()
+    {
+        Mesh tubeMesh = new Mesh();
+        List<Vector3> vertices = new List<Vector3>();
+        List<int> triangles = new List<int>();
+        List<Vector2> uvs = new List<Vector2>();
+
+        // Procházení všech bodù
+        for (int i = 0; i < points.Count; i++)
+        {
+            // Smìr mezi body
+            Vector3 forward = Vector3.forward;
+            if (i < points.Count - 1)
+            {
+                forward = (points[i + 1] - points[i]).normalized;
+            }
+
+            // Rotace pro kruh kolem osy
+            Quaternion rotation = Quaternion.LookRotation(forward);
+
+            // Pøidání vertexù pro aktuální bod
+            for (int j = 0; j < segments; j++)
+            {
+                float angle = 2 * Mathf.PI * j / segments;
+                Vector3 offset = rotation * new Vector3(Mathf.Cos(angle), Mathf.Sin(angle), 0) * radius;
+                vertices.Add(points[i] + offset);
+
+                uvs.Add(new Vector2(j / (float)segments, i / (float)points.Count));
+            }
+        }
+
+        // Vytvoøení trojúhelníkù mezi kruhy
+        for (int i = 0; i < points.Count - 1; i++)
+        {
+            for (int j = 0; j < segments; j++)
+            {
+                int current = i * segments + j;
+                int next = i * segments + (j + 1) % segments;
+                int nextRow = (i + 1) * segments + j;
+                int nextRowNext = (i + 1) * segments + (j + 1) % segments;
+
+                // První trojúhelník
+                triangles.Add(current);
+                triangles.Add(nextRow);
+                triangles.Add(next);
+
+                // Druhý trojúhelník
+                triangles.Add(next);
+                triangles.Add(nextRow);
+                triangles.Add(nextRowNext);
+            }
+        }
+
+        // Nastavení meshe
+        tubeMesh.vertices = vertices.ToArray();
+        tubeMesh.triangles = triangles.ToArray();
+        tubeMesh.uv = uvs.ToArray();
+        tubeMesh.RecalculateNormals();
+        tubeMesh.RecalculateBounds();
+
+        // Pøipojení mesh k MeshFilter a MeshCollider
+        MeshFilter meshFilter = GetComponent<MeshFilter>();
+        meshFilter.mesh = tubeMesh;
+
+        MeshCollider meshCollider = GetComponent<MeshCollider>();
+        meshCollider.sharedMesh = tubeMesh;
+        meshCollider.convex = false; // Pokud je potøeba, nastav convex na true
+    }
 }

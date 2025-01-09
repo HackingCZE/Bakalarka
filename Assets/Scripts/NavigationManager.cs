@@ -319,6 +319,7 @@ public class NavigationManager : MonoBehaviour, IDrawingNode
         }
     }
 
+    [Serializable]
     public class AlgorithmStats
     {
         public NavigationAlgorithm Algorithm { get; set; }
@@ -327,7 +328,7 @@ public class NavigationManager : MonoBehaviour, IDrawingNode
         public int MemoryUsage { get; set; }
         public int ResultPathLength { get; set; }
         public int NodesCount { get; set; }
-        public List<Vector3> Path { get; set; }
+        [field: SerializeField] public List<Vector3> Path { get; set; }
 
         public float GetEfficiencyScore()
         {

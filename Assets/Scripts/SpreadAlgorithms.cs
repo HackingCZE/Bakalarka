@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UIElements;
 using static NavigationManager;
@@ -25,13 +26,17 @@ public class SpreadAlgorithms : MonoBehaviour
     // Metoda pro rozmístìní algoritmù podle seznamu hodnot
     public void SpreadOnAxis(List<AlgorithmStats> values)
     {
+
         _coroutines = new();
         materialBlock = new MaterialPropertyBlock();
         // Zrušíme pøedchozí instancování algoritmù (pokud existují)
         foreach (var stat in values)
         {
-            var parent = new GameObject(stat.Algorithm.ToString());
+            var parentParent = new GameObject(stat.Algorithm.ToString());
+            parentParent.transform.position = Vector3.zero;
+            var parent = new GameObject("Parent");
             parent.transform.position = new Vector3(stat.Path[0].x, stat.Path[0].y + 1, stat.Path[0].z);
+            parent.transform.SetParent(parentParent.transform);
             var gm = new GameObject(stat.Algorithm.ToString());
             gm.transform.SetParent(parent.transform);
             gm.AddComponent<TrailRenderer>();
@@ -63,11 +68,14 @@ public class SpreadAlgorithms : MonoBehaviour
 
             // Nastavení pozice objektu
             spreads[i].TrailRenderer.transform.localPosition = new Vector3(xPos, yPos, zPos);
+            spreads[i].AddPointTube(spreads[i].TrailRenderer.transform.position);
         }
         foreach (var item in spreads)
         {
             _coroutines.Add(StartCoroutine(MoveSpread(item)));
         }
+
+        GetComponent<TubeMouseDetector>().SetTubes(spreads, width);
     }
 
     public void Clear()
@@ -80,7 +88,7 @@ public class SpreadAlgorithms : MonoBehaviour
 
         foreach (var item in spreads)
         {
-            Destroy(item.TrailRenderer.transform.parent.gameObject);
+            Destroy(item.TrailRenderer.transform.parent.parent.gameObject);
         }
 
         spreads.Clear();
@@ -91,6 +99,7 @@ public class SpreadAlgorithms : MonoBehaviour
         foreach (var targetPosition in item.AlgorithmStats.Path)
         {
             yield return StartCoroutine(MoveToPosition(item.TrailRenderer.transform.parent.gameObject, new Vector3(targetPosition.x, targetPosition.y + 1, targetPosition.z)));
+            item.AddPointTube(item.TrailRenderer.transform.position);
         }
     }
 
@@ -107,16 +116,122 @@ public class SpreadAlgorithms : MonoBehaviour
         if (obj != null) obj.transform.position = targetPosition;
     }
 
-
+    [Serializable]
     public class Spread
     {
-        public TrailRenderer TrailRenderer { get; set; }
-        public AlgorithmStats AlgorithmStats { get; set; }
+        [field: SerializeField] public TrailRenderer TrailRenderer { get; set; }
+        [field: SerializeField] public AlgorithmStats AlgorithmStats { get; set; }
+        public MeshCollider Collider { get; set; } 
+
+
+        private float radius = 0.08f;
+        private float lastRadius;
+        private int segments = 8;
+        private List<Vector3> points = new List<Vector3>();
+
+        private Mesh tubeMesh;
+        private MeshFilter filter;
+        private List<Vector3> vertices = new List<Vector3>();
+        private List<int> triangles = new List<int>();
+        private List<Vector2> uvs = new List<Vector2>();
 
         public Spread(TrailRenderer trailRenderer, AlgorithmStats algorithmStats)
         {
+            Collider = trailRenderer.transform.parent.parent.AddComponent<MeshCollider>();
+            filter = trailRenderer.transform.parent.parent.AddComponent<MeshFilter>();
+            tubeMesh = new Mesh();
+            filter.mesh = tubeMesh;
+            trailRenderer.transform.parent.parent.tag = "Tube";
             TrailRenderer = trailRenderer;
             AlgorithmStats = algorithmStats;
+        }
+
+        public void AddPointTube(Vector3 newPoint)
+        {
+            // Pøidání nového bodu do seznamu
+            points.Add(newPoint);
+
+            // Pokud máme alespoò dva body, vytvoø trubici
+            if (points.Count > 1)
+            {
+                GenerateTube(radius);
+            }
+        }
+
+        public float GetLastRadius => lastRadius;
+
+        public void GenerateTube(float radius)
+        {
+            lastRadius = radius;
+            // Vyèištìní pøedchozích dat
+            vertices.Clear();
+            triangles.Clear();
+            uvs.Clear();
+
+            // Procházení všech bodù
+            for (int i = 0; i < points.Count; i++)
+            {
+                // Smìr mezi body
+                Vector3 forward = Vector3.forward;
+                if (i < points.Count - 1)
+                {
+                    forward = (points[i + 1] - points[i]).normalized;
+                }
+
+                // Rotace pro kruh kolem osy
+                Quaternion rotation = forward == Vector3.zero ? Quaternion.identity : Quaternion.LookRotation(forward);
+
+                // Pøidání vertexù pro aktuální bod
+                for (int j = 0; j < segments; j++)
+                {
+                    float angle = 2 * Mathf.PI * j / segments;
+                    Vector3 offset = rotation * new Vector3(Mathf.Cos(angle), Mathf.Sin(angle), 0) * radius;
+                    vertices.Add(points[i] + offset);
+
+                    uvs.Add(new Vector2(j / (float)segments, i / (float)points.Count));
+                }
+            }
+
+            // Vytvoøení trojúhelníkù mezi kruhy
+            for (int i = 0; i < points.Count - 1; i++)
+            {
+                for (int j = 0; j < segments; j++)
+                {
+                    int current = i * segments + j;
+                    int next = i * segments + (j + 1) % segments;
+                    int nextRow = (i + 1) * segments + j;
+                    int nextRowNext = (i + 1) * segments + (j + 1) % segments;
+
+                    // První trojúhelník
+                    triangles.Add(current);
+                    triangles.Add(nextRow);
+                    triangles.Add(next);
+
+                    // Druhý trojúhelník
+                    triangles.Add(next);
+                    triangles.Add(nextRow);
+                    triangles.Add(nextRowNext);
+                }
+            }
+
+            if (points.Count < 5)
+            {
+                return;
+            }
+
+            // Nastavení meshe
+           // tubeMesh.Clear();
+            tubeMesh.vertices = vertices.ToArray();
+            tubeMesh.triangles = triangles.ToArray();
+            tubeMesh.uv = uvs.ToArray();
+            tubeMesh.RecalculateNormals();
+            tubeMesh.RecalculateBounds();
+
+            filter.mesh = tubeMesh;
+
+            // Aktualizace MeshCollideru
+            MeshCollider meshCollider = Collider;
+            meshCollider.sharedMesh = tubeMesh;
         }
     }
 
