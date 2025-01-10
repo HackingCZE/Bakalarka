@@ -322,7 +322,7 @@ public class NavigationManager : MonoBehaviour, IDrawingNode
     [Serializable]
     public class AlgorithmStats
     {
-        public NavigationAlgorithm Algorithm { get; set; }
+        [field: SerializeField] public NavigationAlgorithm Algorithm { get; set; }
         public TimeSpan Time { get; set; }
         public int VisitedNodes { get; set; }
         public int MemoryUsage { get; set; }

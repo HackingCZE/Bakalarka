@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -48,6 +49,36 @@ public class AlgoNode
     public override int GetHashCode()
     {
         return Position.GetHashCode();
+    }
+}
+
+[Serializable]
+public class SerializableAlgoNode
+{
+    public Vector3 Position;
+    public List<SerializableAlgoNode> Neighbours = new List<SerializableAlgoNode>();
+    public float Value = float.PositiveInfinity;
+    public float GScore = float.PositiveInfinity;
+    public float FScore = float.PositiveInfinity;
+    public float Cost;
+    public bool Visited = false;
+    public RoadTileType Type;
+
+    public SerializableAlgoNode(AlgoNode algoNode, List<SerializableAlgoNode> neighbours)
+    {
+        Position = algoNode.Position;
+        Neighbours = neighbours;
+        Value = algoNode.Value;
+        GScore = algoNode.GScore;
+        FScore = algoNode.FScore;
+        Cost = algoNode.Cost;
+        Visited = algoNode.Visited;
+        Type = algoNode.Type;
+    }
+
+    public SerializableAlgoNode(Vector3 position)
+    {
+        Position = position;
     }
 }
 

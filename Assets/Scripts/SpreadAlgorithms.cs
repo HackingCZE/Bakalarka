@@ -1,8 +1,10 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UIElements;
 using static NavigationManager;
 using static SpreadAlgorithms;
@@ -14,7 +16,7 @@ public class SpreadAlgorithms : MonoBehaviour
     public Material material;
     private MaterialPropertyBlock materialBlock;
 
-    private List<Coroutine> _coroutines;
+    private List<Coroutine> _coroutines = new();
 
     public List<ColorAlgorithm> _algorithms;
     public float speed = 2f;
@@ -23,11 +25,10 @@ public class SpreadAlgorithms : MonoBehaviour
     public float scale = 1f;
     public float width = .2f;
 
-    // Metoda pro rozmístìní algoritmù podle seznamu hodnot
     public void SpreadOnAxis(List<AlgorithmStats> values)
     {
 
-        _coroutines = new();
+        _coroutines.Clear();
         materialBlock = new MaterialPropertyBlock();
         // Zrušíme pøedchozí instancování algoritmù (pokud existují)
         foreach (var stat in values)
@@ -78,6 +79,77 @@ public class SpreadAlgorithms : MonoBehaviour
         GetComponent<TubeMouseDetector>().SetTubes(spreads, width);
     }
 
+    public void MainMenuPaths()
+    {
+        spreads = MenuPathMove.Instance.paths;
+        _coroutines.Clear();
+
+        for (int i = 0; i < spreads.Count; i++)
+        {
+            spreads[i].TrailRenderer.emitting = false;
+            spreads[i].TrailRenderer.time = spreads[i].AlgorithmStats.Path.Count / 8;
+            spreads[i] = new Spread(MenuPathMove.Instance.trails[i], spreads[i].AlgorithmStats);
+            spreads[i].TrailRenderer.transform.parent.position = new Vector3(spreads[i].AlgorithmStats.Path[0].x, spreads[i].AlgorithmStats.Path[0].y + 1 - 2, spreads[i].AlgorithmStats.Path[0].z);
+            spreads[i].TrailRenderer.material = material;
+            spreads[i].TrailRenderer.material.color = _algorithms.Find(e => e.algorithm == spreads[i].AlgorithmStats.Algorithm).color;
+            spreads[i].TrailRenderer.startWidth = width * 2f;
+            spreads[i].TrailRenderer.endWidth = width * 2f;
+
+        }
+
+        int count = spreads.Count;
+
+        float scale = .08f;
+
+        float centerX = (count - 1) * scale / 2f;
+
+        // Rozmístíme algoritmy podle hodnot v seznamu
+        for (int i = 0; i < count; i++)
+        {
+
+            float xPos = (i * scale) - centerX + spreads[i].TrailRenderer.transform.position.x;
+            float zPos = (i * scale) - centerX + spreads[i].TrailRenderer.transform.position.z;
+            float yPos = (i * (scale / 4.5f)) + spreads[i].TrailRenderer.transform.position.y;
+
+            // Nastavení pozice objektu
+            spreads[i].TrailRenderer.transform.position = new Vector3(xPos, yPos, zPos);
+            spreads[i].StartPos = spreads[i].TrailRenderer.transform.position;
+            spreads[i].CreateMesh = false;
+
+        }
+        foreach (var item in spreads)
+        {
+            _coroutines.Add(StartCoroutine(TrackCoroutine(MoveSpread(item), item)));
+        }
+    }
+
+    IEnumerator TrackCoroutine(IEnumerator coroutine, Spread item)
+    {
+        item.TrailRenderer.emitting = false;
+        yield return new WaitForEndOfFrame();
+        item.TrailRenderer.transform.parent.position = new Vector3(item.AlgorithmStats.Path[0].x, item.TrailRenderer.transform.parent.position.y, item.AlgorithmStats.Path[0].z);
+        item.TrailRenderer.transform.parent.position += new Vector3(0, 2, 0);
+        yield return new WaitForEndOfFrame();
+        item.TrailRenderer.emitting = true;
+
+        yield return StartCoroutine(coroutine);
+        item.TrailRenderer.emitting = false;
+        item.TrailRenderer.transform.parent.position -= new Vector3(0, 2, 0);
+
+        if (SceneManager.GetActiveScene().name == "Menu") StartCoroutine(TrackCoroutine(MoveSpread(item), item));
+    }
+
+    private void OnDrawGizmos()
+    {
+        foreach (var item in spreads)
+        {
+            foreach (var point in item.AlgorithmStats.Path)
+            {
+                Gizmos.DrawSphere(point, .5f);
+            }
+        }
+    }
+
     public void Clear()
     {
         foreach (var item in _coroutines)
@@ -101,10 +173,12 @@ public class SpreadAlgorithms : MonoBehaviour
             yield return StartCoroutine(MoveToPosition(item.TrailRenderer.transform.parent.gameObject, new Vector3(targetPosition.x, targetPosition.y + 1, targetPosition.z)));
             item.AddPointTube(item.TrailRenderer.transform.position);
         }
+
     }
 
     private IEnumerator MoveToPosition(GameObject obj, Vector3 targetPosition)
     {
+
         while (obj != null && obj.transform.position != targetPosition)
         {
             obj.transform.position = Vector3.MoveTowards(obj.transform.position, targetPosition, speed * Time.deltaTime);
@@ -121,10 +195,12 @@ public class SpreadAlgorithms : MonoBehaviour
     {
         [field: SerializeField] public TrailRenderer TrailRenderer { get; set; }
         [field: SerializeField] public AlgorithmStats AlgorithmStats { get; set; }
-        public MeshCollider Collider { get; set; } 
+        public MeshCollider Collider { get; set; }
 
+        public Vector3 StartPos { get; set; }
+        public bool CreateMesh { get; set; }
 
-        private float radius = 0.08f;
+        private float radius = 0.05f;
         private float lastRadius;
         private int segments = 8;
         private List<Vector3> points = new List<Vector3>();
@@ -148,6 +224,7 @@ public class SpreadAlgorithms : MonoBehaviour
 
         public void AddPointTube(Vector3 newPoint)
         {
+            if (!CreateMesh) return;
             // Pøidání nového bodu do seznamu
             points.Add(newPoint);
 
@@ -158,10 +235,16 @@ public class SpreadAlgorithms : MonoBehaviour
             }
         }
 
+        public override string ToString()
+        {
+            return base.ToString() + " " + TrailRenderer.ToString();
+        }
+
         public float GetLastRadius => lastRadius;
 
         public void GenerateTube(float radius)
         {
+
             lastRadius = radius;
             // Vyèištìní pøedchozích dat
             vertices.Clear();
@@ -220,7 +303,7 @@ public class SpreadAlgorithms : MonoBehaviour
             }
 
             // Nastavení meshe
-           // tubeMesh.Clear();
+            // tubeMesh.Clear();
             tubeMesh.vertices = vertices.ToArray();
             tubeMesh.triangles = triangles.ToArray();
             tubeMesh.uv = uvs.ToArray();
