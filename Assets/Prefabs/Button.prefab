@@ -68,8 +68,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: "hr\xE1t"
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: b51b871e560fe1149870cf63cbcc5bd5, type: 2}
-  m_sharedMaterial: {fileID: 1894117954555675605, guid: b51b871e560fe1149870cf63cbcc5bd5,
+  m_fontAsset: {fileID: 11400000, guid: 7325e83e2dadfa541804b7a3673198a9, type: 2}
+  m_sharedMaterial: {fileID: -4362974547682124671, guid: 7325e83e2dadfa541804b7a3673198a9,
     type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
@@ -94,7 +94,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 35
+  m_fontSize: 28
   m_fontSizeBase: 35
   m_fontWeight: 400
   m_enableAutoSizing: 0
@@ -149,7 +149,6 @@ GameObject:
   - component: {fileID: 4147613557966011450}
   - component: {fileID: 5398752858828409049}
   - component: {fileID: 7573627762578062213}
-  - component: {fileID: 6310544097665612026}
   m_Layer: 5
   m_Name: Button
   m_TagString: Untagged
@@ -171,7 +170,7 @@ RectTransform:
   m_Children:
   - {fileID: 5834006263249163631}
   m_Father: {fileID: 0}
-  m_RootOrder: -1
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
@@ -284,18 +283,3 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dfe7b30c8f67c764b8711988828e7c3a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &6310544097665612026
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5764175976616852686}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_EffectColor: {r: 0, g: 0, b: 0, a: 0.7647059}
-  m_EffectDistance: {x: 3, y: -3}
-  m_UseGraphicAlpha: 1

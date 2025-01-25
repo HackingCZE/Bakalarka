@@ -73,6 +73,24 @@ public class Tester : MonoBehaviour
     [Header("Grid Appearance")]
     public Color gridColor = Color.green; // Barva møížky
 
+    public GameObject objectToSpawn;
+
+    [ContextMenu("spawn")]
+    public void Spawn()
+    {
+        for (int x = 0; x < gridSizeX; x++)
+        {
+            for (int z = 0; z < gridSizeZ; z++)
+            {
+                // Spoèítáme pozici pro spawn
+                Vector3 spawnPosition = new Vector3(x * cellSize, 0, z * cellSize);
+
+                // Spawnuji objekt na dané pozici
+                Instantiate(objectToSpawn, transform.position + spawnPosition, Quaternion.identity, transform);
+            }
+        }
+    }
+
     private void OnDrawGizmos()
     {
         Gizmos.color = gridColor;

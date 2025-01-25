@@ -171,7 +171,7 @@ public class SpreadAlgorithms : MonoBehaviour
         foreach (var targetPosition in item.AlgorithmStats.Path)
         {
             yield return StartCoroutine(MoveToPosition(item.TrailRenderer.transform.parent.gameObject, new Vector3(targetPosition.x, targetPosition.y + 1, targetPosition.z)));
-            item.AddPointTube(item.TrailRenderer.transform.position);
+            if(item.TrailRenderer != null) item.AddPointTube(item.TrailRenderer.transform.position);
         }
 
     }
