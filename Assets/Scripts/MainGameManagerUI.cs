@@ -42,6 +42,8 @@ public class MainGameManagerUI : MonoBehaviour
                 break;
             case UIStates.freeview:
                 DisableAll();
+                CameraController.Instance.SetIsStatic(true);
+                CameraController.Instance.ResetCamera();
                 _mid.gameObject.SetActive(true);
                 _skipBtn.gameObject.SetActive(true);
                 Countdown.Instance.StartTimer(30);
@@ -119,4 +121,5 @@ public class MainGameManagerUI : MonoBehaviour
             }
         }
     }
+
 }

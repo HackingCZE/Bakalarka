@@ -7,7 +7,8 @@ public class MenuManager : MonoBehaviour
 {
     public void PlayGame()
     {
-        SceneManager.LoadScene("GameScene");
+        MainGameManager.Instance.ClearAlgos();
+        LoadingSceneManager.instance.LoadScene("GameScene");
     }
 
     public void ExitGame()

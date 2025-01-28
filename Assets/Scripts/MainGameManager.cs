@@ -36,6 +36,11 @@ public class MainGameManager : MonoBehaviour
         SceneManager.sceneLoaded += OnSceneLoaded;
     }
 
+    public void ClearAlgos()
+    {
+        _spreadAlgorithms.Clear();
+    }
+
     void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
         if (scene.name == "GameScene") StartGame();
@@ -59,9 +64,11 @@ public class MainGameManager : MonoBehaviour
 
     private async void GenerateMap()
     {
-         SimpleVisualizer.Instance.Create();
+         //SimpleVisualizer.Instance.Create();
          LSystemVisualizer.Instance.VisualizeMap();
         _algorithmStats = await NavigationManager.Instance.GetOrderOfAlgorithms();
+        CameraController.Instance.CalculateBounds(LSystemVisualizer.Instance.GetNodesAsVector());
+
         Debug.Log(_algorithmStats[0].Algorithm.ToString());
     }
 

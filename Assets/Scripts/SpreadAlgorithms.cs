@@ -69,6 +69,7 @@ public class SpreadAlgorithms : MonoBehaviour
 
             // Nastavení pozice objektu
             spreads[i].TrailRenderer.transform.localPosition = new Vector3(xPos, yPos, zPos);
+            spreads[i].CreateMesh = true;
             spreads[i].AddPointTube(spreads[i].TrailRenderer.transform.position);
         }
         foreach (var item in spreads)
@@ -137,6 +138,7 @@ public class SpreadAlgorithms : MonoBehaviour
         item.TrailRenderer.transform.parent.position -= new Vector3(0, 2, 0);
 
         if (SceneManager.GetActiveScene().name == "Menu") StartCoroutine(TrackCoroutine(MoveSpread(item), item));
+
     }
 
     private void OnDrawGizmos()
@@ -170,7 +172,7 @@ public class SpreadAlgorithms : MonoBehaviour
     {
         foreach (var targetPosition in item.AlgorithmStats.Path)
         {
-            yield return StartCoroutine(MoveToPosition(item.TrailRenderer.transform.parent.gameObject, new Vector3(targetPosition.x, targetPosition.y + 1, targetPosition.z)));
+            if (item.TrailRenderer != null) yield return StartCoroutine(MoveToPosition(item.TrailRenderer.transform.parent.gameObject, new Vector3(targetPosition.x, targetPosition.y + 1, targetPosition.z)));
             if(item.TrailRenderer != null) item.AddPointTube(item.TrailRenderer.transform.position);
         }
 
@@ -183,7 +185,6 @@ public class SpreadAlgorithms : MonoBehaviour
         {
             obj.transform.position = Vector3.MoveTowards(obj.transform.position, targetPosition, speed * Time.deltaTime);
 
-            // Èekáme na další framex
             yield return null;
         }
 
@@ -225,10 +226,8 @@ public class SpreadAlgorithms : MonoBehaviour
         public void AddPointTube(Vector3 newPoint)
         {
             if (!CreateMesh) return;
-            // Pøidání nového bodu do seznamu
             points.Add(newPoint);
 
-            // Pokud máme alespoò dva body, vytvoø trubici
             if (points.Count > 1)
             {
                 GenerateTube(radius);

@@ -11,7 +11,7 @@ public class Countdown : MonoBehaviour
     [SerializeField] TMP_Text _text;
 
     float _lastRemaining = 0;
-    
+
     bool _isOn = false;
 
     private void Awake()
@@ -19,10 +19,25 @@ public class Countdown : MonoBehaviour
         Instance = this;
     }
 
-    public  void StartTimer(float seconds)
+    private IEnumerator StartTimer()
+    {
+        PopUpText.Instance.ShowText("3", Color.white);
+        yield return new WaitForSeconds(1);
+        PopUpText.Instance.ShowText("2", Color.white);
+        yield return new WaitForSeconds(1);
+        PopUpText.Instance.ShowText("1", Color.white, 1, SetIsOn);
+    }
+
+    public void StartTimer(float seconds)
     {
         _timeLeft = seconds;
-        _isOn = true; 
+        StartCoroutine(StartTimer());
+    }
+
+    private void SetIsOn()
+    {
+        _isOn = true;
+        CameraController.Instance.SetIsStatic(false);
     }
 
     public void EndTimer()

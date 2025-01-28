@@ -43,14 +43,6 @@ public class TubeMouseDetector : MonoBehaviour
             }
         }
 
-        try
-        {
-
-        }
-        catch
-        {
-            return;
-        }
     }
 
     public void SetTubes(List<SpreadAlgorithms.Spread> spreads, float width)

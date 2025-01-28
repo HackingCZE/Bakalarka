@@ -62,6 +62,16 @@ public class LSystemVisualizer : MonoBehaviour
         _points = new();
     }
 
+    public List<Vector3> GetNodesAsVector()
+    {
+        List<Vector3> result = new();
+        foreach (var currentNode in _nodes)
+        {
+            result.Add(currentNode.Position);
+        }
+        return result;
+    }
+
     public List<AlgoNode> GetNodes()
     {
         Dictionary<Vector3, AlgoNode> algoNodeMap = new Dictionary<Vector3, AlgoNode>();
