@@ -1403,9 +1403,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   score: 0
   nickname: 
-  isLoged: 0
-  nicknameTMP: {fileID: 0}
-  scoreTMP: {fileID: 0}
+  isLogged: 0
 --- !u!4 &1587107276
 Transform:
   m_ObjectHideFlags: 0
@@ -1544,7 +1542,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1635107574}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 

@@ -142,9 +142,6 @@ public class NavigationManager : MonoBehaviour, IDrawingNode
         {
              RunAlgoInThread(NavigationAlgorithm.BFS),
              RunAlgoInThread(NavigationAlgorithm.AStar),
-             RunAlgoInThread(NavigationAlgorithm.DIJKSTRA),
-             RunAlgoInThread(NavigationAlgorithm.RandomizedWalk),
-             RunAlgoInThread(NavigationAlgorithm.RandomizedDFS),
              RunAlgoInThread(NavigationAlgorithm.BidirectionalBFS),
              RunAlgoInThread(NavigationAlgorithm.BidirectionalDFS),
              RunAlgoInThread(NavigationAlgorithm.DFS)        
@@ -332,7 +329,7 @@ public class NavigationManager : MonoBehaviour, IDrawingNode
 
         public float GetEfficiencyScore()
         {
-            return 1;
+            return VisitedNodes;
         }
 
         public AlgorithmStats(NavigationAlgorithm algorithm, TimeSpan time, int visitedNodes, int memoryUsage, int resultPathLength, List<AlgoNode> path, int nodesCount)

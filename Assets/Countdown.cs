@@ -31,6 +31,7 @@ public class Countdown : MonoBehaviour
     public void StartTimer(float seconds)
     {
         _timeLeft = seconds;
+        UpdateTimer(_timeLeft);
         StartCoroutine(StartTimer());
     }
 
@@ -55,7 +56,7 @@ public class Countdown : MonoBehaviour
             if (_timeLeft > 0)
             {
                 _timeLeft -= Time.deltaTime;
-                UpdateTimer(_timeLeft);
+                UpdateTimer(_timeLeft +1);
             }
             else
             {
@@ -66,8 +67,6 @@ public class Countdown : MonoBehaviour
 
     void UpdateTimer(float currentTime)
     {
-        currentTime += 1;
-
         float minutes = Mathf.FloorToInt(currentTime / 60);
         float seconds = Mathf.FloorToInt(currentTime % 60);
 
