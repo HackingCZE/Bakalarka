@@ -134,10 +134,14 @@ public class SpreadAlgorithms : MonoBehaviour
         item.TrailRenderer.emitting = true;
 
         yield return StartCoroutine(coroutine);
-        item.TrailRenderer.emitting = false;
-        item.TrailRenderer.transform.parent.position -= new Vector3(0, 2, 0);
+        if(item.TrailRenderer != null)
+        {
+            item.TrailRenderer.emitting = false;
+            item.TrailRenderer.transform.parent.position -= new Vector3(0, 2, 0);
 
-        if (SceneManager.GetActiveScene().name == "Menu") StartCoroutine(TrackCoroutine(MoveSpread(item), item));
+            if (SceneManager.GetActiveScene().name == "MainMenu") StartCoroutine(TrackCoroutine(MoveSpread(item), item));
+        }
+    
 
     }
 

@@ -11,7 +11,8 @@ public class MainGameManager : MonoBehaviour
     public static MainGameManager Instance { get; private set; }
     [SerializeField] List<AlgorithmStats> _algorithmStats = new List<AlgorithmStats>();
     [SerializeField] SpreadAlgorithms _spreadAlgorithms;
-    
+
+    public Action<int> OnEnergyChange;
 
     int _currentGameScore = 0;
     int _currentGameLives = 0;
@@ -49,6 +50,7 @@ public class MainGameManager : MonoBehaviour
     public void StartGame()
     {
         _currentGameLives = _startLives;
+        _currentGameScore = 0;
         _currentGameLevel = 1;
         GenerateMap();
 
@@ -59,7 +61,7 @@ public class MainGameManager : MonoBehaviour
     public void EndGame()
     {
         MainGameManagerUI.Instance.SwitchState(MainGameManagerUI.UIStates.end);
-        // TODO: save
+        PlayerManager.Instance.SetScore(GetTotalScore());
     }
 
     private async void GenerateMap()
@@ -79,6 +81,7 @@ public class MainGameManager : MonoBehaviour
 
         MainGameManagerUI.Instance.UpdateBtns(_algorithmStats[0].Algorithm);
         MainGameManagerUI.Instance.UpdateScoreUI(_currentGameScore);
+        OnEnergyChange?.Invoke(_currentGameLives);
 
         if (_currentGameLives <= 0) EndGame();
         else
@@ -101,5 +104,6 @@ public class MainGameManager : MonoBehaviour
 
     public int GetScore() => _currentGameScore;
     public int GetLevel() => _currentGameLevel;
+    public int GetTotalScore() => _currentGameScore + _currentGameLevel * 5;
 
 }

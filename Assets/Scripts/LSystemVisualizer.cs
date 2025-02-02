@@ -36,10 +36,7 @@ public class LSystemVisualizer : MonoBehaviour
 
     private void Awake()
     {
-        if (Instance == null) Instance = this;
-        else Destroy(this);
-
-        DontDestroyOnLoad(Instance);
+        Instance = this;
     }
 
     public float GetCurrentChanceToJoin => _chanceToJoin;

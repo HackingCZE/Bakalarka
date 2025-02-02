@@ -42,7 +42,7 @@ public class PopUpText : MonoBehaviour
         Debug.Log("ereerr");
     }
 
-    public async void ShowText(string text, Color color, float time = 1, System.Action callback = null)
+    public async void ShowText(string text, Color color, float time = 1.1f, System.Action callback = null)
     {
         foregroundText.text = text;
         backgroundText.text = text;

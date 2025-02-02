@@ -6,19 +6,19 @@ using UnityEngine.UI;
 
 public class LoadingSceneManager : MonoBehaviour
 {
-    public static LoadingSceneManager instance;
+    public static LoadingSceneManager Instance;
     [SerializeField] GameObject _loadingScreen;
     [SerializeField] Slider _loadingSlider;
 
     private void Awake()
     {
-        if(instance != null)
+        if(Instance != null)
         {
             Destroy(this.gameObject);
             return;
         }
 
-        instance = this;
+        Instance = this;
         DontDestroyOnLoad(this.gameObject);
     }
 

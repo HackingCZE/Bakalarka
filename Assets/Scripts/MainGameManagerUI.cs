@@ -72,9 +72,12 @@ public class MainGameManagerUI : MonoBehaviour
                 DisableAll();
                 _end.gameObject.SetActive(true);
                 _endText.text = "";
-                _endText.text += "<b>Tvoje scoré:</b> " + MainGameManager.Instance.GetScore();
+                _endText.text += "<b>LEVEL: </b> " + MainGameManager.Instance.GetLevel();
                 _endText.text += "\n";
-                _endText.text += "<b>Tvoje úroveò:</b> " + MainGameManager.Instance.GetLevel();
+                _endText.text += "<b>SCORE: </b> " + MainGameManager.Instance.GetScore();
+
+                _endText.text += "\n\n";
+                _endText.text += "<b>TOTAL-SCORE: </b> " + MainGameManager.Instance.GetTotalScore();
                 break;
             default:
                 break;
@@ -88,7 +91,7 @@ public class MainGameManagerUI : MonoBehaviour
 
     public void BackToMenu()
     {
-        SceneManager.LoadScene("Menu");
+        SceneManager.LoadScene("MainMenu");
     }
 
     public void NextLevel()
