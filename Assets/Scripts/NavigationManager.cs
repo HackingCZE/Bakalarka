@@ -27,8 +27,8 @@ public class NavigationManager : MonoBehaviour, IDrawingNode
     public float threshold, maxStepLenght;
     public LayerMask barrierLayer;
     [SerializeField] GenerationArea area;
-    [SerializeField] LSystemVisualizer visualizer; 
-    [SerializeField] SimpleVisualizer visualizer1; 
+    [SerializeField] LSystemVisualizer visualizer;
+    [SerializeField] SimpleVisualizer visualizer1;
 
     public List<string> times = new List<string>();
 
@@ -81,20 +81,22 @@ public class NavigationManager : MonoBehaviour, IDrawingNode
 
         [AlgorithmType(typeof(RandomizedWalk))]
         RandomizedWalk,
-            
+
         [AlgorithmType(typeof(BidirectionalBFS))]
         BidirectionalBFS,
 
         [AlgorithmType(typeof(BidirectionalDFS))]
-        BidirectionalDFS
+        BidirectionalDFS,
+
+        None
     }
 
 
     [Button]
     public void GetN()
     {
-        if(visualizer != null)_newNodes = visualizer.GetNodes();
-        if(visualizer1 != null)_newNodes = visualizer1.GetNodes();
+        if(visualizer != null) _newNodes = visualizer.GetNodes();
+        if(visualizer1 != null) _newNodes = visualizer1.GetNodes();
     }
 
     private void InitFinding()
@@ -121,14 +123,42 @@ public class NavigationManager : MonoBehaviour, IDrawingNode
     public void PlacePoints()
     {
         float val = 50;
-        if (visualizer != null) val = visualizer.GetNodes().Count;
-        if (visualizer1 != null) val = visualizer1.GetNodes().Count;
-        player.transform.position = new Vector3(Random.Range(-50f - val /2, 50f + val / 2), 0, Random.Range(-50f - val / 2, 50f + val / 2));
+        if(visualizer != null) val = visualizer.GetNodes().Count;
+        if(visualizer1 != null) val = visualizer1.GetNodes().Count;
+
+        int currentDistance = 1;
+
+        if(MainGameManager.Instance.GetLevel() > 80)
+        {
+            currentDistance = Mathf.Max((MainGameManager.Instance.GetLevel() / 50) * 20 + 160, 1);
+        }
+        else if(MainGameManager.Instance.GetLevel() > 50)
+        {
+            currentDistance = 160;
+        }
+        else if(MainGameManager.Instance.GetLevel() > 25)
+        {
+            currentDistance = 120;
+        }
+        else if(MainGameManager.Instance.GetLevel() > 15)
+        {
+            currentDistance = 90;
+        }
+        else if(MainGameManager.Instance.GetLevel() > 5)
+        {
+            currentDistance = 70;
+        }
+        else
+        {
+            currentDistance = 50;
+        }
+
+        player.transform.position = new Vector3(Random.Range(-currentDistance - val / 2, currentDistance + val / 2), 0, Random.Range(-currentDistance - val / 2, currentDistance + val / 2));
 
         do
         {
-            target.transform.position = new Vector3(Random.Range(-50f - val / 2, 50f + val / 2), 0, Random.Range(-50f - val / 2, 50f + val / 2));
-        } while (Vector3.Distance(player.transform.position, target.transform.position) <= 40 ||
+            target.transform.position = new Vector3(Random.Range(-currentDistance - val / 2, currentDistance + val / 2), 0, Random.Range(-50f - val / 2, 50f + val / 2));
+        } while(Vector3.Distance(player.transform.position, target.transform.position) <= (currentDistance / 1.5f) ||
            player.transform.position == target.transform.position);
 
         DistanceBetweenPoints = Vector3.Distance(player.transform.position, target.transform.position);
@@ -140,21 +170,33 @@ public class NavigationManager : MonoBehaviour, IDrawingNode
 
         List<Task<AlgoBase>> tasks = new List<Task<AlgoBase>>()
         {
-             RunAlgoInThread(NavigationAlgorithm.BFS),
              RunAlgoInThread(NavigationAlgorithm.AStar),
-             RunAlgoInThread(NavigationAlgorithm.BidirectionalBFS),
+             RunAlgoInThread(NavigationAlgorithm.DFS),
+             RunAlgoInThread(NavigationAlgorithm.BFS),
              RunAlgoInThread(NavigationAlgorithm.BidirectionalDFS),
-             RunAlgoInThread(NavigationAlgorithm.DFS)        
+             RunAlgoInThread(NavigationAlgorithm.BidirectionalBFS)
         };
 
         await Task.WhenAll(tasks);
 
-        var results = tasks.ConvertAll(task =>
+        List<AlgorithmStats> results = tasks.SelectMany(task =>
         {
             var algoResult = task.Result;
 
-            return new AlgorithmStats(algoResult.Algorithm, algoResult.Stopwatch.Elapsed, algoResult.VisitedNodes, algoResult.MemoryUsage, algoResult.Result.Count, algoResult.Result, algoResult.NodesCount);
-        });
+            List<AlgorithmStats> currentResult = new();
+
+            if(algoResult.Algorithm.ToString().Contains("Bidirectional"))
+            {
+                currentResult.Add(new AlgorithmStats(algoResult.Algorithm, algoResult.Stopwatch.Elapsed, algoResult.VisitedNodes, algoResult.MemoryUsage, algoResult.Result.Count, ((BiderectionalAlgoBase)algoResult).forwardPath, algoResult.NodesCount));
+                currentResult.Add(new AlgorithmStats(algoResult.Algorithm, algoResult.Stopwatch.Elapsed, algoResult.VisitedNodes, algoResult.MemoryUsage, algoResult.Result.Count, ((BiderectionalAlgoBase)algoResult).backwardPath, algoResult.NodesCount));
+            }
+            else
+            {
+                currentResult.Add(new AlgorithmStats(algoResult.Algorithm, algoResult.Stopwatch.Elapsed, algoResult.VisitedNodes, algoResult.MemoryUsage, algoResult.Result.Count, algoResult.Result, algoResult.NodesCount));
+            }
+
+            return currentResult;
+        }).ToList();
 
         return results.OrderBy(a => a.GetEfficiencyScore()).ToList();
     }
@@ -178,7 +220,7 @@ public class NavigationManager : MonoBehaviour, IDrawingNode
 
         GetNodes(out _mapNodes, out _startNode, out _endNode);
 
-        return await(_algoBase).RunStartAlgoInThread(_startNode, _endNode, _mapNodes, this);
+        return await (_algoBase).RunStartAlgoInThread(_startNode, _endNode, _mapNodes, this);
     }
 
     [Button]
@@ -194,8 +236,8 @@ public class NavigationManager : MonoBehaviour, IDrawingNode
     {
         _newNodes = new List<AlgoNode>();
         nodes = new();
-        if (visualizer != null) nodes = visualizer.GetNodes();
-        if (visualizer1 != null) nodes = visualizer1.GetNodes();
+        if(visualizer != null) nodes = visualizer.GetNodes();
+        if(visualizer1 != null) nodes = visualizer1.GetNodes();
         startNode = NodeUtility.FindClosestNode(nodes, player.position);
         player.position = startNode.Position;
         endNode = NodeUtility.FindClosestNode(nodes, target.position);
@@ -207,9 +249,9 @@ public class NavigationManager : MonoBehaviour, IDrawingNode
     public void DrawNode(AlgoNode node)
     {
         return;
-        foreach (var item in _newNodes)
+        foreach(var item in _newNodes)
         {
-            if (item == node)
+            if(item == node)
             {
                 Debug.LogError("Stejny node");
             }
@@ -224,8 +266,8 @@ public class NavigationManager : MonoBehaviour, IDrawingNode
 
     private void DrawNode(TreeCollectionItem node)
     {
-        if (node == null) return;
-        foreach (var child in node.Children)
+        if(node == null) return;
+        foreach(var child in node.Children)
         {
             _lines.Add(new Line(node.Position, child.Position));
             TryAddNewNode(child);
@@ -235,9 +277,9 @@ public class NavigationManager : MonoBehaviour, IDrawingNode
 
     private void TryAddNewNode(TreeCollectionItem newNode)
     {
-        foreach (var item in _nodes)
+        foreach(var item in _nodes)
         {
-            if (item == newNode)
+            if(item == newNode)
             {
                 Debug.LogError("Stejny node");
             }
@@ -247,28 +289,28 @@ public class NavigationManager : MonoBehaviour, IDrawingNode
 
     private void OnDrawGizmos()
     {
-        if (_path == null || _path.Count == 0)
+        if(_path == null || _path.Count == 0)
         {
             Gizmos.DrawSphere(player.position, 1f);
             Gizmos.DrawSphere(target.position, 1f);
         }
-        if (_oldResult != null)
+        if(_oldResult != null)
         {
             Gizmos.color = Color.yellow;
 
-            foreach (var item in _oldResult)
+            foreach(var item in _oldResult)
             {
                 Gizmos.DrawSphere(item.Position, .4f);
 
             }
         }
-        if (_newNodes == null) return;
-        for (int i = 0; i < _newNodes.Count; i++)
+        if(_newNodes == null) return;
+        for(int i = 0; i < _newNodes.Count; i++)
         {
             Gizmos.color = Color.red;
 
             Gizmos.DrawSphere(_newNodes[i].Position, .5f);
-            for (int j = 0; j < _newNodes[i].Neighbours.Count; j++)
+            for(int j = 0; j < _newNodes[i].Neighbours.Count; j++)
             {
                 Gizmos.color = Color.blue;
 
@@ -277,11 +319,11 @@ public class NavigationManager : MonoBehaviour, IDrawingNode
         }
 
 
-        if (_result == null) return;
+        if(_result == null) return;
         Gizmos.color = Color.black;
 
         int c = 0;
-        foreach (var item in _result)
+        foreach(var item in _result)
         {
             Handles.Label(item.Position + new Vector3(0, 1, 0), c.ToString());
 
@@ -292,26 +334,26 @@ public class NavigationManager : MonoBehaviour, IDrawingNode
 
 
         return;
-        for (int i = 0; i < _nodes.Count; i++)
+        for(int i = 0; i < _nodes.Count; i++)
         {
             var node = _nodes[i];
             Gizmos.color = Color.red;
-            if (i == _nodes.Count - 1) Gizmos.color = Color.blue;
+            if(i == _nodes.Count - 1) Gizmos.color = Color.blue;
             Gizmos.DrawSphere(node.Position, .5f);
         }
 
-        foreach (var item in _lines)
+        foreach(var item in _lines)
         {
             Gizmos.color = Color.green;
             Gizmos.DrawLine(item.start, item.end);
         }
 
-        for (int i = 0; i < _path.Count; i++)
+        for(int i = 0; i < _path.Count; i++)
         {
             var node = _path[i];
             Gizmos.color = Color.black;
-            if (i == _nodes.Count - 1) Gizmos.color = Color.blue;
-            if (i == 0) Gizmos.color = Color.yellow;
+            if(i == _nodes.Count - 1) Gizmos.color = Color.blue;
+            if(i == 0) Gizmos.color = Color.yellow;
             Gizmos.DrawSphere(node.Position, .5f);
         }
     }
@@ -341,12 +383,18 @@ public class NavigationManager : MonoBehaviour, IDrawingNode
             MemoryUsage = memoryUsage;
             ResultPathLength = resultPathLength;
 
+            Path = GetNewPath(path);
+        }
+
+
+        private List<Vector3> GetNewPath(List<AlgoNode> path)
+        {
             List<Vector3> newPath = new();
 
-            for (int i = 0; i < path.Count; i++)
+            for(int i = 0; i < path.Count; i++)
             {
                 var item = path[i];
-                if (item.Type == SimpleVisualizer.RoadTileType.RoadCurve && newPath.Count > 0 && i != path.Count - 1)
+                if(item.Type == SimpleVisualizer.RoadTileType.RoadCurve && newPath.Count > 0 && i != path.Count - 1)
                 {
                     var dir1 = (item.Neighbours[0].Position - item.Position).normalized;
                     var dir2 = (item.Neighbours[1].Position - item.Position).normalized;
@@ -354,7 +402,7 @@ public class NavigationManager : MonoBehaviour, IDrawingNode
                     var rotation = 0f;// Reset rotation
 
                     // Determine rotation based on the curve's neighbor alignment
-                    if (Mathf.Abs(dir1.x) > Mathf.Abs(dir1.z))
+                    if(Mathf.Abs(dir1.x) > Mathf.Abs(dir1.z))
                         rotation = dir1.x > 0 ? (dir2.z > 0 ? -90f : 0f) : (dir2.z > 0 ? 180f : 90f); // Soused1 je na ose X (vodorovnì)
                     else
                         rotation = dir1.z > 0 ? (dir2.x > 0 ? -90f : 180f) : (dir2.x > 0 ? 0f : 90f); // Soused1 je na ose Z (svisle)
@@ -363,25 +411,25 @@ public class NavigationManager : MonoBehaviour, IDrawingNode
                     float value2 = .35f;
 
                     Vector3 point1 = Vector3.zero, point2 = Vector3.zero, point3 = Vector3.zero;
-                    if (rotation == 0)
+                    if(rotation == 0)
                     {
                         point1 = item.Position + new Vector3(value1, 0, 0);
                         point2 = item.Position + new Vector3(0, 0, -value1);
                         point3 = item.Position + new Vector3(value2, 0, -value2);
                     }
-                    else if (rotation == 90)
+                    else if(rotation == 90)
                     {
                         point1 = item.Position + new Vector3(-value1, 0, 0);
                         point2 = item.Position + new Vector3(0, 0, -value1);
                         point3 = item.Position + new Vector3(-value2, 0, -value2);
                     }
-                    else if (rotation == -90 || rotation == 270)
+                    else if(rotation == -90 || rotation == 270)
                     {
                         point1 = item.Position + new Vector3(value1, 0, 0);
                         point2 = item.Position + new Vector3(0, 0, value1);
                         point3 = item.Position + new Vector3(value2, 0, value2);
                     }
-                    else if (rotation == 180)
+                    else if(rotation == 180)
                     {
                         point1 = item.Position + new Vector3(-value1, 0, 0);
                         point2 = item.Position + new Vector3(0, 0, value1);
@@ -390,14 +438,14 @@ public class NavigationManager : MonoBehaviour, IDrawingNode
 
                     var previousItem = newPath.Count > 0 ? newPath[newPath.Count - 1] : Vector3.zero;
 
-                    if (previousItem != null)
+                    if(previousItem != null)
                     {
                         // Vzdálenosti mezi pøedchozím prvkem a body
                         float distanceToPoint1 = Vector3.Distance(previousItem, point1);
                         float distanceToPoint2 = Vector3.Distance(previousItem, point2);
 
                         // Pøidání bodù na základì vzdálenosti
-                        if (distanceToPoint1 < distanceToPoint2)
+                        if(distanceToPoint1 < distanceToPoint2)
                         {
                             newPath.Add(point1);
                             newPath.Add(point3);
@@ -424,8 +472,7 @@ public class NavigationManager : MonoBehaviour, IDrawingNode
                     newPath.Add(item.Position);
                 }
             }
-
-            Path = newPath;
+            return newPath;
         }
     }
 }

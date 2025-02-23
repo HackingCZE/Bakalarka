@@ -3,13 +3,10 @@ using System.Diagnostics;
 using System.Threading.Tasks;
 using UnityEngine;
 
-public class BidirectionalDFS : AlgoBase
+public class BidirectionalDFS : BiderectionalAlgoBase
 {
     private Stack<AlgoNode> _forwardStack;
     private Stack<AlgoNode> _backwardStack;
-
-    private Dictionary<AlgoNode, AlgoNode> _forwardParents;
-    private Dictionary<AlgoNode, AlgoNode> _backwardParents;
 
     public async override Task<List<AlgoNode>> StartAlgo(AlgoNode startNode, AlgoNode endNode, List<AlgoNode> graph, IDrawingNode drawingNode)
     {
@@ -76,40 +73,4 @@ public class BidirectionalDFS : AlgoBase
         return false;
     }
 
-    private new async Task<List<AlgoNode>> GetResultPath(AlgoNode startNode, AlgoNode endNode)
-    {
-        List<AlgoNode> path = new List<AlgoNode>();
-
-        // Find meeting point
-        AlgoNode meetingPoint = null;
-        foreach (var node in _forwardParents.Keys)
-        {
-            if (_backwardParents.ContainsKey(node))
-            {
-                meetingPoint = node;
-                break;
-            }
-        }
-
-        if (meetingPoint == null) throw new System.Exception("No meeting point found");
-
-        // Forward path
-        AlgoNode current = meetingPoint;
-        while (current != null)
-        {
-            path.Add(current);
-            current = _forwardParents[current];
-        }
-        path.Reverse();
-
-        // Backward path
-        current = _backwardParents[meetingPoint];
-        while (current != null)
-        {
-            path.Add(current);
-            current = _backwardParents[current];
-        }
-
-        return await Task.FromResult(path);
-    }
 }

@@ -1,9 +1,11 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.SocialPlatforms.Impl;
+using UnityEngine.UI;
 using static NavigationManager;
 
 public class MainGameManager : MonoBehaviour
@@ -21,7 +23,7 @@ public class MainGameManager : MonoBehaviour
 
     private void Awake()
     {
-        if (Instance == null)
+        if(Instance == null)
         {
             Instance = this;
             DontDestroyOnLoad(gameObject);
@@ -44,7 +46,7 @@ public class MainGameManager : MonoBehaviour
 
     void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        if (scene.name == "GameScene") StartGame();
+        if(scene.name == "GameScene") StartGame();
     }
 
     public void StartGame()
@@ -58,6 +60,13 @@ public class MainGameManager : MonoBehaviour
         MainGameManagerUI.Instance.UpdateScoreUI(_currentGameScore);
     }
 
+    private void Update()
+    {
+        if(Input.GetKey(KeyCode.UpArrow)) _currentGameLevel++;
+        else if(Input.GetKey(KeyCode.DownArrow)) _currentGameLevel--;
+        if(Input.GetKey(KeyCode.UpArrow) || Input.GetKey(KeyCode.DownArrow)) Debug.LogError("Current LEVEL: " + _currentGameLevel);
+    }
+
     public void EndGame()
     {
         MainGameManagerUI.Instance.SwitchState(MainGameManagerUI.UIStates.end);
@@ -66,31 +75,42 @@ public class MainGameManager : MonoBehaviour
 
     private async void GenerateMap()
     {
-         //SimpleVisualizer.Instance.Create();
-         LSystemVisualizer.Instance.VisualizeMap();
+        //SimpleVisualizer.Instance.Create();
+        LSystemVisualizer.Instance.VisualizeMap();
         _algorithmStats = await NavigationManager.Instance.GetOrderOfAlgorithms();
         CameraController.Instance.CalculateBounds(LSystemVisualizer.Instance.GetNodesAsVector());
+
+        foreach(var item in FindObjectsOfType<VoteNavigationAlgorithm>(true))
+        {
+            item.indicator.color = MainGameManager.Instance.transform.GetComponent<SpreadAlgorithms>()._algorithms.Where(e => e.algorithm == item.navigationAlgorithm).ToList()[0].color;
+        }
 
         Debug.Log(_algorithmStats[0].Algorithm.ToString());
     }
 
     public void CheckSelectedAlgorithm(VoteNavigationAlgorithm navigationAlgorithm)
     {
-        if (_algorithmStats[0].Algorithm == navigationAlgorithm.navigationAlgorithm) _currentGameScore += 1 * Countdown.Instance.GetLastRemaining();
-        else _currentGameLives--;
+        if(_algorithmStats[0].Algorithm == navigationAlgorithm.navigationAlgorithm)
+        {
+            _currentGameScore += 1 * Countdown.Instance.GetLastRemaining();
+            PopUpText.Instance.ShowText("RIGHT", Color.green, 1.5f);
+        }
+        else
+        {
+            _currentGameLives--;
+            PopUpText.Instance.ShowText("BAD", Color.red, 1.5f);
+        }
 
         MainGameManagerUI.Instance.UpdateBtns(_algorithmStats[0].Algorithm);
         MainGameManagerUI.Instance.UpdateScoreUI(_currentGameScore);
         OnEnergyChange?.Invoke(_currentGameLives);
 
-        if (_currentGameLives <= 0) EndGame();
+        if(_currentGameLives <= 0) EndGame();
         else
         {
             MainGameManagerUI.Instance.SwitchState(MainGameManagerUI.UIStates.readyToNextLevel);
 
             _spreadAlgorithms.SpreadOnAxis(_algorithmStats);
-
-            // TODO : continue after click and show animation/vizualization finding path
         }
     }
 

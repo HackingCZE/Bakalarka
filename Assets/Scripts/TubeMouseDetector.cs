@@ -8,6 +8,9 @@ public class TubeMouseDetector : MonoBehaviour
     List<SpreadAlgorithms.Spread> _spreads = new();
     float _width;
     public float nwidth = 2.5f;
+
+    private string _highlightName = "";
+    private bool _shouldHighlight;
     void FixedUpdate()
     {
         if (_spreads.Count > 0) DetectMouseOverTube();
@@ -28,11 +31,11 @@ public class TubeMouseDetector : MonoBehaviour
             if (item.GetLastRadius != newVal) item.GenerateTube(newVal);
         }
 
-        if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity) && hit.collider.CompareTag(tubeTag))
+        if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity) && hit.collider.CompareTag(tubeTag) || _shouldHighlight)
         {
             foreach (var item in _spreads)
             {
-                if (hit.collider != null && item.Collider == hit.collider) newWidth = _width * nwidth;
+                if ((hit.collider != null && (item.Collider == hit.collider || item.AlgorithmStats.Algorithm.ToString() == hit.transform.name.ToString())) || _shouldHighlight && item.AlgorithmStats.Algorithm.ToString() == _highlightName) newWidth = _width * nwidth;
                 else continue;
 
                 item.TrailRenderer.startWidth = newWidth;
@@ -43,6 +46,12 @@ public class TubeMouseDetector : MonoBehaviour
             }
         }
 
+    }
+
+    public void Highlight(string name, bool isOn)
+    {
+        _highlightName = name;
+        _shouldHighlight = isOn;
     }
 
     public void SetTubes(List<SpreadAlgorithms.Spread> spreads, float width)

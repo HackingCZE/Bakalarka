@@ -54,9 +54,6 @@ public class AStar : AlgoBase
                     }
                 }
             }
-
-            if (c > graph.Count + 150) break;
-            c++;
         }
 
         throw new System.Exception("Path not found");

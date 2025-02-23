@@ -50,8 +50,7 @@ public class LSystemVisualizer : MonoBehaviour
 
         // TODO reset cam
 
-        _chanceToJoin = Random.Range(30f, 80f);
-
+        _chanceToJoin = Random.Range(Mathf.Min(30f + (MainGameManager.Instance.GetLevel() / 7) * 5, 75f), 90f);
 
         _nodes = new();
         _edges = new();
@@ -81,7 +80,6 @@ public class LSystemVisualizer : MonoBehaviour
 
         foreach (var currentNode in _nodes)
         {
-
             AlgoNode algoNode = algoNodeMap[currentNode.Position];
 
             foreach (Node neighbor in currentNode.Neighbours)
@@ -113,7 +111,6 @@ public class LSystemVisualizer : MonoBehaviour
         float angle = 90;
 
         _nodes.Add(currentPosition);
-
 
         foreach (var letter in lSystemSentence) // each char in sentence
         {
@@ -225,14 +222,6 @@ public class LSystemVisualizer : MonoBehaviour
         if(_withTiles) SpawnTiles();
     }
 
-    public void AddBuildingPoints(GameObject obj)
-    {
-        TileStats tileStats = obj.GetComponent<TileStats>();
-
-        //_points.AddRange(tileStats.GetBuildingPoints());
-        //Destroy(tileStats);
-    }
-
     public void SpawnTiles()
     {
         foreach (var roadType in _roadTypes)
@@ -248,7 +237,7 @@ public class LSystemVisualizer : MonoBehaviour
                 {
                     case RoadTileType.Junction4Dirs:
                         // Spawn a 4-way junction at the node's position
-                        AddBuildingPoints(Instantiate(_junction4Dirs, node.Position, Quaternion.identity, _currentTilesParent));
+                        Instantiate(_junction4Dirs, node.Position, Quaternion.identity, _currentTilesParent);
                         break;
                     case RoadTileType.Junction3Dirs:
                         // Calculate normalized directions to neighbors
@@ -271,7 +260,7 @@ public class LSystemVisualizer : MonoBehaviour
                         else if (down && left && right) rotation = 90f;
 
                         // Spawn a 3-way junction with the calculated rotation
-                        AddBuildingPoints(Instantiate(_junction3Dirs, node.Position, Quaternion.Euler(0, rotation, 0), _currentTilesParent));
+                        Instantiate(_junction3Dirs, node.Position, Quaternion.Euler(0, rotation, 0), _currentTilesParent);
                         break;
                     case RoadTileType.RoadCurve:
                         // Get directions to two neighbors
@@ -282,12 +271,12 @@ public class LSystemVisualizer : MonoBehaviour
 
                         // Determine rotation based on the curve's neighbor alignment
                         if (Mathf.Abs(dir1.x) > Mathf.Abs(dir1.z))
-                            rotation = dir1.x > 0 ? (dir2.z > 0 ? -90f : 0f) : (dir2.z > 0 ? 180f : 90f); // Soused1 je na ose X (vodorovnì)
+                            rotation = dir1.x > 0 ? (dir2.z > 0 ? -90f : 0f) : (dir2.z > 0 ? 180f : 90f); // Neighbour1 is on X (horizontal)
                         else
-                            rotation = dir1.z > 0 ? (dir2.x > 0 ? -90f : 180f) : (dir2.x > 0 ? 0f : 90f); // Soused1 je na ose Z (svisle)
+                            rotation = dir1.z > 0 ? (dir2.x > 0 ? -90f : 180f) : (dir2.x > 0 ? 0f : 90f); // Neighbour1 is on Z (vertical)
 
                         // Spawn a road curve tile
-                        AddBuildingPoints(Instantiate(_roadCurve, node.Position, Quaternion.Euler(0, rotation, 0), _currentTilesParent));
+                        Instantiate(_roadCurve, node.Position, Quaternion.Euler(0, rotation, 0), _currentTilesParent);
                         break;
                     case RoadTileType.RoadLine:
                         // Get directions to two neighbors
@@ -300,17 +289,17 @@ public class LSystemVisualizer : MonoBehaviour
                         if (Mathf.Abs(dir1.x) > 0.1f && Mathf.Abs(dir2.x) > 0.1f) rotation = 90;
 
                         // Spawn a straight road tile
-                        AddBuildingPoints(Instantiate(_roadLine, node.Position, Quaternion.Euler(0, rotation, 0), _currentTilesParent));
+                        Instantiate(_roadLine, node.Position, Quaternion.Euler(0, rotation, 0), _currentTilesParent);
                         break;
                     case RoadTileType.RoadEnd:
-                        // Calculate the angle based on the single neighbor's direction
+                        // Calculate the angle based on the single neighbors direction
                         dir1 = (node.Neighbours[0].Position - node.Position).normalized;
 
                         float angle = Mathf.Atan2(dir1.x, dir1.z) * Mathf.Rad2Deg;
                         angle = Mathf.Round(angle / 90) * 90; // Round to the nearest 90 degrees
 
                         // Spawn a road end tile
-                        AddBuildingPoints(Instantiate(_roadEnd, node.Position, Quaternion.Euler(0, angle, 0), _currentTilesParent));
+                        Instantiate(_roadEnd, node.Position, Quaternion.Euler(0, angle, 0), _currentTilesParent);
                         break;
                     case RoadTileType.None:
                         break;

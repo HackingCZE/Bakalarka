@@ -30,8 +30,7 @@ public class SpreadAlgorithms : MonoBehaviour
 
         _coroutines.Clear();
         materialBlock = new MaterialPropertyBlock();
-        // Zrušíme pøedchozí instancování algoritmù (pokud existují)
-        foreach (var stat in values)
+        foreach(var stat in values)
         {
             var parentParent = new GameObject(stat.Algorithm.ToString());
             parentParent.transform.position = Vector3.zero;
@@ -59,20 +58,26 @@ public class SpreadAlgorithms : MonoBehaviour
 
         float centerX = (count - 1) * scale / 2f;
 
-        // Rozmístíme algoritmy podle hodnot v seznamu
-        for (int i = 0; i < count; i++)
+        float xPos = 0;
+        float zPos = 0;
+        float yPos = 0;
+
+        NavigationAlgorithm lastAlgo = NavigationAlgorithm.None;
+        for(int i = 0; i < count; i++)
         {
+            if(lastAlgo != spreads[i].AlgorithmStats.Algorithm)
+            {
+                xPos = (i * scale) - centerX + spreads[i].TrailRenderer.transform.position.x;
+                zPos = (i * scale) - centerX + spreads[i].TrailRenderer.transform.position.z;
+                yPos = (i * (scale / 4.5f)) + spreads[i].TrailRenderer.transform.position.y;
+            }
+            lastAlgo = spreads[i].AlgorithmStats.Algorithm;
 
-            float xPos = (i * scale) - centerX + spreads[i].TrailRenderer.transform.position.x;
-            float zPos = (i * scale) - centerX + spreads[i].TrailRenderer.transform.position.z;
-            float yPos = (i * (scale / 4.5f)) + spreads[i].TrailRenderer.transform.position.y;
-
-            // Nastavení pozice objektu
             spreads[i].TrailRenderer.transform.localPosition = new Vector3(xPos, yPos, zPos);
             spreads[i].CreateMesh = true;
             spreads[i].AddPointTube(spreads[i].TrailRenderer.transform.position);
         }
-        foreach (var item in spreads)
+        foreach(var item in spreads)
         {
             _coroutines.Add(StartCoroutine(MoveSpread(item)));
         }
@@ -85,7 +90,7 @@ public class SpreadAlgorithms : MonoBehaviour
         spreads = MenuPathMove.Instance.paths;
         _coroutines.Clear();
 
-        for (int i = 0; i < spreads.Count; i++)
+        for(int i = 0; i < spreads.Count; i++)
         {
             spreads[i].TrailRenderer.emitting = false;
             spreads[i].TrailRenderer.time = spreads[i].AlgorithmStats.Path.Count / 8;
@@ -104,21 +109,19 @@ public class SpreadAlgorithms : MonoBehaviour
 
         float centerX = (count - 1) * scale / 2f;
 
-        // Rozmístíme algoritmy podle hodnot v seznamu
-        for (int i = 0; i < count; i++)
+        for(int i = 0; i < count; i++)
         {
 
             float xPos = (i * scale) - centerX + spreads[i].TrailRenderer.transform.position.x;
             float zPos = (i * scale) - centerX + spreads[i].TrailRenderer.transform.position.z;
             float yPos = (i * (scale / 4.5f)) + spreads[i].TrailRenderer.transform.position.y;
 
-            // Nastavení pozice objektu
             spreads[i].TrailRenderer.transform.position = new Vector3(xPos, yPos, zPos);
             spreads[i].StartPos = spreads[i].TrailRenderer.transform.position;
             spreads[i].CreateMesh = false;
 
         }
-        foreach (var item in spreads)
+        foreach(var item in spreads)
         {
             _coroutines.Add(StartCoroutine(TrackCoroutine(MoveSpread(item), item)));
         }
@@ -139,17 +142,17 @@ public class SpreadAlgorithms : MonoBehaviour
             item.TrailRenderer.emitting = false;
             item.TrailRenderer.transform.parent.position -= new Vector3(0, 2, 0);
 
-            if (SceneManager.GetActiveScene().name == "MainMenu") StartCoroutine(TrackCoroutine(MoveSpread(item), item));
+            if(SceneManager.GetActiveScene().name == "MainMenu") StartCoroutine(TrackCoroutine(MoveSpread(item), item));
         }
-    
+
 
     }
 
     private void OnDrawGizmos()
     {
-        foreach (var item in spreads)
+        foreach(var item in spreads)
         {
-            foreach (var point in item.AlgorithmStats.Path)
+            foreach(var point in item.AlgorithmStats.Path)
             {
                 Gizmos.DrawSphere(point, .5f);
             }
@@ -158,13 +161,13 @@ public class SpreadAlgorithms : MonoBehaviour
 
     public void Clear()
     {
-        foreach (var item in _coroutines)
+        foreach(var item in _coroutines)
         {
-            if (item != null) StopCoroutine(item);
+            if(item != null) StopCoroutine(item);
         }
         _coroutines.Clear();
 
-        foreach (var item in spreads)
+        foreach(var item in spreads)
         {
             Destroy(item.TrailRenderer.transform.parent.parent.gameObject);
         }
@@ -174,9 +177,9 @@ public class SpreadAlgorithms : MonoBehaviour
 
     public IEnumerator MoveSpread(Spread item)
     {
-        foreach (var targetPosition in item.AlgorithmStats.Path)
+        foreach(var targetPosition in item.AlgorithmStats.Path)
         {
-            if (item.TrailRenderer != null) yield return StartCoroutine(MoveToPosition(item.TrailRenderer.transform.parent.gameObject, new Vector3(targetPosition.x, targetPosition.y + 1, targetPosition.z)));
+            if(item.TrailRenderer != null) yield return StartCoroutine(MoveToPosition(item.TrailRenderer.transform.parent.gameObject, new Vector3(targetPosition.x, targetPosition.y + 1, targetPosition.z)));
             if(item.TrailRenderer != null) item.AddPointTube(item.TrailRenderer.transform.position);
         }
 
@@ -185,14 +188,14 @@ public class SpreadAlgorithms : MonoBehaviour
     private IEnumerator MoveToPosition(GameObject obj, Vector3 targetPosition)
     {
 
-        while (obj != null && obj.transform.position != targetPosition)
+        while(obj != null && obj.transform.position != targetPosition)
         {
             obj.transform.position = Vector3.MoveTowards(obj.transform.position, targetPosition, speed * Time.deltaTime);
 
             yield return null;
         }
 
-        if (obj != null) obj.transform.position = targetPosition;
+        if(obj != null) obj.transform.position = targetPosition;
     }
 
     [Serializable]
@@ -229,10 +232,10 @@ public class SpreadAlgorithms : MonoBehaviour
 
         public void AddPointTube(Vector3 newPoint)
         {
-            if (!CreateMesh) return;
+            if(!CreateMesh) return;
             points.Add(newPoint);
 
-            if (points.Count > 1)
+            if(points.Count > 1)
             {
                 GenerateTube(radius);
             }
@@ -255,11 +258,11 @@ public class SpreadAlgorithms : MonoBehaviour
             uvs.Clear();
 
             // Procházení všech bodù
-            for (int i = 0; i < points.Count; i++)
+            for(int i = 0; i < points.Count; i++)
             {
                 // Smìr mezi body
                 Vector3 forward = Vector3.forward;
-                if (i < points.Count - 1)
+                if(i < points.Count - 1)
                 {
                     forward = (points[i + 1] - points[i]).normalized;
                 }
@@ -268,7 +271,7 @@ public class SpreadAlgorithms : MonoBehaviour
                 Quaternion rotation = forward == Vector3.zero ? Quaternion.identity : Quaternion.LookRotation(forward);
 
                 // Pøidání vertexù pro aktuální bod
-                for (int j = 0; j < segments; j++)
+                for(int j = 0; j < segments; j++)
                 {
                     float angle = 2 * Mathf.PI * j / segments;
                     Vector3 offset = rotation * new Vector3(Mathf.Cos(angle), Mathf.Sin(angle), 0) * radius;
@@ -279,9 +282,9 @@ public class SpreadAlgorithms : MonoBehaviour
             }
 
             // Vytvoøení trojúhelníkù mezi kruhy
-            for (int i = 0; i < points.Count - 1; i++)
+            for(int i = 0; i < points.Count - 1; i++)
             {
-                for (int j = 0; j < segments; j++)
+                for(int j = 0; j < segments; j++)
                 {
                     int current = i * segments + j;
                     int next = i * segments + (j + 1) % segments;
@@ -300,7 +303,7 @@ public class SpreadAlgorithms : MonoBehaviour
                 }
             }
 
-            if (points.Count < 5)
+            if(points.Count < 5)
             {
                 return;
             }
