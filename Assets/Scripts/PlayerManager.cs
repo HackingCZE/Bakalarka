@@ -50,7 +50,7 @@ public class PlayerManager : MonoBehaviour
         if (withCloudSafe) StartCoroutine(LeaderboardManager.Instance.SubmitScoreRoutine(score));
     }
 
-    public void SetPlayerName(string newNickName)
+    public void SetPlayerName(string newNickName, Action callback)
     {
         Debug.Log("Settin nickname");
         LootLockerSDKManager.SetPlayerName(newNickName, (response) =>
@@ -58,12 +58,13 @@ public class PlayerManager : MonoBehaviour
             if (response.success)
             {
                 Debug.Log("Succesfully set player name");
-                SetLogged(true, newNickName);
+                PlayerManager.Instance.SetLogged(true, newNickName);
             }
             else
             {
                 Debug.Log("Could ot set player name " + response.errorData.ToString());
             }
+            callback?.Invoke();
         });
     }
 

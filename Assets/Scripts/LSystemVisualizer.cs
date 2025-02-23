@@ -362,8 +362,9 @@ public class LSystemVisualizer : MonoBehaviour
         foreach (var item in _nodes)
         {
             Gizmos.color = Color.white;
+#if UNITY_EDITOR
             Handles.Label(item.Position + new Vector3(0, 2, 0), item.Direction.ToString());
-
+#endif
             foreach (var neighbour in item.Neighbours)
             {
                 Gizmos.DrawLine(item.Position, neighbour.Position + new Vector3(0, .5f, 0));

@@ -455,7 +455,9 @@ public class SimpleVisualizer : MonoBehaviour
             Gizmos.color = Color.white;
             if (_points[i].RotationY == 315) Gizmos.color = Color.black;
             Gizmos.DrawSphere(_points[i].Position + new Vector3(0, .5f, 0), .1f);
+#if UNITY_EDITOR
             Handles.ArrowHandleCap(0, _points[i].Position, Quaternion.LookRotation(_points[i].Direction), 1f, EventType.Repaint);
+#endif
         }
         Gizmos.color = Color.red;
         foreach (var group in _groups)
@@ -465,11 +467,12 @@ public class SimpleVisualizer : MonoBehaviour
                 Gizmos.color = Color.red;
 
                 if (i < group.Count - 1) Gizmos.DrawLine(group[i].Position + new Vector3(0, .5f, 0), group[i + 1].Position + new Vector3(0, .5f, 0));
+#if UNITY_EDITOR
                 Handles.Label(group[i].Position + new Vector3(0, .8f, 0), i.ToString());
                 Handles.Label(group[i].Position + new Vector3(0, 1f, 0), group[i].Direction.ToString());
                 Handles.Label(group[i].Position + new Vector3(0, 1.2f, 0), group[i].RotationY.ToString());
                 if (i < group.Count - 1) Handles.Label(group[i].Position + new Vector3(0, 1.5f, 0), ((group[i + 1].Position - group[i].Position).normalized).ToString());
-
+#endif
                 //Gizmos.color = Color.yellow;
 
                 //Gizmos.DrawWireSphere(group[i].Position, 1.95f);
@@ -495,9 +498,10 @@ public class SimpleVisualizer : MonoBehaviour
         foreach (var item in _nodes)
         {
             Gizmos.color = Color.white;
+#if UNITY_EDITOR
             Handles.Label(item.Key.position + new Vector3(0, 2, 0), item.Key.direction.ToString());
-
-            foreach (var neighbour in item.Value)
+#endif
+            foreach(var neighbour in item.Value)
             {
                 Gizmos.DrawLine(item.Key.position, neighbour.position + new Vector3(0, .5f, 0));
             }

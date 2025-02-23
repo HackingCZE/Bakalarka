@@ -17611,13 +17611,13 @@ MonoBehaviour:
   m_RequiresOpaqueTextureOption: 2
   m_CameraType: 0
   m_Cameras: []
-  m_RendererIndex: -1
+  m_RendererIndex: 0
   m_VolumeLayerMask:
     serializedVersion: 2
     m_Bits: 1
   m_VolumeTrigger: {fileID: 0}
   m_VolumeFrameworkUpdateModeOption: 2
-  m_RenderPostProcessing: 0
+  m_RenderPostProcessing: 1
   m_Antialiasing: 0
   m_AntialiasingQuality: 2
   m_StopNaN: 0
@@ -71719,8 +71719,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: da3bbd43fabdcd44092b38160fb67099, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  mesh: {fileID: -5495902117074765545, guid: 6037473031ec3f045917ed17d487f826, type: 3}
+  material: {fileID: 2100000, guid: 27021d32845141e4e80ecee9cd93e219, type: 2}
   tubeTag: Tube
   nwidth: 2.5
+  algorithmStats: []
+  newAlgorithmStats: []
 --- !u!1 &1405070080
 GameObject:
   m_ObjectHideFlags: 0
@@ -79890,6 +79894,7 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects:
     - {fileID: 3087076615995283464, guid: a92e71e677d163f45bc875d259dc54cc, type: 3}
+    - {fileID: 8783103626507580649, guid: a92e71e677d163f45bc875d259dc54cc, type: 3}
     m_AddedGameObjects:
     - targetCorrespondingSourceObject: {fileID: 3035111906007172365, guid: a92e71e677d163f45bc875d259dc54cc,
         type: 3}

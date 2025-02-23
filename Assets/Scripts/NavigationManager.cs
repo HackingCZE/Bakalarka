@@ -11,9 +11,6 @@ using UnityEditor;
 using UnityEngine;
 using static GameManager;
 using static NavigationManager;
-using static UnityEditor.Experimental.GraphView.GraphView;
-using static UnityEngine.GraphicsBuffer;
-using static UnityEngine.Rendering.DebugUI;
 using Random = UnityEngine.Random;
 
 public class NavigationManager : MonoBehaviour, IDrawingNode
@@ -338,8 +335,9 @@ public class NavigationManager : MonoBehaviour, IDrawingNode
         int c = 0;
         foreach(var item in _result)
         {
+#if UNITY_EDITOR
             Handles.Label(item.Position + new Vector3(0, 1, 0), c.ToString());
-
+#endif
             Gizmos.DrawSphere(item.Position, .5f);
             c++;
         }
@@ -382,6 +380,11 @@ public class NavigationManager : MonoBehaviour, IDrawingNode
         public int NodesCount { get; set; }
         [field: SerializeField] public List<Vector3> Path { get; set; }
         public List<Vector3> VisitedNodes { get; set; }
+
+        public bool IsPointNerby(Vector3 point)
+        {
+            return Path.Any(e => Vector3.Distance(point, e) < .8f);
+        }
 
         public float GetEfficiencyScore()
         {

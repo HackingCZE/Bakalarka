@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -62,20 +63,30 @@ public class SpreadAlgorithms : MonoBehaviour
         float zPos = 0;
         float yPos = 0;
 
-        NavigationAlgorithm lastAlgo = NavigationAlgorithm.None;
-        for(int i = 0; i < count; i++)
+        Dictionary<NavigationAlgorithm, int> lastAlgos = new Dictionary<NavigationAlgorithm, int>();
+        int currentIndex = 0;
+        foreach(var item in spreads)
         {
-            if(lastAlgo != spreads[i].AlgorithmStats.Algorithm)
+            if(!lastAlgos.ContainsKey(item.AlgorithmStats.Algorithm))
             {
-                xPos = (i * scale) - centerX + spreads[i].TrailRenderer.transform.position.x;
-                zPos = (i * scale) - centerX + spreads[i].TrailRenderer.transform.position.z;
-                yPos = (i * (scale / 4.5f)) + spreads[i].TrailRenderer.transform.position.y;
+                xPos = (currentIndex * scale) - centerX + item.TrailRenderer.transform.position.x;
+                zPos = (currentIndex * scale) - centerX + item.TrailRenderer.transform.position.z;
+                yPos = (currentIndex * (scale / 4.5f)) + item.TrailRenderer.transform.position.y;
+                lastAlgos.Add(item.AlgorithmStats.Algorithm, currentIndex);
+                currentIndex++;
             }
-            lastAlgo = spreads[i].AlgorithmStats.Algorithm;
+            else
+            {
+                int index = lastAlgos[item.AlgorithmStats.Algorithm];
+                xPos = (index * scale) - centerX + item.TrailRenderer.transform.position.x;
+                zPos = (index * scale) - centerX + item.TrailRenderer.transform.position.z;
+                yPos = (index * (scale / 4.5f)) + item.TrailRenderer.transform.position.y;
 
-            spreads[i].TrailRenderer.transform.localPosition = new Vector3(xPos, yPos, zPos);
-            spreads[i].CreateMesh = true;
-            spreads[i].AddPointTube(spreads[i].TrailRenderer.transform.position);
+            }
+
+            item.TrailRenderer.transform.localPosition = new Vector3(xPos, yPos, zPos);
+            item.CreateMesh = true;
+            item.AddPointTube(item.TrailRenderer.transform.position);
         }
         foreach(var item in spreads)
         {
@@ -182,7 +193,7 @@ public class SpreadAlgorithms : MonoBehaviour
             if(item.TrailRenderer != null) yield return StartCoroutine(MoveToPosition(item.TrailRenderer.transform.parent.gameObject, new Vector3(targetPosition.x, targetPosition.y + 1, targetPosition.z)));
             if(item.TrailRenderer != null) item.AddPointTube(item.TrailRenderer.transform.position);
         }
-
+        item.AddPointTube(item.AlgorithmStats.Path[item.AlgorithmStats.Path.Count-1]);
     }
 
     private IEnumerator MoveToPosition(GameObject obj, Vector3 targetPosition)

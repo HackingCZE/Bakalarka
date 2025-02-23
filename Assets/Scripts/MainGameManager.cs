@@ -85,6 +85,7 @@ public class MainGameManager : MonoBehaviour
             item.indicator.color = MainGameManager.Instance.transform.GetComponent<SpreadAlgorithms>()._algorithms.Where(e => e.algorithm == item.navigationAlgorithm).ToList()[0].color;
         }
 
+        PopUpText.Instance.ShowText(_algorithmStats[0].Algorithm.ToString(), Color.white);
         Debug.Log(_algorithmStats[0].Algorithm.ToString());
     }
 

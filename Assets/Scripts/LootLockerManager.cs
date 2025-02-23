@@ -19,7 +19,11 @@ public class LootLockerManager : MonoBehaviour
 
     public void FirstLogin()
     {
-        PlayerManager.Instance.SetPlayerName(nicknameField.GetComponent<TMP_InputField>().text);
+        PlayerManager.Instance.SetPlayerName(nicknameField.GetComponent<TMP_InputField>().text, LoadMainMenu);
+    }
+
+    private void LoadMainMenu()
+    {
         LoadingSceneManager.Instance.LoadScene("MainMenu");
     }
 
