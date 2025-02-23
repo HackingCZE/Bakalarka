@@ -88,9 +88,14 @@ public class MainGameManager : MonoBehaviour
         Debug.Log(_algorithmStats[0].Algorithm.ToString());
     }
 
+    private List<AlgorithmStats> GetRightAlgorithms(List<AlgorithmStats> algorithmStats)
+    {
+        return algorithmStats.Where(e => e.Algorithm == algorithmStats[0].Algorithm).ToList();
+    }
+
     public void CheckSelectedAlgorithm(VoteNavigationAlgorithm navigationAlgorithm)
     {
-        if(_algorithmStats[0].Algorithm == navigationAlgorithm.navigationAlgorithm)
+        if(GetRightAlgorithms(_algorithmStats).Any(e => e.Algorithm == navigationAlgorithm.navigationAlgorithm))
         {
             _currentGameScore += 1 * Countdown.Instance.GetLastRemaining();
             PopUpText.Instance.ShowText("RIGHT", Color.green, 1.5f);
@@ -101,7 +106,7 @@ public class MainGameManager : MonoBehaviour
             PopUpText.Instance.ShowText("BAD", Color.red, 1.5f);
         }
 
-        MainGameManagerUI.Instance.UpdateBtns(_algorithmStats[0].Algorithm);
+        MainGameManagerUI.Instance.UpdateBtns(GetRightAlgorithms(_algorithmStats).ConvertAll<NavigationAlgorithm>(e => e.Algorithm).ToList());
         MainGameManagerUI.Instance.UpdateScoreUI(_currentGameScore);
         OnEnergyChange?.Invoke(_currentGameLives);
 
@@ -113,6 +118,8 @@ public class MainGameManager : MonoBehaviour
             _spreadAlgorithms.SpreadOnAxis(_algorithmStats);
         }
     }
+
+    public void AddLevel() => _currentGameLevel++;
 
     public void NextLevel()
     {

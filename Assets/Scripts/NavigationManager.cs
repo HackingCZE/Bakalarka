@@ -157,25 +157,35 @@ public class NavigationManager : MonoBehaviour, IDrawingNode
 
         do
         {
-            target.transform.position = new Vector3(Random.Range(-currentDistance - val / 2, currentDistance + val / 2), 0, Random.Range(-50f - val / 2, 50f + val / 2));
+            target.transform.position = new Vector3(Random.Range(-currentDistance - val / 2, currentDistance + val / 2), 0, Random.Range(-currentDistance - val / 2, currentDistance + val / 2));
         } while(Vector3.Distance(player.transform.position, target.transform.position) <= (currentDistance / 1.5f) ||
            player.transform.position == target.transform.position);
 
         DistanceBetweenPoints = Vector3.Distance(player.transform.position, target.transform.position);
     }
+    int _biderectionalDFSLastCounted = 0;
 
 
     public async Task<List<AlgorithmStats>> GetOrderOfAlgorithms()
     {
+        if(_biderectionalDFSLastCounted < 0) _biderectionalDFSLastCounted = 0;
 
         List<Task<AlgoBase>> tasks = new List<Task<AlgoBase>>()
         {
              RunAlgoInThread(NavigationAlgorithm.AStar),
              RunAlgoInThread(NavigationAlgorithm.DFS),
-             RunAlgoInThread(NavigationAlgorithm.BFS),
-             RunAlgoInThread(NavigationAlgorithm.BidirectionalDFS),
              RunAlgoInThread(NavigationAlgorithm.BidirectionalBFS)
         };
+
+        if(_biderectionalDFSLastCounted < 3)
+        {
+            try { FindFirstObjectByType<VoteNavigationAlgorithm>(FindObjectsInactive.Include).gameObject.SetActive(true); } catch { }
+            tasks.Add(RunAlgoInThread(NavigationAlgorithm.BidirectionalDFS));
+        }
+        else
+        {
+            try { FindFirstObjectByType<VoteNavigationAlgorithm>(FindObjectsInactive.Include).gameObject.SetActive(false); } catch { }
+        }
 
         await Task.WhenAll(tasks);
 
@@ -187,18 +197,21 @@ public class NavigationManager : MonoBehaviour, IDrawingNode
 
             if(algoResult.Algorithm.ToString().Contains("Bidirectional"))
             {
-                currentResult.Add(new AlgorithmStats(algoResult.Algorithm, algoResult.Stopwatch.Elapsed, algoResult.VisitedNodes, algoResult.MemoryUsage, algoResult.Result.Count, ((BiderectionalAlgoBase)algoResult).forwardPath, algoResult.NodesCount));
-                currentResult.Add(new AlgorithmStats(algoResult.Algorithm, algoResult.Stopwatch.Elapsed, algoResult.VisitedNodes, algoResult.MemoryUsage, algoResult.Result.Count, ((BiderectionalAlgoBase)algoResult).backwardPath, algoResult.NodesCount));
+                currentResult.Add(new AlgorithmStats(algoResult.Algorithm, algoResult.Stopwatch.Elapsed, algoResult.Visited, algoResult.MemoryUsage, algoResult.Result.Count, ((BiderectionalAlgoBase)algoResult).forwardPath, algoResult.NodesCount));
+                currentResult.Add(new AlgorithmStats(algoResult.Algorithm, algoResult.Stopwatch.Elapsed, algoResult.Visited, algoResult.MemoryUsage, algoResult.Result.Count, ((BiderectionalAlgoBase)algoResult).backwardPath, algoResult.NodesCount));
             }
             else
             {
-                currentResult.Add(new AlgorithmStats(algoResult.Algorithm, algoResult.Stopwatch.Elapsed, algoResult.VisitedNodes, algoResult.MemoryUsage, algoResult.Result.Count, algoResult.Result, algoResult.NodesCount));
+                currentResult.Add(new AlgorithmStats(algoResult.Algorithm, algoResult.Stopwatch.Elapsed, algoResult.Visited, algoResult.MemoryUsage, algoResult.Result.Count, algoResult.Result, algoResult.NodesCount));
             }
 
             return currentResult;
         }).ToList();
 
-        return results.OrderBy(a => a.GetEfficiencyScore()).ToList();
+        var res = results.OrderBy(a => a.GetEfficiencyScore()).ToList();
+        if(res[0].Algorithm == NavigationAlgorithm.BidirectionalDFS) _biderectionalDFSLastCounted += Random.Range(1,2);
+        else _biderectionalDFSLastCounted--;
+        return res;
     }
 
     public List<AlgorithmStats> SortAlgorithmsByEfficiency(List<AlgorithmStats> algorithms)
@@ -363,18 +376,19 @@ public class NavigationManager : MonoBehaviour, IDrawingNode
     {
         [field: SerializeField] public NavigationAlgorithm Algorithm { get; set; }
         public TimeSpan Time { get; set; }
-        public int VisitedNodes { get; set; }
+        // public int VisitedNodes { get; set; }
         public int MemoryUsage { get; set; }
         public int ResultPathLength { get; set; }
         public int NodesCount { get; set; }
         [field: SerializeField] public List<Vector3> Path { get; set; }
+        public List<Vector3> VisitedNodes { get; set; }
 
         public float GetEfficiencyScore()
         {
-            return VisitedNodes;
+            return VisitedNodes.Count;
         }
 
-        public AlgorithmStats(NavigationAlgorithm algorithm, TimeSpan time, int visitedNodes, int memoryUsage, int resultPathLength, List<AlgoNode> path, int nodesCount)
+        public AlgorithmStats(NavigationAlgorithm algorithm, TimeSpan time, List<Vector3> visitedNodes, int memoryUsage, int resultPathLength, List<AlgoNode> path, int nodesCount)
         {
             Algorithm = algorithm;
             NodesCount = nodesCount;

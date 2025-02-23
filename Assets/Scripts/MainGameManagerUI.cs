@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -110,11 +111,11 @@ public class MainGameManagerUI : MonoBehaviour
         _mid.gameObject.SetActive(false);
     }
 
-    public void UpdateBtns(NavigationManager.NavigationAlgorithm algorithm)
+    public void UpdateBtns(List<NavigationManager.NavigationAlgorithm> algorithms)
     {
         foreach (var item in _btns.GetComponentsInChildren<VoteNavigationAlgorithm>())
         {
-            if (item.navigationAlgorithm == algorithm)
+            if(algorithms.Any(e => e == item.navigationAlgorithm))
             {
                 item.GetComponent<Image>().color = new Color(37f / 255f, 214f / 255f, 37f / 255f, 255f / 255f); 
             }

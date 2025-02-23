@@ -10,7 +10,6 @@ public class AStar : AlgoBase
     public override async Task<List<AlgoNode>> StartAlgo(AlgoNode startNode, AlgoNode endNode, List<AlgoNode> graph, IDrawingNode drawingNode)
     {
         Stopwatch.Start();
-        int c = 0;
         _queue = new PriorityQueue<AlgoNode>();
         float heuristicFactor = 1f;
 
@@ -32,10 +31,9 @@ public class AStar : AlgoBase
             }
 
             currentNode.Visited = true;
-            VisitedNodes++;
+            Visited.Add(currentNode.Position);
 
-
-            foreach (var neighbor in currentNode.Neighbours)
+            foreach(var neighbor in currentNode.Neighbours)
             {
                 if (neighbor.Visited) continue;
 

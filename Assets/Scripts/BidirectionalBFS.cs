@@ -53,15 +53,21 @@ public class BidirectionalBFS : BiderectionalAlgoBase
         if(queue.Count == 0) return false;
 
         AlgoNode currentNode = queue.Dequeue();
+        currentNode.Visited = true;
+        Visited.Add(currentNode.Position);
+
         drawingNode.DrawNode(currentNode);
 
         foreach(var neighbor in currentNode.Neighbours)
         {
             if(!currentParents.ContainsKey(neighbor))
             {
-                queue.Enqueue(neighbor);
                 currentParents[neighbor] = currentNode;
-                VisitedNodes++;
+
+                if(!queue.Contains(neighbor))
+                {
+                    queue.Enqueue(neighbor);
+                }
 
                 if(otherParents.ContainsKey(neighbor))
                 {

@@ -19,7 +19,6 @@ public abstract class BiderectionalAlgoBase : AlgoBase
 
     public new async Task<List<AlgoNode>> GetResultPath(AlgoNode startNode, AlgoNode endNode)
     {
-        Debug.Log("gggHe--");
         forwardPath = new List<AlgoNode>();
         backwardPath = new List<AlgoNode>();
 

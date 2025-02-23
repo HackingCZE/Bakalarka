@@ -71687,13 +71687,13 @@ MonoBehaviour:
   material: {fileID: 2100000, guid: 2aeb5b064dc59ef49af8c9584fc6e8d5, type: 2}
   _algorithms:
   - algorithm: 0
-    color: {r: 0.05724919, g: 1, b: 0, a: 1}
+    color: {r: 0.028004646, g: 0, b: 1, a: 1}
   - algorithm: 1
     color: {r: 1, g: 0.2827691, b: 0, a: 1}
   - algorithm: 2
     color: {r: 0.9384004, g: 1, b: 0, a: 1}
   - algorithm: 3
-    color: {r: 0, g: 1, b: 0.8089638, a: 1}
+    color: {r: 0.51152545, g: 0.8962264, b: 0.8223035, a: 1}
   - algorithm: 4
     color: {r: 0, g: 0.23288822, b: 1, a: 1}
   - algorithm: 5

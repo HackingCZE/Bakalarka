@@ -15,6 +15,7 @@ public abstract class AlgoBase : IAlgo
     public int MemoryUsage { get; set; }
     public int NodesCount { get; set; }
     public List<AlgoNode> Result { get; set; }
+    public List<Vector3> Visited { get; set; }
     public NavigationAlgorithm Algorithm { get; set; }
 
     protected AlgoBase()
@@ -33,6 +34,7 @@ public abstract class AlgoBase : IAlgo
     public async Task<AlgoBase> RunStartAlgoInThread(AlgoNode startNode, AlgoNode endNode, List<AlgoNode> graph, IDrawingNode drawingNode)
     {
         NodesCount = graph.Count;
+        Visited = new();
         Result = await Task.Run(() => StartAlgo(startNode, endNode, graph, drawingNode));
         return this;
     }

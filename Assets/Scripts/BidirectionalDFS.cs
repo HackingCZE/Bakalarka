@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
@@ -53,15 +54,21 @@ public class BidirectionalDFS : BiderectionalAlgoBase
         if (stack.Count == 0) return false;
 
         AlgoNode currentNode = stack.Pop();
+        currentNode.Visited = true;
+        Visited.Add(currentNode.Position);
+
         drawingNode.DrawNode(currentNode);
 
         foreach (var neighbor in currentNode.Neighbours)
         {
             if (!currentParents.ContainsKey(neighbor))
             {
-                stack.Push(neighbor);
                 currentParents[neighbor] = currentNode;
-                VisitedNodes++;
+
+                if(!stack.Contains(neighbor))
+                {
+                    stack.Push(neighbor);
+                }
 
                 if (otherParents.ContainsKey(neighbor))
                 {

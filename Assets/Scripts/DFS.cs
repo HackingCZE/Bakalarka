@@ -11,44 +11,44 @@ public class DFS : AlgoBase
     {
         Stopwatch.Start();
 
-        int c = 0;
         _stack = new Stack<AlgoNode>();
 
         _stack.Push(startNode);
 
-        while (_stack.Count > 0)
+        while(_stack.Count > 0)
         {
             await Task.Yield();
             AlgoNode currentNode = _stack.Pop();
 
-            if (currentNode == endNode)
+            if(currentNode == endNode)
             {
                 return await GetResultPath(startNode, currentNode);
             }
 
-            if (!currentNode.Visited)
+            currentNode.Visited = true;
+            Visited.Add(currentNode.Position);
+
+            drawingNode.DrawNode(currentNode);
+
+            foreach(var neighbor in currentNode.Neighbours)
             {
-                currentNode.Visited = true;
-                VisitedNodes++;
-
-                drawingNode.DrawNode(currentNode);
-
-                foreach (var neighbor in currentNode.Neighbours)
+                if(!neighbor.Visited)
                 {
-                    if (!neighbor.Visited)
+                    neighbor.Parent = currentNode;
+
+                    if(!_stack.Contains(neighbor))
                     {
                         _stack.Push(neighbor);
-                        MemoryUsage = Mathf.Max(MemoryUsage, _stack.Count);
-                        neighbor.Parent = currentNode;
                     }
                 }
-
             }
+
+            MemoryUsage = Mathf.Max(MemoryUsage, _stack.Count);
         }
 
         throw new System.Exception("Path not found");
     }
-   
+
 }
 
 

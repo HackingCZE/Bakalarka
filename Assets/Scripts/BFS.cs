@@ -12,36 +12,37 @@ public class BFS : AlgoBase
     public async override Task<List<AlgoNode>> StartAlgo(AlgoNode startNode, AlgoNode endNode, List<AlgoNode> graph, IDrawingNode drawingNode)
     {
         Stopwatch.Start();
-        int c = 0;
         _queue = new Queue<AlgoNode>();
 
         _queue.Enqueue(startNode);
-        startNode.Visited = true;
-        VisitedNodes++;
 
-        while (_queue.Count > 0)
+        while(_queue.Count > 0)
         {
             await Task.Yield();
             AlgoNode currentNode = _queue.Dequeue();
             drawingNode.DrawNode(currentNode);
 
-            if (currentNode == endNode)
+            if(currentNode == endNode)
             {
                 return await GetResultPath(startNode, currentNode);
             }
 
-            foreach (var neighbor in currentNode.Neighbours)
-            {
-                if (!neighbor.Visited)
-                {
-                    _queue.Enqueue(neighbor);
-                    MemoryUsage = Mathf.Max(MemoryUsage, _queue.Count);
+            currentNode.Visited = true;
+            Visited.Add(currentNode.Position);
 
-                    neighbor.Visited = true;
-                    VisitedNodes++;
+            foreach(var neighbor in currentNode.Neighbours)
+            {
+                if(!neighbor.Visited)
+                {
                     neighbor.Parent = currentNode;
+
+                    if(!_queue.Contains(neighbor))
+                    {
+                        _queue.Enqueue(neighbor);
+                    }
                 }
             }
+            MemoryUsage = Mathf.Max(MemoryUsage, _queue.Count);
         }
 
         throw new System.Exception("Path not found");

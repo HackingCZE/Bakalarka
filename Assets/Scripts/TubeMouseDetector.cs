@@ -9,6 +9,8 @@ public class TubeMouseDetector : MonoBehaviour
     float _width;
     public float nwidth = 2.5f;
 
+    private List<Vector3> currentPoints = new();
+
     private string _highlightName = "";
     private bool _shouldHighlight;
     void FixedUpdate()
@@ -38,6 +40,8 @@ public class TubeMouseDetector : MonoBehaviour
                 if ((hit.collider != null && (item.Collider == hit.collider || item.AlgorithmStats.Algorithm.ToString() == hit.transform.name.ToString())) || _shouldHighlight && item.AlgorithmStats.Algorithm.ToString() == _highlightName) newWidth = _width * nwidth;
                 else continue;
 
+                currentPoints = item.AlgorithmStats.VisitedNodes;
+
                 item.TrailRenderer.startWidth = newWidth;
                 item.TrailRenderer.endWidth = newWidth;
 
@@ -62,5 +66,13 @@ public class TubeMouseDetector : MonoBehaviour
     public void Clear()
     {
         _spreads.Clear();
+    }
+
+    private void OnDrawGizmos()
+    {
+        foreach(var item in currentPoints)
+        {
+            Gizmos.DrawSphere(item, 1f);
+        }
     }
 }

@@ -17,12 +17,7 @@ public class Tester : MonoBehaviour
 
             LSystemVisualizer.Instance.VisualizeMap();
             var _algorithmStats = await NavigationManager.Instance.GetOrderOfAlgorithms();
-            if(_algorithmStats[0].ResultPathLength == 1)
-            {
-                LSystemVisualizer.Instance.SpawnTiles();
-
-                return;
-            }
+            
             algorithms.Add(_algorithmStats[0].Algorithm); 
             csv.AddRow(new string[] {
                     "Test("+i+")",
@@ -38,7 +33,7 @@ public class Tester : MonoBehaviour
                 csv.AddRow(new string[] {
                     item.Algorithm.ToString(),
                     item.Time.ToString(),
-                    item.VisitedNodes.ToString(),
+                    item.VisitedNodes.Count.ToString(),
                     item.MemoryUsage.ToString(),
                     item.ResultPathLength.ToString()
                 });
@@ -49,8 +44,8 @@ public class Tester : MonoBehaviour
                 //Debug.Log("Memory: " + item.MemoryUsage.ToString());
                 //Debug.Log("Time: " + item.Time.ToString());
                 //Debug.Log("--------------");
-
             }
+                MainGameManager.Instance.AddLevel();
 
             csv.AddRow(new string[] {
                     "",
