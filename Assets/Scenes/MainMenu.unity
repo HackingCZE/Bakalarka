@@ -71564,7 +71564,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: da3bbd43fabdcd44092b38160fb67099, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mesh: {fileID: -5495902117074765545, guid: 6037473031ec3f045917ed17d487f826, type: 3}
+  mesh: {fileID: 997602262961349003, guid: 6037473031ec3f045917ed17d487f826, type: 3}
   material: {fileID: 2100000, guid: 27021d32845141e4e80ecee9cd93e219, type: 2}
   tubeTag: Tube
   nwidth: 2.5
