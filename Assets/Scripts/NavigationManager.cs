@@ -109,13 +109,6 @@ public class NavigationManager : MonoBehaviour, IDrawingNode
         _mapNodes = new List<AlgoNode>();
     }
 
-    [Button]
-    public async void StartAlgorithm()
-    {
-        this._result = (await RunAlgoInThread(navigationAlgorithm)).Result;
-
-        // after get result path
-    }
 
     public void PlacePoints()
     {
@@ -123,45 +116,44 @@ public class NavigationManager : MonoBehaviour, IDrawingNode
         if(visualizer != null) val = visualizer.GetNodes().Count;
         if(visualizer1 != null) val = visualizer1.GetNodes().Count;
 
-        int currentDistance = 1;
+        int currentDistance = 50; // Výchozí hodnota
 
         if(MainGameManager.Instance.GetLevel() > 80)
-        {
             currentDistance = Mathf.Max((MainGameManager.Instance.GetLevel() / 50) * 20 + 160, 1);
-        }
         else if(MainGameManager.Instance.GetLevel() > 50)
-        {
             currentDistance = 160;
-        }
         else if(MainGameManager.Instance.GetLevel() > 25)
-        {
             currentDistance = 120;
-        }
         else if(MainGameManager.Instance.GetLevel() > 15)
-        {
             currentDistance = 90;
-        }
         else if(MainGameManager.Instance.GetLevel() > 5)
-        {
             currentDistance = 70;
-        }
-        else
-        {
-            currentDistance = 50;
-        }
 
-        player.transform.position = new Vector3(Random.Range(-currentDistance - val / 2, currentDistance + val / 2), 0, Random.Range(-currentDistance - val / 2, currentDistance + val / 2));
+
+        Vector3 newPosition;
+        int safetyCounter = 200;
 
         do
         {
-            target.transform.position = new Vector3(Random.Range(-currentDistance - val / 2, currentDistance + val / 2), 0, Random.Range(-currentDistance - val / 2, currentDistance + val / 2));
-        } while(Vector3.Distance(player.transform.position, target.transform.position) <= (currentDistance / 1.5f) ||
-           player.transform.position == target.transform.position);
+            newPosition = GetRandomPosition(currentDistance, val);
+            player.transform.position = GetRandomPosition(currentDistance, val);
+            safetyCounter--;
+        }
+        while(Vector3.Distance(player.transform.position, newPosition) <= (currentDistance / 1.5f) && safetyCounter > 0);
 
+        target.transform.position = newPosition;
         DistanceBetweenPoints = Vector3.Distance(player.transform.position, target.transform.position);
     }
-    int _biderectionalDFSLastCounted = 0;
+    private Vector3 GetRandomPosition(int distance, float val)
+    {
+        return new Vector3(
+            Random.Range(-distance - val / 2, distance + val / 2),
+            0,
+            Random.Range(-distance - val / 2, distance + val / 2)
+        );
+    }
 
+    int _biderectionalDFSLastCounted = 0;
 
     public async Task<List<AlgorithmStats>> GetOrderOfAlgorithms()
     {

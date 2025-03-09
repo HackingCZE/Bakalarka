@@ -19,27 +19,16 @@ public class Countdown : MonoBehaviour
         Instance = this;
     }
 
-    private IEnumerator StartTimer()
-    {
-        PopUpText.Instance.ShowText("3", Color.white);
-        yield return new WaitForSeconds(1);
-        PopUpText.Instance.ShowText("2", Color.white);
-        yield return new WaitForSeconds(1);
-        PopUpText.Instance.ShowText("1", Color.white, 1, SetIsOn);
-    }
+ 
 
     public void StartTimer(float seconds)
     {
         _timeLeft = seconds;
         UpdateTimer(_timeLeft);
-        StartCoroutine(StartTimer());
-    }
-
-    private void SetIsOn()
-    {
         _isOn = true;
         CameraController.Instance.SetIsStatic(false);
     }
+
 
     public void EndTimer()
     {

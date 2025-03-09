@@ -21,27 +21,6 @@ public class PopUpText : MonoBehaviour
         Instance = this;
     }
 
-    [ContextMenu("test")]
-    public void Test()
-    {
-        //ShowText("START GAME", Color.white, CallTest);
-        StartCoroutine(Tess());
-    }
-
-    private IEnumerator Tess()
-    {
-        ShowText("3", Color.white);
-        yield return new WaitForSeconds(1);
-        ShowText("2", Color.white);
-        yield return new WaitForSeconds(1);
-        ShowText("1", Color.white,1, CallTest);
-    }
-
-    private void CallTest()
-    {
-        Debug.Log("ereerr");
-    }
-
     public async void ShowText(string text, Color color, float time = 1.1f, System.Action callback = null)
     {
         foregroundText.text = text;
@@ -60,6 +39,7 @@ public class PopUpText : MonoBehaviour
         background.gameObject.SetActive(false);
         callback?.Invoke();
     }
+
 
     Coroutine _lastCoroutine;
 

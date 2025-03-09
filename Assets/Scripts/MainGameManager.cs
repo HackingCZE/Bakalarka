@@ -70,6 +70,7 @@ public class MainGameManager : MonoBehaviour
     public void EndGame()
     {
         MainGameManagerUI.Instance.SwitchState(MainGameManagerUI.UIStates.end);
+        _spreadAlgorithms.Clear();
         PlayerManager.Instance.SetScore(GetTotalScore());
     }
 
@@ -83,6 +84,7 @@ public class MainGameManager : MonoBehaviour
         foreach(var item in FindObjectsOfType<VoteNavigationAlgorithm>(true))
         {
             item.indicator.color = MainGameManager.Instance.transform.GetComponent<SpreadAlgorithms>()._algorithms.Where(e => e.algorithm == item.navigationAlgorithm).ToList()[0].color;
+            item.countText.text = _algorithmStats.Where(e => e.Algorithm == item.navigationAlgorithm).ToList()[0].VisitedNodes.Count.ToString();
         }
 
         PopUpText.Instance.ShowText(_algorithmStats[0].Algorithm.ToString(), Color.white);
@@ -91,12 +93,13 @@ public class MainGameManager : MonoBehaviour
 
     private List<AlgorithmStats> GetRightAlgorithms(List<AlgorithmStats> algorithmStats)
     {
-        return algorithmStats.Where(e => e.Algorithm == algorithmStats[0].Algorithm).ToList();
+        return algorithmStats.Where(e => e.VisitedNodes.Count == algorithmStats[0].VisitedNodes.Count).ToList();
     }
 
     public void CheckSelectedAlgorithm(VoteNavigationAlgorithm navigationAlgorithm)
     {
-        if(GetRightAlgorithms(_algorithmStats).Any(e => e.Algorithm == navigationAlgorithm.navigationAlgorithm))
+        var rightAlgorithms = GetRightAlgorithms(_algorithmStats);
+        if(rightAlgorithms.Any(e => e.Algorithm == navigationAlgorithm.navigationAlgorithm))
         {
             _currentGameScore += 1 * Countdown.Instance.GetLastRemaining();
             PopUpText.Instance.ShowText("RIGHT", Color.green, 1.5f);
@@ -107,17 +110,14 @@ public class MainGameManager : MonoBehaviour
             PopUpText.Instance.ShowText("BAD", Color.red, 1.5f);
         }
 
-        MainGameManagerUI.Instance.UpdateBtns(GetRightAlgorithms(_algorithmStats).ConvertAll<NavigationAlgorithm>(e => e.Algorithm).ToList());
+        MainGameManagerUI.Instance.UpdateBtns(rightAlgorithms.ConvertAll<NavigationAlgorithm>(e => e.Algorithm).ToList());
         MainGameManagerUI.Instance.UpdateScoreUI(_currentGameScore);
         OnEnergyChange?.Invoke(_currentGameLives);
 
-        if(_currentGameLives <= 0) EndGame();
-        else
-        {
-            MainGameManagerUI.Instance.SwitchState(MainGameManagerUI.UIStates.readyToNextLevel);
+        MainGameManagerUI.Instance.SwitchState(MainGameManagerUI.UIStates.readyToNextLevel);
+        _spreadAlgorithms.SpreadOnAxis(_algorithmStats);
 
-            _spreadAlgorithms.SpreadOnAxis(_algorithmStats);
-        }
+        if(_currentGameLives <= 0) EndGame();
     }
 
     public void AddLevel() => _currentGameLevel++;
