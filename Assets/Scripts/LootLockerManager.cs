@@ -10,6 +10,7 @@ public class LootLockerManager : MonoBehaviour
     bool logged = false;
     [SerializeField] string nickname;
     public TMP_InputField nicknameField;
+    [SerializeField] string _toScene = "MainMenu";
 
 
     private void Start()
@@ -24,13 +25,13 @@ public class LootLockerManager : MonoBehaviour
 
     private void LoadMainMenu()
     {
-        LoadingSceneManager.Instance.LoadScene("MainMenu");
+        LoadingSceneManager.Instance.LoadScene(_toScene);
     }
 
     public void SecondLogin()
     {
         PlayerManager.Instance.SetLogged(logged, nickname);
-        LoadingSceneManager.Instance.LoadScene("MainMenu");
+        LoadingSceneManager.Instance.LoadScene(_toScene);
     }
 
     [ContextMenu("reset player")]

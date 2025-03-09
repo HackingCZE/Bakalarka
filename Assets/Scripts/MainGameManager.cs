@@ -83,8 +83,12 @@ public class MainGameManager : MonoBehaviour
 
         foreach(var item in FindObjectsOfType<VoteNavigationAlgorithm>(true))
         {
-            item.indicator.color = MainGameManager.Instance.transform.GetComponent<SpreadAlgorithms>()._algorithms.Where(e => e.algorithm == item.navigationAlgorithm).ToList()[0].color;
-            item.countText.text = _algorithmStats.Where(e => e.Algorithm == item.navigationAlgorithm).ToList()[0].VisitedNodes.Count.ToString();
+            try
+            {
+                item.indicator.color = MainGameManager.Instance.transform.GetComponent<SpreadAlgorithms>()._algorithms.Where(e => e.algorithm == item.navigationAlgorithm).ToList()[0].color;
+                item.countText.text = _algorithmStats.Where(e => e.Algorithm == item.navigationAlgorithm).ToList()[0].VisitedNodes.Count.ToString();
+            }
+            catch { }           
         }
 
         PopUpText.Instance.ShowText(_algorithmStats[0].Algorithm.ToString(), Color.white);

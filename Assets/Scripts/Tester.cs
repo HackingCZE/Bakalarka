@@ -1,27 +1,34 @@
 using NaughtyAttributes;
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading.Tasks;
+using Unity.VisualScripting;
 using UnityEngine;
 using static NavigationManager;
 
 public class Tester : MonoBehaviour
 {
     [SerializeField] List<NavigationAlgorithm> algorithms = new List<NavigationAlgorithm>();
+    [SerializeField] List<string> algorithmsStrings = new List<string>();
+    public int countInteractions = 200;
     [Button]
-    public async void StartTest()
+    public async Task StartTest()
     {
         CSVGenerator csv = new CSVGenerator("Assets/Output.csv");
 
-        for (int i = 0; i < 250; i++)
+        for (int i = 0; i < countInteractions; i++)
         {
 
             LSystemVisualizer.Instance.VisualizeMap();
             var _algorithmStats = await NavigationManager.Instance.GetOrderOfAlgorithms();
             
-            algorithms.Add(_algorithmStats[0].Algorithm); 
+            algorithms.Add(_algorithmStats[0].Algorithm);
+            string newA = "";
+            NavigationManager.Instance.GetRightAlgorithms(_algorithmStats).ForEach(e => newA += e.Algorithm.ToString() + " | ");
+            algorithmsStrings.Add(newA);
             csv.AddRow(new string[] {
                     "Test("+i+")",
-                    "NodesCount: "+_algorithmStats[0].NodesCount.ToString(),
+                    "NodesCount: "+_algorithmStats[0].VisitedNodes.Count.ToString(),
                     "ChanceToJoin: "+Mathf.Round(LSystemVisualizer.Instance.GetCurrentChanceToJoin),
                     "IsPlanar: " + NavigationManager.Instance.CheckPlanar().ToString(),
                     "DistanceBetweenPoints: " + Mathf.Round(NavigationManager.Instance.DistanceBetweenPoints)
@@ -54,7 +61,7 @@ public class Tester : MonoBehaviour
                     "",
                     ""
                 });
-
+            await Task.Delay(1000);
         }
 
         csv.SaveToFile();

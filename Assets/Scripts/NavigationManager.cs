@@ -129,6 +129,8 @@ public class NavigationManager : MonoBehaviour, IDrawingNode
         else if(MainGameManager.Instance.GetLevel() > 5)
             currentDistance = 70;
 
+        player.transform.position = GetRandomPosition(currentDistance, val);
+
 
         Vector3 newPosition;
         int safetyCounter = 200;
@@ -136,7 +138,6 @@ public class NavigationManager : MonoBehaviour, IDrawingNode
         do
         {
             newPosition = GetRandomPosition(currentDistance, val);
-            player.transform.position = GetRandomPosition(currentDistance, val);
             safetyCounter--;
         }
         while(Vector3.Distance(player.transform.position, newPosition) <= (currentDistance / 1.5f) && safetyCounter > 0);
@@ -158,33 +159,55 @@ public class NavigationManager : MonoBehaviour, IDrawingNode
         return algorithmStats.Where(e => e.VisitedNodes.Count == algorithmStats[0].VisitedNodes.Count).ToList();
     }
 
-    int _biderectionalDFSLastCounted = 0;
-    int _biderectionalBFSLastCounted = 0;
+    private Dictionary<NavigationAlgorithm, int> _algorithmCounts = new();
+    private const int MaxCount = 3;
 
     public async Task<List<AlgorithmStats>> GetOrderOfAlgorithms()
     {
-        if(_biderectionalDFSLastCounted < 0) _biderectionalDFSLastCounted = 0;
-        if(_biderectionalBFSLastCounted < 0) _biderectionalBFSLastCounted = 0;
+        HashSet<NavigationAlgorithm> selectedAlgorithms = new()
+    {
+        NavigationAlgorithm.AStar,
+        NavigationAlgorithm.DFS,
+        NavigationAlgorithm.BidirectionalBFS,
+        NavigationAlgorithm.BidirectionalDFS
+    };
 
-        List<Task<AlgoBase>> tasks = new List<Task<AlgoBase>>()
+        foreach(var key in selectedAlgorithms)
         {
-             RunAlgoInThread(NavigationAlgorithm.AStar),
-             RunAlgoInThread(NavigationAlgorithm.DFS),
-             RunAlgoInThread(NavigationAlgorithm.BidirectionalBFS)
-        };
-
-        foreach(var item in MainGameManagerUI.Instance.GetButtons)
-        {
-            if(item.navigationAlgorithm == NavigationAlgorithm.BidirectionalDFS)
+            if(!_algorithmCounts.ContainsKey(key))
             {
-                if(_biderectionalDFSLastCounted >= 3) item.transform.gameObject.SetActive(false);
-                else { item.transform.gameObject.SetActive(true); tasks.Add(RunAlgoInThread(NavigationAlgorithm.BidirectionalDFS)); }
+                _algorithmCounts[key] = 0;
             }
+        }
 
-            if(item.navigationAlgorithm == NavigationAlgorithm.BidirectionalBFS)
+        List<Task<AlgoBase>> tasks = new();
+
+        bool anyAdded = false;
+
+        try
+        {
+            foreach(var item in MainGameManagerUI.Instance.GetButtons)
             {
-                if(_biderectionalBFSLastCounted >= 3) item.transform.gameObject.SetActive(false);
-                else { item.transform.gameObject.SetActive(true); tasks.Add(RunAlgoInThread(NavigationAlgorithm.BidirectionalBFS)); }
+                var algo = item.navigationAlgorithm;
+                if(_algorithmCounts.ContainsKey(algo) && _algorithmCounts[algo] < MaxCount)
+                {
+                    item.transform.gameObject.SetActive(true);
+                    tasks.Add(RunAlgoInThread(algo));
+                    anyAdded = true;
+                }
+                else
+                {
+                    item.transform.gameObject.SetActive(false);
+                }
+            }
+        }
+
+        catch { }
+        if(!anyAdded)
+        {
+            foreach(var key in _algorithmCounts.Keys.ToList())
+            {
+                tasks.Add(RunAlgoInThread(key));
             }
         }
 
@@ -193,33 +216,38 @@ public class NavigationManager : MonoBehaviour, IDrawingNode
         List<AlgorithmStats> results = tasks.SelectMany(task =>
         {
             var algoResult = task.Result;
-
             List<AlgorithmStats> currentResult = new();
 
-            if(algoResult.Algorithm.ToString().Contains("Bidirectional"))
+            if(algoResult is BiderectionalAlgoBase bidirectionalAlgo)
             {
-                currentResult.Add(new AlgorithmStats(algoResult.Algorithm, algoResult.Stopwatch.Elapsed, algoResult.Visited, algoResult.MemoryUsage, algoResult.Result.Count, ((BiderectionalAlgoBase)algoResult).forwardPath, algoResult.NodesCount));
-                currentResult.Add(new AlgorithmStats(algoResult.Algorithm, algoResult.Stopwatch.Elapsed, algoResult.Visited, algoResult.MemoryUsage, algoResult.Result.Count, ((BiderectionalAlgoBase)algoResult).backwardPath, algoResult.NodesCount));
+                currentResult.Add(new AlgorithmStats(algoResult.Algorithm, algoResult.Stopwatch.Elapsed, algoResult.Visited, algoResult.MemoryUsage, algoResult.Result.Count, bidirectionalAlgo.forwardPath, algoResult.NodesCount));
+                currentResult.Add(new AlgorithmStats(algoResult.Algorithm, algoResult.Stopwatch.Elapsed, algoResult.Visited, algoResult.MemoryUsage, algoResult.Result.Count, bidirectionalAlgo.backwardPath, algoResult.NodesCount));
             }
             else
             {
                 currentResult.Add(new AlgorithmStats(algoResult.Algorithm, algoResult.Stopwatch.Elapsed, algoResult.Visited, algoResult.MemoryUsage, algoResult.Result.Count, algoResult.Result, algoResult.NodesCount));
             }
-
             return currentResult;
         }).ToList();
 
         var res = results.OrderBy(a => a.GetEfficiencyScore()).ToList();
-
         var newRes = GetRightAlgorithms(res);
-        if(newRes.Any(e => e.Algorithm == NavigationAlgorithm.DFS)) _biderectionalDFSLastCounted += Random.Range(1, 2);
-        else _biderectionalDFSLastCounted--;
 
-        if(newRes.Any(e => e.Algorithm == NavigationAlgorithm.BFS)) _biderectionalBFSLastCounted += Random.Range(1, 2);
-        else _biderectionalBFSLastCounted--;
+        foreach(var key in _algorithmCounts.Keys.ToList())
+        {
+            if(newRes.Any(e => e.Algorithm == key))
+            {
+                _algorithmCounts[key] += UnityEngine.Random.Range(1, 2);
+            }
+            else
+            {
+                _algorithmCounts[key] = Math.Max(0, _algorithmCounts[key] - 1);
+            }
+        }
 
         return res;
     }
+
 
     public List<AlgorithmStats> SortAlgorithmsByEfficiency(List<AlgorithmStats> algorithms)
     {

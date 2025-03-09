@@ -1849,6 +1849,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   nickname: 
   nicknameField: {fileID: 445417235}
+  _toScene: MainMenu
 --- !u!1 &1926173615
 GameObject:
   m_ObjectHideFlags: 0
