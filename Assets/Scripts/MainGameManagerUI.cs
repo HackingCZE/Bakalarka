@@ -17,6 +17,8 @@ public class MainGameManagerUI : MonoBehaviour
     [SerializeField] Image _blur;
     [SerializeField] UIStates _currentState;
 
+    public List<VoteNavigationAlgorithm> GetButtons => _btns.GetComponentsInChildren<VoteNavigationAlgorithm>(true).ToList();
+
     private void Awake()
     {
         Instance = this;

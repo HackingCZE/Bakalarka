@@ -153,11 +153,18 @@ public class NavigationManager : MonoBehaviour, IDrawingNode
         );
     }
 
+    public List<AlgorithmStats> GetRightAlgorithms(List<AlgorithmStats> algorithmStats)
+    {
+        return algorithmStats.Where(e => e.VisitedNodes.Count == algorithmStats[0].VisitedNodes.Count).ToList();
+    }
+
     int _biderectionalDFSLastCounted = 0;
+    int _biderectionalBFSLastCounted = 0;
 
     public async Task<List<AlgorithmStats>> GetOrderOfAlgorithms()
     {
         if(_biderectionalDFSLastCounted < 0) _biderectionalDFSLastCounted = 0;
+        if(_biderectionalBFSLastCounted < 0) _biderectionalBFSLastCounted = 0;
 
         List<Task<AlgoBase>> tasks = new List<Task<AlgoBase>>()
         {
@@ -166,14 +173,19 @@ public class NavigationManager : MonoBehaviour, IDrawingNode
              RunAlgoInThread(NavigationAlgorithm.BidirectionalBFS)
         };
 
-        if(_biderectionalDFSLastCounted < 3)
+        foreach(var item in MainGameManagerUI.Instance.GetButtons)
         {
-            try { FindFirstObjectByType<VoteNavigationAlgorithm>(FindObjectsInactive.Include).gameObject.SetActive(true); } catch { }
-            tasks.Add(RunAlgoInThread(NavigationAlgorithm.BidirectionalDFS));
-        }
-        else
-        {
-            try { FindFirstObjectByType<VoteNavigationAlgorithm>(FindObjectsInactive.Include).gameObject.SetActive(false); } catch { }
+            if(item.navigationAlgorithm == NavigationAlgorithm.BidirectionalDFS)
+            {
+                if(_biderectionalDFSLastCounted >= 3) item.transform.gameObject.SetActive(false);
+                else { item.transform.gameObject.SetActive(true); tasks.Add(RunAlgoInThread(NavigationAlgorithm.BidirectionalDFS)); }
+            }
+
+            if(item.navigationAlgorithm == NavigationAlgorithm.BidirectionalBFS)
+            {
+                if(_biderectionalBFSLastCounted >= 3) item.transform.gameObject.SetActive(false);
+                else { item.transform.gameObject.SetActive(true); tasks.Add(RunAlgoInThread(NavigationAlgorithm.BidirectionalBFS)); }
+            }
         }
 
         await Task.WhenAll(tasks);
@@ -198,8 +210,14 @@ public class NavigationManager : MonoBehaviour, IDrawingNode
         }).ToList();
 
         var res = results.OrderBy(a => a.GetEfficiencyScore()).ToList();
-        if(res[0].Algorithm == NavigationAlgorithm.BidirectionalDFS) _biderectionalDFSLastCounted += Random.Range(1,2);
+
+        var newRes = GetRightAlgorithms(res);
+        if(newRes.Any(e => e.Algorithm == NavigationAlgorithm.DFS)) _biderectionalDFSLastCounted += Random.Range(1, 2);
         else _biderectionalDFSLastCounted--;
+
+        if(newRes.Any(e => e.Algorithm == NavigationAlgorithm.BFS)) _biderectionalBFSLastCounted += Random.Range(1, 2);
+        else _biderectionalBFSLastCounted--;
+
         return res;
     }
 

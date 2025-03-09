@@ -71478,6 +71478,7 @@ GameObject:
   - component: {fileID: 1403655668}
   - component: {fileID: 1403655667}
   - component: {fileID: 1403655669}
+  - component: {fileID: 1403655670}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -71551,6 +71552,24 @@ MonoBehaviour:
   speed: 10
   scale: 0.16
   width: 0.13
+--- !u!114 &1403655670
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1403655666}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: da3bbd43fabdcd44092b38160fb67099, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  mesh: {fileID: 997602262961349003, guid: 6037473031ec3f045917ed17d487f826, type: 3}
+  material: {fileID: 2100000, guid: 27021d32845141e4e80ecee9cd93e219, type: 2}
+  tubeTag: Tube
+  nwidth: 2.5
+  algorithmStats: []
+  newAlgorithmStats: []
 --- !u!1 &1405070080
 GameObject:
   m_ObjectHideFlags: 0

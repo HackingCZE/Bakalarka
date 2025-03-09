@@ -91,14 +91,10 @@ public class MainGameManager : MonoBehaviour
         Debug.Log(_algorithmStats[0].Algorithm.ToString());
     }
 
-    private List<AlgorithmStats> GetRightAlgorithms(List<AlgorithmStats> algorithmStats)
-    {
-        return algorithmStats.Where(e => e.VisitedNodes.Count == algorithmStats[0].VisitedNodes.Count).ToList();
-    }
 
     public void CheckSelectedAlgorithm(VoteNavigationAlgorithm navigationAlgorithm)
     {
-        var rightAlgorithms = GetRightAlgorithms(_algorithmStats);
+        var rightAlgorithms = NavigationManager.Instance.GetRightAlgorithms(_algorithmStats);
         if(rightAlgorithms.Any(e => e.Algorithm == navigationAlgorithm.navigationAlgorithm))
         {
             _currentGameScore += 1 * Countdown.Instance.GetLastRemaining();
