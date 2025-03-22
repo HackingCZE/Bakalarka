@@ -73,6 +73,7 @@ public class MainGameManagerUI : MonoBehaviour
                     }
                     btn.interactable = false;
                 }
+                LoadingSceneManager.Instance.HideLoading();
                 StartCoroutine(StartTimer());
                 break;
             case UIStates.selection:
@@ -86,6 +87,7 @@ public class MainGameManagerUI : MonoBehaviour
                 _btns.gameObject.SetActive(true);
                 break;
             case UIStates.readyToNextLevel:
+                //Debug.Log("next level");
                 DisableAll();
                 foreach(Button btn in _btns.GetComponentsInChildren<Button>())
                 {
@@ -129,8 +131,7 @@ public class MainGameManagerUI : MonoBehaviour
 
     public void NextLevel()
     {
-        
-        MainGameManager.Instance.NextLevel();
+        _ = StartCoroutine(MainGameManager.Instance.NextLevel());
     }
 
     void DisableAll()

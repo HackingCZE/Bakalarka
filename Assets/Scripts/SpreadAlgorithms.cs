@@ -33,6 +33,9 @@ public class SpreadAlgorithms : MonoBehaviour
         materialBlock = new MaterialPropertyBlock();
         foreach(var stat in values)
         {
+            //Debug.Log(stat);
+            //Debug.Log(stat.Algorithm);
+            //Debug.Log(stat.Path.Count);
             var parentParent = new GameObject(stat.Algorithm.ToString());
             parentParent.transform.position = Vector3.zero;
             var parent = new GameObject("Parent");
@@ -86,6 +89,8 @@ public class SpreadAlgorithms : MonoBehaviour
 
             item.TrailRenderer.transform.localPosition = new Vector3(xPos, yPos, zPos);
             item.CreateMesh = true;
+            //Debug.Log("added tube " + item.AlgorithmStats.Algorithm + " " + item.TrailRenderer);
+
             item.AddPointTube(item.TrailRenderer.transform.position);
         }
         foreach(var item in spreads)

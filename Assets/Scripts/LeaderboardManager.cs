@@ -37,7 +37,7 @@ public class LeaderboardManager : MonoBehaviour
             }
             else
             {
-                Debug.Log("Failed " + response.errorData);
+                //Debug.Log("Failed " + response.errorData);
                 done = false;
             }
         });
@@ -56,20 +56,23 @@ public class LeaderboardManager : MonoBehaviour
                 Debug.Log("Successfully got score list!");
 
                 DeastroyAllLeaderboardItems();
-                int count = Mathf.Min(50, response.items.Length);
-                _leaderboardParent.GetComponent<RectTransform>().sizeDelta = new Vector2(0, 115 * count);
-                for (int i = 0; i < count; i++)
+                if(response.items != null)
                 {
-                    var currentItem = response.items[i];
-                    var obj = Instantiate(_leaderboardPrefab, _leaderboardParent.transform);
-                    obj.GetComponent<LeaderboardItem>().SetValues(currentItem.rank.ToString(), currentItem.player.name, currentItem.score.ToString());
-                }
+                    int count = Mathf.Min(50, response.items.Length);
+                    _leaderboardParent.GetComponent<RectTransform>().sizeDelta = new Vector2(0, 115 * count);
+                    for(int i = 0; i < count; i++)
+                    {
+                        var currentItem = response.items[i];
+                        var obj = Instantiate(_leaderboardPrefab, _leaderboardParent.transform);
+                        obj.GetComponent<LeaderboardItem>().SetValues(currentItem.rank.ToString(), currentItem.player.name, currentItem.score.ToString());
+                    }
+                }                
             }
             else
             {
                 done = false;
                 Debug.Log("Could not get score list!");
-                Debug.Log(response.errorData.ToString());
+                //Debug.Log(response.errorData.ToString());
             }
 
         });
@@ -102,7 +105,7 @@ public class LeaderboardManager : MonoBehaviour
             }
             else
             {
-                Debug.Log("Failed " + response.errorData);
+                //Debug.Log("Failed " + response.errorData);
                 done = true;
             }
 

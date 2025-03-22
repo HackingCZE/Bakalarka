@@ -1,5 +1,4 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -28,6 +27,22 @@ public class LoadingSceneManager : MonoBehaviour
         _loadingScreen.gameObject.SetActive(true);
 
         StartCoroutine(LoadSceneASync(sceneName));
+    }
+
+    public void ShowLoading()
+    {
+        _loadingSlider.value = 0;
+        _loadingScreen.gameObject.SetActive(true);
+    }
+    
+    public void UpdateProgressBar(float progress)
+    {
+        _loadingSlider.value = Mathf.Clamp01(progress / .9f);
+    }
+
+    public void HideLoading()
+    {
+        _loadingScreen.gameObject.SetActive(false);
     }
 
     private IEnumerator LoadSceneASync(string sceneName)

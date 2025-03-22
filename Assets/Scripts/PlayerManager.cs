@@ -52,7 +52,7 @@ public class PlayerManager : MonoBehaviour
 
     public void SetPlayerName(string newNickName, Action callback)
     {
-        Debug.Log("Settin nickname");
+        //Debug.Log("Settin nickname");
         LootLockerSDKManager.SetPlayerName(newNickName, (response) =>
         {
             if (response.success)
@@ -62,7 +62,7 @@ public class PlayerManager : MonoBehaviour
             }
             else
             {
-                Debug.Log("Could ot set player name " + response.errorData.ToString());
+                //Debug.Log("Could ot set player name " + response.errorData.ToString());
             }
             callback?.Invoke();
         });

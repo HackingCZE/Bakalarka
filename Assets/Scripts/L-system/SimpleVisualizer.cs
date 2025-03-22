@@ -289,7 +289,7 @@ public class SimpleVisualizer : MonoBehaviour
         }
 
         var lsit = algoNodeMap.Values.ToList();
-        Debug.Log(lsit.Count);
+        //Debug.Log(lsit.Count);
 
         // Vrátíme všechny AlgoNode jako List
         return lsit;

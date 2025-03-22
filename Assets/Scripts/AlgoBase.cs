@@ -34,7 +34,11 @@ public abstract class AlgoBase : IAlgo
     {
         NodesCount = graph.Count;
         Visited = new();
-        Result = await Task.Run(() => StartAlgo(startNode, endNode, graph, drawingNode));
+#if UNITY_WEBGL
+        Result = await StartAlgo(startNode, endNode, graph, drawingNode);
+#else
+    Result = await Task.Run(() => StartAlgo(startNode, endNode, graph, drawingNode));
+#endif
         return this;
     }
 

@@ -162,7 +162,7 @@ public class NavigationManager : MonoBehaviour, IDrawingNode
     private Dictionary<NavigationAlgorithm, int> _algorithmCounts = new();
     private const int MaxCount = 3;
 
-    public async Task<List<AlgorithmStats>> GetOrderOfAlgorithms()
+    public async Task<List<AlgorithmStats>> GetOrderOfAlgorithms(IProgress<float> progress = null)
     {
         HashSet<NavigationAlgorithm> selectedAlgorithms = new()
     {
@@ -203,6 +203,7 @@ public class NavigationManager : MonoBehaviour, IDrawingNode
         }
 
         catch { }
+
         if(!anyAdded)
         {
             foreach(var key in _algorithmCounts.Keys.ToList())
@@ -211,24 +212,30 @@ public class NavigationManager : MonoBehaviour, IDrawingNode
             }
         }
 
-        await Task.WhenAll(tasks);
+        List<AlgorithmStats> results = new();
+        int totalAlgorithms = tasks.Count;
+        int completedAlgorithms = 0;
 
-        List<AlgorithmStats> results = tasks.SelectMany(task =>
+        while(tasks.Count > 0)
         {
-            var algoResult = task.Result;
-            List<AlgorithmStats> currentResult = new();
+            Task<AlgoBase> finishedTask = await Task.WhenAny(tasks);
+            tasks.Remove(finishedTask);
+            completedAlgorithms++;
+
+            var algoResult = finishedTask.Result;
 
             if(algoResult is BiderectionalAlgoBase bidirectionalAlgo)
             {
-                currentResult.Add(new AlgorithmStats(algoResult.Algorithm, algoResult.Stopwatch.Elapsed, algoResult.Visited, algoResult.MemoryUsage, algoResult.Result.Count, bidirectionalAlgo.forwardPath, algoResult.NodesCount));
-                currentResult.Add(new AlgorithmStats(algoResult.Algorithm, algoResult.Stopwatch.Elapsed, algoResult.Visited, algoResult.MemoryUsage, algoResult.Result.Count, bidirectionalAlgo.backwardPath, algoResult.NodesCount));
+                results.Add(new AlgorithmStats(algoResult.Algorithm, algoResult.Stopwatch.Elapsed, algoResult.Visited, algoResult.MemoryUsage, algoResult.Result.Count, bidirectionalAlgo.forwardPath, algoResult.NodesCount));
+                results.Add(new AlgorithmStats(algoResult.Algorithm, algoResult.Stopwatch.Elapsed, algoResult.Visited, algoResult.MemoryUsage, algoResult.Result.Count, bidirectionalAlgo.backwardPath, algoResult.NodesCount));
             }
             else
             {
-                currentResult.Add(new AlgorithmStats(algoResult.Algorithm, algoResult.Stopwatch.Elapsed, algoResult.Visited, algoResult.MemoryUsage, algoResult.Result.Count, algoResult.Result, algoResult.NodesCount));
+                results.Add(new AlgorithmStats(algoResult.Algorithm, algoResult.Stopwatch.Elapsed, algoResult.Visited, algoResult.MemoryUsage, algoResult.Result.Count, algoResult.Result, algoResult.NodesCount));
             }
-            return currentResult;
-        }).ToList();
+
+            progress?.Report((float)completedAlgorithms / totalAlgorithms);
+        }
 
         var res = results.OrderBy(a => a.GetEfficiencyScore()).ToList();
         var newRes = GetRightAlgorithms(res);
@@ -246,16 +253,6 @@ public class NavigationManager : MonoBehaviour, IDrawingNode
         }
 
         return res;
-    }
-
-
-    public List<AlgorithmStats> SortAlgorithmsByEfficiency(List<AlgorithmStats> algorithms)
-    {
-        return algorithms
-            .OrderBy(a => a.VisitedNodes)          // Pak podle navštívených uzlù (èím ménì, tím lepší)
-            .ThenBy(a => a.MemoryUsage)           // Poté podle pamìti (èím ménì, tím lepší)
-            .ThenBy(a => a.ResultPathLength)      // Nakonec podle délky cesty (èím kratší, tím lepší)
-            .ToList();
     }
 
     private async Task<AlgoBase> RunAlgoInThread(NavigationAlgorithm navigationAlgorithm)

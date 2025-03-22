@@ -88,6 +88,7 @@ public class CameraController : MonoBehaviour
             }
         }
 
+
         if (Input.GetMouseButtonDown(2))
         {
             _rotateStartPos = Input.mousePosition;

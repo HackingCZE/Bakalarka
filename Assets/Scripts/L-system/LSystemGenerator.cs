@@ -42,7 +42,7 @@ public class LSystemGenerator : MonoBehaviour
             iterationLimit = 1;
         }
 
-        Debug.Log("CURENT INTERATION: " + iterationLimit);
+       // Debug.Log("CURENT INTERATION: " + iterationLimit);
         if(word == null) word = rootSentence;
         return GrowRecursive(word);
     }

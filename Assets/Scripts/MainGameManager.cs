@@ -2,10 +2,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using UnityEngine.SocialPlatforms.Impl;
-using UnityEngine.UI;
 using static NavigationManager;
 
 public class MainGameManager : MonoBehaviour
@@ -46,15 +45,17 @@ public class MainGameManager : MonoBehaviour
 
     void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        if(scene.name == "GameScene") StartGame();
+        if(scene.name == "GameScene") _ = StartCoroutine(StartGame());
     }
 
-    public void StartGame()
+    public IEnumerator StartGame()
     {
         _currentGameLives = _startLives;
         _currentGameScore = 0;
         _currentGameLevel = 1;
-        GenerateMap();
+        LoadingSceneManager.Instance.ShowLoading();
+
+        yield return GenerateMap();
 
         MainGameManagerUI.Instance.SwitchState(MainGameManagerUI.UIStates.freeview);
         MainGameManagerUI.Instance.UpdateScoreUI(_currentGameScore);
@@ -74,11 +75,28 @@ public class MainGameManager : MonoBehaviour
         PlayerManager.Instance.SetScore(GetTotalScore());
     }
 
-    private async void GenerateMap()
+    private IEnumerator GenerateMap()
     {
         //SimpleVisualizer.Instance.Create();
         LSystemVisualizer.Instance.VisualizeMap();
-        _algorithmStats = await NavigationManager.Instance.GetOrderOfAlgorithms();
+
+        float progressValue = 0;
+        var progress = new Progress<float>(value =>
+        {
+            progressValue = value;
+            LoadingSceneManager.Instance.UpdateProgressBar(progressValue);
+        });
+
+        Task<List<AlgorithmStats>> task = NavigationManager.Instance.GetOrderOfAlgorithms(progress);
+
+        while(!task.IsCompleted)
+        {
+            yield return null;
+        }
+
+        yield return new WaitForSeconds(1);
+
+        _algorithmStats = task.Result;
         CameraController.Instance.CalculateBounds(LSystemVisualizer.Instance.GetNodesAsVector());
 
         foreach(var item in FindObjectsOfType<VoteNavigationAlgorithm>(true))
@@ -88,10 +106,9 @@ public class MainGameManager : MonoBehaviour
                 item.indicator.color = MainGameManager.Instance.transform.GetComponent<SpreadAlgorithms>()._algorithms.Where(e => e.algorithm == item.navigationAlgorithm).ToList()[0].color;
                 item.countText.text = _algorithmStats.Where(e => e.Algorithm == item.navigationAlgorithm).ToList()[0].VisitedNodes.Count.ToString();
             }
-            catch { }           
+            catch { }
         }
 
-        PopUpText.Instance.ShowText(_algorithmStats[0].Algorithm.ToString(), Color.white);
         Debug.Log(_algorithmStats[0].Algorithm.ToString());
     }
 
@@ -115,6 +132,8 @@ public class MainGameManager : MonoBehaviour
         OnEnergyChange?.Invoke(_currentGameLives);
 
         MainGameManagerUI.Instance.SwitchState(MainGameManagerUI.UIStates.readyToNextLevel);
+        //Debug.Log("SPREAD");
+
         _spreadAlgorithms.SpreadOnAxis(_algorithmStats);
 
         if(_currentGameLives <= 0) EndGame();
@@ -122,11 +141,16 @@ public class MainGameManager : MonoBehaviour
 
     public void AddLevel() => _currentGameLevel++;
 
-    public void NextLevel()
+    public IEnumerator NextLevel()
     {
         _spreadAlgorithms.Clear();
         _currentGameLevel++;
-        GenerateMap();
+        LoadingSceneManager.Instance.ShowLoading();
+
+        yield return new WaitForSeconds(1f);
+
+        yield return GenerateMap();
+
         MainGameManagerUI.Instance.SwitchState(MainGameManagerUI.UIStates.freeview);
     }
 

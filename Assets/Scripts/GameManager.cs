@@ -59,7 +59,7 @@ public class GameManager : MonoBehaviour, IDrawingNode
         this.path = path;
         timerIsRunning = false;
         SaveSystem.UpdateOrSave<List<TreeCollectionItem>>("path", path, true);
-        Debug.Log("END");
+        //Debug.Log("END");
     }
     [ContextMenu("NextNodes")]
     public async void Next()
