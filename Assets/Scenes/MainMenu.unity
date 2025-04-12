@@ -64871,7 +64871,7 @@ MonoBehaviour:
   _leaderboardPrefab: {fileID: 2900188985246005886, guid: cf37f770be47bf74193eee24dd1d001e,
     type: 3}
   _leaderboardParent: {fileID: 1821770728}
-  leaderboardID: 27210
+  leaderboardID: 30625
 --- !u!1 &1277140549
 GameObject:
   m_ObjectHideFlags: 0
