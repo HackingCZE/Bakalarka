@@ -71539,7 +71539,7 @@ MonoBehaviour:
   - algorithm: 2
     color: {r: 0.9384004, g: 1, b: 0, a: 1}
   - algorithm: 3
-    color: {r: 0.51152545, g: 0.8962264, b: 0.8223035, a: 1}
+    color: {r: 0.17621933, g: 0.8301887, b: 0.7046795, a: 1}
   - algorithm: 4
     color: {r: 0.36320752, g: 0.5105438, b: 1, a: 1}
   - algorithm: 5
@@ -71547,7 +71547,7 @@ MonoBehaviour:
   - algorithm: 6
     color: {r: 1, g: 0, b: 0.22297573, a: 1}
   - algorithm: 7
-    color: {r: 0.3018868, g: 0.13243146, b: 0.043137256, a: 1}
+    color: {r: 0.9433962, g: 0.48656768, b: 0.031149892, a: 1}
   - algorithm: 8
     color: {r: 0.05660379, g: 0.045122832, b: 0.045122832, a: 1}
   speed: 10
