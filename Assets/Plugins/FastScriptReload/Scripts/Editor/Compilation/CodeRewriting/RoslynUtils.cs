@@ -1,6 +1,6 @@
-﻿using System;
+﻿using Microsoft.CodeAnalysis.CSharp.Syntax;
+using System;
 using System.Linq;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace FastScriptReload.Editor.Compilation.CodeRewriting
 {
@@ -18,8 +18,8 @@ namespace FastScriptReload.Editor.Compilation.CodeRewriting
         {
             var fullTypeContibutingAncestorNames = memberNode.Ancestors().OfType<MemberDeclarationSyntax>().Select(da =>
             {
-                if (da is TypeDeclarationSyntax t) return t.Identifier.ToString();
-                else if (da is NamespaceDeclarationSyntax n) return n.Name.ToString();
+                if(da is TypeDeclarationSyntax t) return t.Identifier.ToString();
+                else if(da is NamespaceDeclarationSyntax n) return n.Name.ToString();
                 else throw new Exception("Unable to resolve full field name");
             }).Reverse().ToList();
 

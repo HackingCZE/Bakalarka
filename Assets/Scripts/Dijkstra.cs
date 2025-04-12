@@ -1,10 +1,9 @@
-using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEngine;
 
 public class Dijkstra : AlgoBase
-{ 
+{
     PriorityQueue<AlgoNode> _pq;
 
     public async override Task<List<AlgoNode>> StartAlgo(AlgoNode startNode, AlgoNode endNode, List<AlgoNode> graph, IDrawingNode drawingNode)
@@ -19,15 +18,15 @@ public class Dijkstra : AlgoBase
 
         _pq.Enqueue(startNode, 0);
 
-        while (_pq.Count > 0)
+        while(_pq.Count > 0)
         {
             await Task.Yield();
             AlgoNode currentNode = _pq.Dequeue();
 
-            if (currentNode.Visited) continue;
+            if(currentNode.Visited) continue;
             drawingNode.DrawNode(currentNode);
 
-            if (currentNode == endNode)
+            if(currentNode == endNode)
             {
                 return await GetResultPath(startNode, currentNode);
             }
@@ -35,13 +34,13 @@ public class Dijkstra : AlgoBase
             currentNode.Visited = true;
             VisitedNodes++;
 
-            foreach (var neighbor in currentNode.Neighbours)
+            foreach(var neighbor in currentNode.Neighbours)
             {
                 var edgeWeight = Vector3.Distance(currentNode.Position, neighbor.Position);
 
                 var newDistance = currentNode.Value + edgeWeight;
 
-                if (newDistance < neighbor.Value)
+                if(newDistance < neighbor.Value)
                 {
                     neighbor.Value = newDistance;
                     neighbor.Parent = currentNode;

@@ -1,5 +1,5 @@
-﻿using UnityEngine;
-using UnityEditor;
+﻿using UnityEditor;
+using UnityEngine;
 
 namespace NaughtyAttributes.Editor
 {
@@ -8,10 +8,10 @@ namespace NaughtyAttributes.Editor
     {
         protected override float GetPropertyHeight_Internal(SerializedProperty property, GUIContent label)
         {
-            if (property.propertyType == SerializedPropertyType.ObjectReference)
+            if(property.propertyType == SerializedPropertyType.ObjectReference)
             {
                 Texture2D previewTexture = GetAssetPreview(property);
-                if (previewTexture != null)
+                if(previewTexture != null)
                 {
                     return GetPropertyHeight(property) + GetAssetPreviewSize(property).y;
                 }
@@ -30,7 +30,7 @@ namespace NaughtyAttributes.Editor
         {
             EditorGUI.BeginProperty(rect, label, property);
 
-            if (property.propertyType == SerializedPropertyType.ObjectReference)
+            if(property.propertyType == SerializedPropertyType.ObjectReference)
             {
                 Rect propertyRect = new Rect()
                 {
@@ -43,7 +43,7 @@ namespace NaughtyAttributes.Editor
                 EditorGUI.PropertyField(propertyRect, property, label);
 
                 Texture2D previewTexture = GetAssetPreview(property);
-                if (previewTexture != null)
+                if(previewTexture != null)
                 {
                     Rect previewRect = new Rect()
                     {
@@ -67,9 +67,9 @@ namespace NaughtyAttributes.Editor
 
         private Texture2D GetAssetPreview(SerializedProperty property)
         {
-            if (property.propertyType == SerializedPropertyType.ObjectReference)
+            if(property.propertyType == SerializedPropertyType.ObjectReference)
             {
-                if (property.objectReferenceValue != null)
+                if(property.objectReferenceValue != null)
                 {
                     Texture2D previewTexture = AssetPreview.GetAssetPreview(property.objectReferenceValue);
                     return previewTexture;
@@ -84,7 +84,7 @@ namespace NaughtyAttributes.Editor
         private Vector2 GetAssetPreviewSize(SerializedProperty property)
         {
             Texture2D previewTexture = GetAssetPreview(property);
-            if (previewTexture == null)
+            if(previewTexture == null)
             {
                 return Vector2.zero;
             }
@@ -94,7 +94,7 @@ namespace NaughtyAttributes.Editor
                 int targetHeight = ShowAssetPreviewAttribute.DefaultHeight;
 
                 ShowAssetPreviewAttribute showAssetPreviewAttribute = PropertyUtility.GetAttribute<ShowAssetPreviewAttribute>(property);
-                if (showAssetPreviewAttribute != null)
+                if(showAssetPreviewAttribute != null)
                 {
                     targetWidth = showAssetPreviewAttribute.Width;
                     targetHeight = showAssetPreviewAttribute.Height;

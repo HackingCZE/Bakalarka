@@ -5,14 +5,14 @@ namespace FastScriptReload.Editor.Compilation.CodeRewriting
 {
     class ThisCallRewriter : ThisRewriterBase
     {
-        public ThisCallRewriter(bool writeRewriteReasonAsComment, bool visitIntoStructuredTrivia = false) 
+        public ThisCallRewriter(bool writeRewriteReasonAsComment, bool visitIntoStructuredTrivia = false)
             : base(writeRewriteReasonAsComment, visitIntoStructuredTrivia)
         {
         }
-        
+
         public override SyntaxNode VisitThisExpression(ThisExpressionSyntax node)
         {
-            if (node.Parent is ArgumentSyntax)
+            if(node.Parent is ArgumentSyntax)
             {
                 return CreateCastedThisExpression(node);
             }

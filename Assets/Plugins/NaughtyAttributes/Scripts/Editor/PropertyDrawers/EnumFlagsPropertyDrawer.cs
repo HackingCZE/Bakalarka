@@ -1,6 +1,6 @@
-﻿using UnityEngine;
+﻿using System;
 using UnityEditor;
-using System;
+using UnityEngine;
 
 namespace NaughtyAttributes.Editor
 {
@@ -21,7 +21,7 @@ namespace NaughtyAttributes.Editor
             EditorGUI.BeginProperty(rect, label, property);
 
             Enum targetEnum = PropertyUtility.GetTargetObjectOfProperty(property) as Enum;
-            if (targetEnum != null)
+            if(targetEnum != null)
             {
                 Enum enumNew = EditorGUI.EnumFlagsField(rect, label.text, targetEnum);
                 property.intValue = (int)Convert.ChangeType(enumNew, targetEnum.GetType());

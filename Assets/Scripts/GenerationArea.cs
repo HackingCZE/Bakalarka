@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -45,9 +44,9 @@ public class GenerationArea : MonoBehaviour
     public float GetMinX()
     {
         float min = points[0].x;
-        foreach (var item in points)
+        foreach(var item in points)
         {
-            min = Mathf.Min(min, item.x); 
+            min = Mathf.Min(min, item.x);
         }
         return min;
     }
@@ -55,7 +54,7 @@ public class GenerationArea : MonoBehaviour
     public float GetMaxX()
     {
         float max = points[0].x;
-        foreach (var item in points)
+        foreach(var item in points)
         {
             max = Mathf.Max(max, item.x);
         }
@@ -65,7 +64,7 @@ public class GenerationArea : MonoBehaviour
     public float GetMinY()
     {
         float min = points[0].y;
-        foreach (var item in points)
+        foreach(var item in points)
         {
             min = Mathf.Min(min, item.y);
         }
@@ -75,7 +74,7 @@ public class GenerationArea : MonoBehaviour
     public float GetMaxY()
     {
         float max = points[0].y;
-        foreach (var item in points)
+        foreach(var item in points)
         {
             max = Mathf.Max(max, item.y);
         }
@@ -85,7 +84,7 @@ public class GenerationArea : MonoBehaviour
     public float GetMinZ()
     {
         float min = points[0].z;
-        foreach (var item in points)
+        foreach(var item in points)
         {
             min = Mathf.Min(min, item.z);
         }
@@ -95,7 +94,7 @@ public class GenerationArea : MonoBehaviour
     public float GetMaxZ()
     {
         float max = points[0].z;
-        foreach (var item in points)
+        foreach(var item in points)
         {
             max = Mathf.Max(max, item.z);
         }
@@ -117,7 +116,7 @@ public class GenerationArea : MonoBehaviour
         rightDown2 = new Vector3(p2.x, p2.y + scale, p2.z - scale);
         rightUp2 = new Vector3(p2.x, p2.y + scale, p2.z + scale);
         leftUp2 = new Vector3(p2.x, p2.y - scale, p2.z + scale);
-        Gizmos.color = Color.black; 
+        Gizmos.color = Color.black;
 
         Gizmos.DrawLine(leftDown1, rightDown1);
         Gizmos.DrawLine(rightDown1, rightUp1);

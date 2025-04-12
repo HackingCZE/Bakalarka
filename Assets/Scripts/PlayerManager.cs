@@ -1,8 +1,5 @@
 using LootLocker.Requests;
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using TMPro;
 using UnityEngine;
 
 public class PlayerManager : MonoBehaviour
@@ -18,7 +15,7 @@ public class PlayerManager : MonoBehaviour
 
     private void Awake()
     {
-        if (Instance == null)
+        if(Instance == null)
         {
             Instance = this;
             DontDestroyOnLoad(gameObject);
@@ -47,7 +44,7 @@ public class PlayerManager : MonoBehaviour
     {
         score = _score;
         OnChangeScore?.Invoke(score);
-        if (withCloudSafe) StartCoroutine(LeaderboardManager.Instance.SubmitScoreRoutine(score));
+        if(withCloudSafe) StartCoroutine(LeaderboardManager.Instance.SubmitScoreRoutine(score));
     }
 
     public void SetPlayerName(string newNickName, Action callback)
@@ -55,7 +52,7 @@ public class PlayerManager : MonoBehaviour
         //Debug.Log("Settin nickname");
         LootLockerSDKManager.SetPlayerName(newNickName, (response) =>
         {
-            if (response.success)
+            if(response.success)
             {
                 Debug.Log("Succesfully set player name");
                 PlayerManager.Instance.SetLogged(true, newNickName);

@@ -1,6 +1,3 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
@@ -19,7 +16,7 @@ public class Countdown : MonoBehaviour
         Instance = this;
     }
 
- 
+
 
     public void StartTimer(float seconds)
     {
@@ -40,12 +37,12 @@ public class Countdown : MonoBehaviour
 
     private void Update()
     {
-        if (_isOn)
+        if(_isOn)
         {
-            if (_timeLeft > 0)
+            if(_timeLeft > 0)
             {
                 _timeLeft -= Time.deltaTime;
-                UpdateTimer(_timeLeft +1);
+                UpdateTimer(_timeLeft + 1);
             }
             else
             {

@@ -1,8 +1,5 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using UnityEngine;
 
 public class RandomizedWalk : AlgoBase
 {
@@ -18,18 +15,18 @@ public class RandomizedWalk : AlgoBase
         currentNode.Visited = true;
         drawingNode.DrawNode(currentNode);
 
-        while (currentNode != endNode)
+        while(currentNode != endNode)
         {
             await Task.Yield();
-           
-            if (currentNode.Neighbours.Count == 0)
+
+            if(currentNode.Neighbours.Count == 0)
             {
                 throw new System.Exception("Path not found");
             }
 
             var nextNode = currentNode.Neighbours[_random.Next(currentNode.Neighbours.Count)];
 
-            if (!nextNode.Visited)
+            if(!nextNode.Visited)
             {
                 nextNode.Visited = true;
                 VisitedNodes++;
@@ -38,10 +35,10 @@ public class RandomizedWalk : AlgoBase
             }
 
 
-            currentNode = nextNode; 
+            currentNode = nextNode;
         }
 
-        if (currentNode == endNode)
+        if(currentNode == endNode)
         {
             return await GetResultPath(startNode, currentNode);
         }

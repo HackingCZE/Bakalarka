@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEngine;
@@ -18,14 +17,14 @@ public class AStar : AlgoBase
 
         _queue.Enqueue(startNode, startNode.FScore);
 
-        while (_queue.Count > 0)
+        while(_queue.Count > 0)
         {
             await Task.Yield();
 
             AlgoNode currentNode = _queue.Dequeue();
             drawingNode.DrawNode(currentNode);
 
-            if (currentNode == endNode)
+            if(currentNode == endNode)
             {
                 return await GetResultPath(startNode, currentNode);
             }
@@ -35,17 +34,17 @@ public class AStar : AlgoBase
 
             foreach(var neighbor in currentNode.Neighbours)
             {
-                if (neighbor.Visited) continue;
+                if(neighbor.Visited) continue;
 
                 var newGScore = currentNode.GScore + Vector3.Distance(currentNode.Position, neighbor.Position);
 
-                if (newGScore < neighbor.GScore)
+                if(newGScore < neighbor.GScore)
                 {
                     neighbor.GScore = newGScore;
                     neighbor.FScore = neighbor.GScore + heuristicFactor * Vector3.Distance(neighbor.Position, endNode.Position);
                     neighbor.Parent = currentNode;
 
-                    if (!_queue.Contains(neighbor))
+                    if(!_queue.Contains(neighbor))
                     {
                         _queue.Enqueue(neighbor, neighbor.FScore);
                         MemoryUsage = Mathf.Max(MemoryUsage, _queue.Count);

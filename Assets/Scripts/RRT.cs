@@ -1,11 +1,6 @@
-using DH.Save;
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using Unity.Mathematics;
 using UnityEngine;
-using UnityEngine.Rendering;
 
 public class RRT : IRRTAlgorithm
 {
@@ -19,10 +14,10 @@ public class RRT : IRRTAlgorithm
         this.drawingNode = drawingNode;
         this.area = area;
         treeCollection.Init(start);
-        for (int i = 0; i < maxIterations; i++)
+        for(int i = 0; i < maxIterations; i++)
         {
-            if (false) await Task.Delay(5);
-            if (!(await Next(end, maxStepLength, 1, threshold)))
+            if(false) await Task.Delay(5);
+            if(!(await Next(end, maxStepLength, 1, threshold)))
             {
                 break;
             }
@@ -32,19 +27,19 @@ public class RRT : IRRTAlgorithm
 
     public async Task<bool> Next(float3 end, float maxStepLength, int count, float threshold)
     {
-        for (int i = 0; i < count; i++)
+        for(int i = 0; i < count; i++)
         {
-            if (true) await Task.Delay(5);
+            if(true) await Task.Delay(5);
             float3 randomPoint = IRRTAlgorithm.SampleRandomPoint(area);
             randomPoint.y = treeCollection.root.Position.y;
             TreeCollectionItem neareastNode = treeCollection.KDTree.NearestNeighbor(randomPoint).Item.treeCollectionItem;
             var newNode = IRRTAlgorithm.Steer(neareastNode, randomPoint, maxStepLength);
-            if (IRRTAlgorithm.NotInCollision(neareastNode, newNode, barrierLayer))
+            if(IRRTAlgorithm.NotInCollision(neareastNode, newNode, barrierLayer))
             {
                 var lastNode = treeCollection.AddNode(newNode, neareastNode);
                 drawingNode.DrawNode();
                 //GameManager.Instance.DrawNode();                
-                if (Vector3.Distance(lastNode.Position, end) < (threshold + 5))
+                if(Vector3.Distance(lastNode.Position, end) < (threshold + 5))
                 {
                     treeCollection.ReconstructPath(lastNode);
                     //GameManager.Instance.DrawPath(treeCollection.ReconstructPath(lastNode));

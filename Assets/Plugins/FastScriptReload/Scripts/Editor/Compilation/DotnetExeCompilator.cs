@@ -1,4 +1,7 @@
-﻿using System;
+﻿using ImmersiveVRTools.Editor.Common.Cache;
+using ImmersiveVRTools.Runtime.Common;
+using ImmersiveVrToolsCommon.Runtime.Logging;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -7,17 +10,12 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading;
-using FastScriptReload.Runtime;
-using ImmersiveVRTools.Editor.Common.Cache;
-using ImmersiveVRTools.Runtime.Common;
-using ImmersiveVrToolsCommon.Runtime.Logging;
 using UnityEditor;
-using Debug = UnityEngine.Debug;
 
 namespace FastScriptReload.Editor.Compilation
 {
     [InitializeOnLoad]
-    public class DotnetExeDynamicCompilation: DynamicCompilationBase
+    public class DotnetExeDynamicCompilation : DynamicCompilationBase
     {
         private static string _dotnetExePath;
         private static string _cscDll;
@@ -33,18 +31,18 @@ namespace FastScriptReload.Editor.Compilation
 #else
             const string dotnetExecutablePath = "dotnet"; //mac and linux, no extension
 #endif
-                
+
             _dotnetExePath = FindFileOrThrow(dotnetExecutablePath);
             _cscDll = FindFileOrThrow("csc.dll"); //even on mac/linux need to find dll and use, not no extension one
             _tempFolder = Path.GetTempPath();
-            
+
             EditorApplication.playModeStateChanged += obj =>
             {
-                if (obj == PlayModeStateChange.ExitingPlayMode && _createdFilesToCleanUp.Any())
+                if(obj == PlayModeStateChange.ExitingPlayMode && _createdFilesToCleanUp.Any())
                 {
                     LoggerScoped.LogDebug($"Removing temporary files: [{string.Join(",", _createdFilesToCleanUp)}]");
-                    
-                    foreach (var fileToCleanup in _createdFilesToCleanUp)
+
+                    foreach(var fileToCleanup in _createdFilesToCleanUp)
                     {
                         File.Delete(fileToCleanup);
                     }
@@ -60,7 +58,7 @@ namespace FastScriptReload.Editor.Compilation
                 var foundFile = Directory
                     .GetFiles(ApplicationContentsPath, fileName, SearchOption.AllDirectories)
                     .FirstOrDefault();
-                if (foundFile == null)
+                if(foundFile == null)
                 {
                     throw new Exception($"Unable to find '{fileName}', make sure Editor version supports it. You can also add preprocessor directive 'FastScriptReload_CompileViaMCS' which will use Mono compiler instead");
                 }
@@ -84,7 +82,7 @@ namespace FastScriptReload.Editor.Compilation
 #if UNITY_EDITOR
                 unityMainThreadDispatcher.Enqueue(() =>
                 {
-                    if ((bool)FastScriptReloadPreference.IsAutoOpenGeneratedSourceFileOnChangeEnabled.GetEditorPersistedValueOrDefault())
+                    if((bool)FastScriptReloadPreference.IsAutoOpenGeneratedSourceFileOnChangeEnabled.GetEditorPersistedValueOrDefault())
                     {
                         UnityEditorInternal.InternalEditorUtility.OpenFileAtLineExternal(sourceCodeCombinedFilePath, 0);
                     }
@@ -100,12 +98,12 @@ namespace FastScriptReload.Editor.Compilation
                 var compiledAssembly = Assembly.LoadFrom(outLibraryPath);
                 return new CompileResult(outLibraryPath, outputMessages, exitCode, compiledAssembly, sourceCodeCombined, sourceCodeCombinedFilePath);
             }
-            catch (Exception)
+            catch(Exception)
             {
-                LoggerScoped.LogError($"Compilation error: temporary files were not removed so they can be inspected: " 
+                LoggerScoped.LogError($"Compilation error: temporary files were not removed so they can be inspected: "
                                + string.Join(", ", _createdFilesToCleanUp
                                    .Select(f => $"<a href=\"{f}\" line=\"1\">{f}</a>")));
-                if (LogHowToFixMessageOnCompilationError)
+                if(LogHowToFixMessageOnCompilationError)
                 {
                     LoggerScoped.LogWarning($@"HOW TO FIX - INSTRUCTIONS:
 
@@ -153,12 +151,12 @@ You can also:
             rspContents.AppendLine("-target:library");
             rspContents.AppendLine($"-out:\"{outLibraryPath}\"");
             rspContents.AppendLine($"-refout:\"{tempFolder}{asmName}.ref.dll\""); //TODO: what's that?
-            foreach (var symbol in ActiveScriptCompilationDefines)
+            foreach(var symbol in ActiveScriptCompilationDefines)
             {
                 rspContents.AppendLine($"-define:{symbol}");
             }
 
-            foreach (var referenceToAdd in ResolveReferencesToAdd(new List<string>()))
+            foreach(var referenceToAdd in ResolveReferencesToAdd(new List<string>()))
             {
                 rspContents.AppendLine($"-r:\"{referenceToAdd}\"");
             }
@@ -180,7 +178,7 @@ You can also:
             rspContents.AppendLine("/nowarn:1702");
             rspContents.AppendLine("/utf8output");
             rspContents.AppendLine("/preferreduilang:en-US");
-            
+
             var rspContentsString = rspContents.ToString();
             return rspContentsString;
         }
@@ -204,14 +202,14 @@ You can also:
             process.StartInfo.RedirectStandardError = true;
             process.ErrorDataReceived += (sender, args) =>
             {
-                if (args.Data != null)
+                if(args.Data != null)
                     outMessages.Add(args.Data);
                 else
                     stderr_completed.Set();
             };
             process.OutputDataReceived += (sender, args) =>
             {
-                if (args.Data != null)
+                if(args.Data != null)
                 {
                     outMessages.Add(args.Data);
                     return;
@@ -225,9 +223,9 @@ You can also:
             {
                 process.Start();
             }
-            catch (Exception ex)
+            catch(Exception ex)
             {
-                if (ex is Win32Exception win32Exception)
+                if(ex is Win32Exception win32Exception)
                     throw new SystemException(string.Format("Error running {0}: {1}", process.StartInfo.FileName,
                         typeof(Win32Exception)
                             .GetMethod("GetErrorMessage", BindingFlags.Static | BindingFlags.NonPublic)?
@@ -252,7 +250,7 @@ You can also:
                 process.Close();
             }
 
-            if (!File.Exists(outLibraryPath))
+            if(!File.Exists(outLibraryPath))
                 throw new Exception("Compiler failed to produce the assembly. Output: '" +
                                     string.Join(Environment.NewLine + Environment.NewLine, outMessages) + "'");
 

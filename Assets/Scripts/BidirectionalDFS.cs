@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
@@ -26,18 +25,18 @@ public class BidirectionalDFS : BiderectionalAlgoBase
 
         VisitedNodes = 2;
 
-        while (_forwardStack.Count > 0 && _backwardStack.Count > 0)
+        while(_forwardStack.Count > 0 && _backwardStack.Count > 0)
         {
             await Task.Yield();
 
             // Forward search step
-            if (Step(_forwardStack, _forwardParents, _backwardParents, drawingNode, true))
+            if(Step(_forwardStack, _forwardParents, _backwardParents, drawingNode, true))
             {
                 return await GetResultPath(startNode, endNode);
             }
 
             // Backward search step
-            if (Step(_backwardStack, _backwardParents, _forwardParents, drawingNode, false))
+            if(Step(_backwardStack, _backwardParents, _forwardParents, drawingNode, false))
             {
                 return await GetResultPath(startNode, endNode);
             }
@@ -51,7 +50,7 @@ public class BidirectionalDFS : BiderectionalAlgoBase
 
     private bool Step(Stack<AlgoNode> stack, Dictionary<AlgoNode, AlgoNode> currentParents, Dictionary<AlgoNode, AlgoNode> otherParents, IDrawingNode drawingNode, bool isForward)
     {
-        if (stack.Count == 0) return false;
+        if(stack.Count == 0) return false;
 
         AlgoNode currentNode = stack.Pop();
         currentNode.Visited = true;
@@ -59,9 +58,9 @@ public class BidirectionalDFS : BiderectionalAlgoBase
 
         drawingNode.DrawNode(currentNode);
 
-        foreach (var neighbor in currentNode.Neighbours)
+        foreach(var neighbor in currentNode.Neighbours)
         {
-            if (!currentParents.ContainsKey(neighbor))
+            if(!currentParents.ContainsKey(neighbor))
             {
                 currentParents[neighbor] = currentNode;
 
@@ -70,7 +69,7 @@ public class BidirectionalDFS : BiderectionalAlgoBase
                     stack.Push(neighbor);
                 }
 
-                if (otherParents.ContainsKey(neighbor))
+                if(otherParents.ContainsKey(neighbor))
                 {
                     return true; // Meeting point found
                 }

@@ -61,12 +61,12 @@ public class MainGameManager : MonoBehaviour
         MainGameManagerUI.Instance.UpdateScoreUI(_currentGameScore);
     }
 
-    private void Update()
-    {
-        if(Input.GetKey(KeyCode.UpArrow)) _currentGameLevel++;
-        else if(Input.GetKey(KeyCode.DownArrow)) _currentGameLevel--;
-        if(Input.GetKey(KeyCode.UpArrow) || Input.GetKey(KeyCode.DownArrow)) Debug.LogError("Current LEVEL: " + _currentGameLevel);
-    }
+    //private void Update()
+    //{
+    //    if(Input.GetKey(KeyCode.UpArrow)) _currentGameLevel++;
+    //    else if(Input.GetKey(KeyCode.DownArrow)) _currentGameLevel--;
+    //    if(Input.GetKey(KeyCode.UpArrow) || Input.GetKey(KeyCode.DownArrow)) Debug.LogError("Current LEVEL: " + _currentGameLevel);
+    //}
 
     public void EndGame()
     {

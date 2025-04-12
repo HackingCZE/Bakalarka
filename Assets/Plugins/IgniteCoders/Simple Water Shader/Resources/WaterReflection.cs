@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class WaterReflection : MonoBehaviour
@@ -33,7 +31,7 @@ public class WaterReflection : MonoBehaviour
 
     private void Update()
     {
-        if (isReady)
+        if(isReady)
             RenderReflection();
     }
 
@@ -68,7 +66,7 @@ public class WaterReflection : MonoBehaviour
 
     private void Validate()
     {
-        if (mainCamera != null)
+        if(mainCamera != null)
         {
             mainCamTransform = mainCamera.transform;
             isReady = true;
@@ -76,7 +74,7 @@ public class WaterReflection : MonoBehaviour
         else
             isReady = false;
 
-        if (reflectionCamera != null)
+        if(reflectionCamera != null)
         {
             reflectionCamTransform = reflectionCamera.transform;
             isReady = true;
@@ -84,7 +82,7 @@ public class WaterReflection : MonoBehaviour
         else
             isReady = false;
 
-        if (isReady && copyCameraParamerers)
+        if(isReady && copyCameraParamerers)
         {
             copyCameraParamerers = !copyCameraParamerers;
             reflectionCamera.CopyFrom(mainCamera);

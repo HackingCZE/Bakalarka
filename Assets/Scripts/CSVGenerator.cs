@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -33,7 +32,7 @@ public class CSVGenerator
 
 
         // Zapisujeme data
-        foreach (var row in rows)
+        foreach(var row in rows)
         {
             sb.AppendLine(string.Join(";", row));
         }

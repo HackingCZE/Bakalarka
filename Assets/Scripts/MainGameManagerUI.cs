@@ -1,4 +1,3 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,7 +5,6 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
-using static System.Collections.Specialized.BitVector32;
 
 public class MainGameManagerUI : MonoBehaviour
 {
@@ -52,7 +50,7 @@ public class MainGameManagerUI : MonoBehaviour
     public void SwitchState(UIStates newState)
     {
         _currentState = newState;
-        switch (_currentState)
+        switch(_currentState)
         {
             case UIStates.none:
                 DisableAll();
@@ -62,7 +60,7 @@ public class MainGameManagerUI : MonoBehaviour
             case UIStates.freeview:
                 DisableAll();
                 CameraController.Instance.SetIsStatic(true);
-                CameraController.Instance.ResetCamera();                
+                CameraController.Instance.ResetCamera();
                 _btns.gameObject.SetActive(true);
                 foreach(Button btn in _btns.GetComponentsInChildren<Button>())
                 {
@@ -98,7 +96,7 @@ public class MainGameManagerUI : MonoBehaviour
 
                     btn.interactable = false;
                 }
-                
+
                 //_blur.enabled = true;
                 _btns.gameObject.SetActive(true);
                 _nextBtn.gameObject.SetActive(true);
@@ -146,11 +144,11 @@ public class MainGameManagerUI : MonoBehaviour
 
     public void UpdateBtns(List<NavigationManager.NavigationAlgorithm> algorithms)
     {
-        foreach (var item in _btns.GetComponentsInChildren<VoteNavigationAlgorithm>())
+        foreach(var item in _btns.GetComponentsInChildren<VoteNavigationAlgorithm>())
         {
             if(algorithms.Any(e => e == item.navigationAlgorithm))
             {
-                item.GetComponent<Image>().color = new Color(37f / 255f, 214f / 255f, 37f / 255f, 255f / 255f); 
+                item.GetComponent<Image>().color = new Color(37f / 255f, 214f / 255f, 37f / 255f, 255f / 255f);
             }
             else
             {

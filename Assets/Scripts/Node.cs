@@ -1,5 +1,3 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using static SimpleVisualizer;
@@ -16,7 +14,7 @@ public class AlgoNode
     public float Cost { get; set; }
     public bool Visited { get; set; } = false;
     public RoadTileType Type { get; set; }
- 
+
 
     public AlgoNode(Vector3 position)
     {
@@ -38,7 +36,7 @@ public class AlgoNode
 
     public override bool Equals(object obj)
     {
-        if (obj == null || GetType() != obj.GetType())
+        if(obj == null || GetType() != obj.GetType())
             return false;
 
         AlgoNode other = (AlgoNode)obj;
@@ -57,10 +55,10 @@ public static class NodeUtility
     {
         var recontructedPath = new List<AlgoNode>();
         AlgoNode currentNode = endNode;
-        while (currentNode != null)
+        while(currentNode != null)
         {
             recontructedPath.Insert(0, currentNode);
-            if (currentNode == startNode) break;
+            if(currentNode == startNode) break;
             currentNode = currentNode.Parent;
         }
 
@@ -72,11 +70,11 @@ public static class NodeUtility
         AlgoNode closestNode = null;
         float closestDistance = float.MaxValue;
 
-        foreach (AlgoNode node in nodes)
+        foreach(AlgoNode node in nodes)
         {
             float distance = Vector3.Distance(node.Position, targetPosition);
 
-            if (distance < closestDistance)
+            if(distance < closestDistance)
             {
                 closestDistance = distance;
                 closestNode = node;

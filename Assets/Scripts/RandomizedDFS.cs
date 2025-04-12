@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -19,17 +18,17 @@ public class RandomizedDFS : AlgoBase
 
         _stack.Push(startNode);
 
-        while (_stack.Count > 0)
+        while(_stack.Count > 0)
         {
             await Task.Yield();
             AlgoNode currentNode = _stack.Pop();
 
-            if (currentNode == endNode)
+            if(currentNode == endNode)
             {
                 return await GetResultPath(startNode, currentNode);
             }
 
-            if (!currentNode.Visited)
+            if(!currentNode.Visited)
             {
                 currentNode.Visited = true;
                 VisitedNodes++;
@@ -39,9 +38,9 @@ public class RandomizedDFS : AlgoBase
                 // shuffle
                 var shuffledNeighbors = currentNode.Neighbours.OrderBy(_ => _random.Next()).ToList();
 
-                foreach (var neighbor in shuffledNeighbors)
+                foreach(var neighbor in shuffledNeighbors)
                 {
-                    if (!neighbor.Visited)
+                    if(!neighbor.Visited)
                     {
                         _stack.Push(neighbor);
                         MemoryUsage = Mathf.Max(MemoryUsage, _stack.Count);
@@ -50,7 +49,7 @@ public class RandomizedDFS : AlgoBase
                 }
             }
 
-            if (c > graph.Count + 150) break;
+            if(c > graph.Count + 150) break;
             c++;
         }
 

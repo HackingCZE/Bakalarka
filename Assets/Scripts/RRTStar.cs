@@ -1,11 +1,8 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using Unity.Mathematics;
 using UnityEngine;
 
-public class RRTStar : IRRTAlgorithm 
+public class RRTStar : IRRTAlgorithm
 {
     public LayerMask barrierLayer;
     public IDrawingNode drawingNode;
@@ -19,10 +16,10 @@ public class RRTStar : IRRTAlgorithm
 
         this.area = area;
         treeCollection.Init(start);
-        for (int i = 0; i < maxIterations; i++)
+        for(int i = 0; i < maxIterations; i++)
         {
-            if (false) await Task.Delay(5);
-            if (!(await Next(end, maxStepLength, 1, threshold)))
+            if(false) await Task.Delay(5);
+            if(!(await Next(end, maxStepLength, 1, threshold)))
             {
                 break;
             }
@@ -32,23 +29,23 @@ public class RRTStar : IRRTAlgorithm
 
     public async Task<bool> Next(float3 end, float maxStepLength, int count, float threshold)
     {
-        for (int i = 0; i < count; i++)
+        for(int i = 0; i < count; i++)
         {
-            if (true) await Task.Delay(1);
+            if(true) await Task.Delay(1);
             float3 randomPoint = IRRTAlgorithm.SampleRandomPoint(area);
             randomPoint.y = treeCollection.root.Position.y;
             TreeCollectionItem neareastNode = treeCollection.KDTree.NearestNeighbor(randomPoint).Item.treeCollectionItem;
             var newNode = IRRTAlgorithm.Steer(neareastNode, randomPoint, maxStepLength);
-            if (IRRTAlgorithm.NotInCollision(neareastNode, newNode, barrierLayer))
+            if(IRRTAlgorithm.NotInCollision(neareastNode, newNode, barrierLayer))
             {
                 var neighborNodes = treeCollection.KDTree.FindNeighborsWithinRadius(newNode.Position);
                 var bestNode = neareastNode;
                 var bestCost = CalculateCost(neareastNode) + Vector3.Distance(neareastNode.Position, newNode.Position);
-                foreach (var neighbor in neighborNodes)
+                foreach(var neighbor in neighborNodes)
                 {
-                    if (IRRTAlgorithm.NotInCollision(neighbor.treeCollectionItem, newNode, barrierLayer))
+                    if(IRRTAlgorithm.NotInCollision(neighbor.treeCollectionItem, newNode, barrierLayer))
                     {
-                        if (CalculateCost(neighbor.treeCollectionItem) + Vector3.Distance(neighbor.treeCollectionItem.Position, newNode.Position) < bestCost)
+                        if(CalculateCost(neighbor.treeCollectionItem) + Vector3.Distance(neighbor.treeCollectionItem.Position, newNode.Position) < bestCost)
                         {
                             bestNode = neighbor.treeCollectionItem;
                             bestCost = CalculateCost(neighbor.treeCollectionItem) + Vector3.Distance(neighbor.treeCollectionItem.Position, newNode.Position);
@@ -57,17 +54,17 @@ public class RRTStar : IRRTAlgorithm
                 }
                 var lastNode = treeCollection.AddNode(newNode, bestNode);
                 drawingNode.DrawNode();
-                foreach (var neighbor in neighborNodes)
+                foreach(var neighbor in neighborNodes)
                 {
-                    if (IRRTAlgorithm.NotInCollision(neighbor.treeCollectionItem, newNode, barrierLayer))
+                    if(IRRTAlgorithm.NotInCollision(neighbor.treeCollectionItem, newNode, barrierLayer))
                     {
-                        if (CalculateCost(newNode) + Vector3.Distance(newNode.Position, neighbor.treeCollectionItem.Position) < CalculateCost(neighbor.treeCollectionItem))
+                        if(CalculateCost(newNode) + Vector3.Distance(newNode.Position, neighbor.treeCollectionItem.Position) < CalculateCost(neighbor.treeCollectionItem))
                         {
                             neighbor.treeCollectionItem.Parent = newNode;
                         }
                     }
                 }
-                if (Vector3.Distance(lastNode.Position, end) < (threshold + 5))
+                if(Vector3.Distance(lastNode.Position, end) < (threshold + 5))
                 {
                     treeCollection.ReconstructPath(lastNode);
                     //GameManager.Instance.DrawPath(treeCollection.ReconstructPath(lastNode));
@@ -85,7 +82,7 @@ public class RRTStar : IRRTAlgorithm
     private float CalculateCost(TreeCollectionItem node)
     {
         float cost = 0;
-        while (node.Parent != null)
+        while(node.Parent != null)
         {
             cost += Vector3.Distance(node.Position, node.Parent.Position);
             node = node.Parent;

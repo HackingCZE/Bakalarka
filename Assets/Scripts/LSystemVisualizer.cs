@@ -1,13 +1,12 @@
+using NaughtyAttributes;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
-using Random = UnityEngine.Random;
 using static SimpleVisualizer;
-using UnityEditor;
-using NaughtyAttributes;
+using Random = UnityEngine.Random;
 
 public class LSystemVisualizer : MonoBehaviour
 {
@@ -33,8 +32,6 @@ public class LSystemVisualizer : MonoBehaviour
     [SerializeField] private GameObject _roadEnd;
     [SerializeField] private GameObject _roadCurve;
 
-
-
     private void Awake()
     {
         Instance = this;
@@ -44,7 +41,7 @@ public class LSystemVisualizer : MonoBehaviour
 
     public void InitValues()
     {
-        if (_currentTilesParent != null) Destroy(_currentTilesParent.gameObject);
+        if(_currentTilesParent != null) Destroy(_currentTilesParent.gameObject);
         var gm = new GameObject();
         gm.transform.SetParent(_tilesParent);
         _currentTilesParent = gm.transform;
@@ -62,7 +59,7 @@ public class LSystemVisualizer : MonoBehaviour
     public List<Vector3> GetNodesAsVector()
     {
         List<Vector3> result = new();
-        foreach (var currentNode in _nodes)
+        foreach(var currentNode in _nodes)
         {
             result.Add(currentNode.Position);
         }
@@ -73,19 +70,19 @@ public class LSystemVisualizer : MonoBehaviour
     {
         Dictionary<Vector3, AlgoNode> algoNodeMap = new Dictionary<Vector3, AlgoNode>();
 
-        foreach (var currentNode in _nodes)
+        foreach(var currentNode in _nodes)
         {
-            AlgoNode algoNode = new AlgoNode(currentNode.Position, null, currentNode.Type);  
+            AlgoNode algoNode = new AlgoNode(currentNode.Position, null, currentNode.Type);
             algoNodeMap[currentNode.Position] = algoNode;
         }
 
-        foreach (var currentNode in _nodes)
+        foreach(var currentNode in _nodes)
         {
             AlgoNode algoNode = algoNodeMap[currentNode.Position];
 
-            foreach (Node neighbor in currentNode.Neighbours)
+            foreach(Node neighbor in currentNode.Neighbours)
             {
-                if (algoNodeMap.TryGetValue(neighbor.Position, out AlgoNode neighborAlgoNode))
+                if(algoNodeMap.TryGetValue(neighbor.Position, out AlgoNode neighborAlgoNode))
                 {
                     algoNode.Neighbours.Add(neighborAlgoNode);
                 }
@@ -113,11 +110,11 @@ public class LSystemVisualizer : MonoBehaviour
 
         _nodes.Add(currentPosition);
 
-        foreach (var letter in lSystemSentence) // each char in sentence
+        foreach(var letter in lSystemSentence) // each char in sentence
         {
             EncodingLetters encoding = (EncodingLetters)letter;
 
-            switch (encoding)
+            switch(encoding)
             {
                 case EncodingLetters.unknown:
                     break;
@@ -126,7 +123,7 @@ public class LSystemVisualizer : MonoBehaviour
                     savePoints.Push(currentPosition);
                     break;
                 case EncodingLetters.load:
-                    if (savePoints.Count > 0)
+                    if(savePoints.Count > 0)
                     {
                         var currentNode = savePoints.Pop();
                         currentPosition = currentNode;
@@ -146,15 +143,15 @@ public class LSystemVisualizer : MonoBehaviour
 
                     // check node that is not crossing another
                     Node foundNode = null;
-                    if (!_nodes.Any(e =>
+                    if(!_nodes.Any(e =>
                     {
-                        if (true) //distance check
+                        if(true) //distance check
                         {
-                            if (Vector3.Distance(e.Position, currentPosition.Position) <= distance) foundNode = e;
+                            if(Vector3.Distance(e.Position, currentPosition.Position) <= distance) foundNode = e;
                         }
                         else
                         {
-                            if (e.Position == currentPosition.Position) foundNode = e;
+                            if(e.Position == currentPosition.Position) foundNode = e;
                         }
                         return foundNode != null;
                     }))
@@ -186,11 +183,11 @@ public class LSystemVisualizer : MonoBehaviour
     private void RecognizeTypeOfNodes()
     {
         // finding edges
-        foreach (var node in _nodes)
+        foreach(var node in _nodes)
         {
-            if (node.Neighbours.Count == 1)
+            if(node.Neighbours.Count == 1)
             {
-                if (UnityEngine.Random.Range(0, 100f) <= _chanceToJoin)
+                if(UnityEngine.Random.Range(0, 100f) <= _chanceToJoin)
                 {
                     var currentEdge = new Edge();
                     var dir = (node.Position - node.Neighbours[0].Position).normalized * 3;
@@ -198,7 +195,7 @@ public class LSystemVisualizer : MonoBehaviour
                     currentEdge.PossibleNextPosNode = node.Position + dir;
 
                     var foundNode = FindNodeByPos(currentEdge.PossibleNextPosNode);
-                    if (foundNode != null)
+                    if(foundNode != null)
                     {
                         currentEdge.SecondNode = foundNode;
                         _edges.Add(currentEdge);
@@ -209,13 +206,13 @@ public class LSystemVisualizer : MonoBehaviour
         }
 
         // fix neighbors
-        foreach (var item in _edges)
+        foreach(var item in _edges)
         {
-            if (!item.FirstNode.Neighbours.Contains(item.SecondNode)) item.FirstNode.Neighbours.Add(item.SecondNode);
-            if (!item.SecondNode.Neighbours.Contains(item.FirstNode)) item.SecondNode.Neighbours.Add(item.FirstNode);
+            if(!item.FirstNode.Neighbours.Contains(item.SecondNode)) item.FirstNode.Neighbours.Add(item.SecondNode);
+            if(!item.SecondNode.Neighbours.Contains(item.FirstNode)) item.SecondNode.Neighbours.Add(item.FirstNode);
         }
 
-        foreach (var node in _nodes)
+        foreach(var node in _nodes)
         {
             RecognizeTypeOfNode(node);
         }
@@ -225,16 +222,16 @@ public class LSystemVisualizer : MonoBehaviour
 
     public void SpawnTiles()
     {
-        foreach (var roadType in _roadTypes)
+        foreach(var roadType in _roadTypes)
         {
-            foreach (var node in roadType.Value)
+            foreach(var node in roadType.Value)
             {
 
                 float rotation = 0f;
                 Vector3 dir1, dir2, dir3; // Direction vectors for neighbor calculations
 
                 // Determine the road tile type and handle each case
-                switch (roadType.Key)
+                switch(roadType.Key)
                 {
                     case RoadTileType.Junction4Dirs:
                         // Spawn a 4-way junction at the node's position
@@ -255,10 +252,10 @@ public class LSystemVisualizer : MonoBehaviour
                         bool left = (dir1.x < -0.5f) || (dir2.x < -0.5f) || (dir3.x < -0.5f);
 
                         // Determine the rotation based on neighbor configuration
-                        if (up && down && right) rotation = 0;
-                        else if (up && down && left) rotation = 180f;
-                        else if (up && left && right) rotation = -90f;
-                        else if (down && left && right) rotation = 90f;
+                        if(up && down && right) rotation = 0;
+                        else if(up && down && left) rotation = 180f;
+                        else if(up && left && right) rotation = -90f;
+                        else if(down && left && right) rotation = 90f;
 
                         // Spawn a 3-way junction with the calculated rotation
                         Instantiate(_junction3Dirs, node.Position, Quaternion.Euler(0, rotation, 0), _currentTilesParent);
@@ -271,7 +268,7 @@ public class LSystemVisualizer : MonoBehaviour
                         rotation = 0f;// Reset rotation
 
                         // Determine rotation based on the curve's neighbor alignment
-                        if (Mathf.Abs(dir1.x) > Mathf.Abs(dir1.z))
+                        if(Mathf.Abs(dir1.x) > Mathf.Abs(dir1.z))
                             rotation = dir1.x > 0 ? (dir2.z > 0 ? -90f : 0f) : (dir2.z > 0 ? 180f : 90f); // Neighbour1 is on X (horizontal)
                         else
                             rotation = dir1.z > 0 ? (dir2.x > 0 ? -90f : 180f) : (dir2.x > 0 ? 0f : 90f); // Neighbour1 is on Z (vertical)
@@ -287,7 +284,7 @@ public class LSystemVisualizer : MonoBehaviour
                         rotation = 0f; // Reset rotation
 
                         // Determine if the road is horizontal (along the X-axis)
-                        if (Mathf.Abs(dir1.x) > 0.1f && Mathf.Abs(dir2.x) > 0.1f) rotation = 90;
+                        if(Mathf.Abs(dir1.x) > 0.1f && Mathf.Abs(dir2.x) > 0.1f) rotation = 90;
 
                         // Spawn a straight road tile
                         Instantiate(_roadLine, node.Position, Quaternion.Euler(0, rotation, 0), _currentTilesParent);
@@ -315,7 +312,7 @@ public class LSystemVisualizer : MonoBehaviour
     {
         RoadTileType type = RoadTileType.None;
 
-        switch (node.Neighbours.Count)
+        switch(node.Neighbours.Count)
         {
             case 1:
                 type = RoadTileType.RoadEnd;
@@ -325,7 +322,7 @@ public class LSystemVisualizer : MonoBehaviour
                 Vector3 dir2 = node.Neighbours[1].Position - node.Position;
                 float angle = Mathf.Round(Vector3.Angle(dir1, dir2));
 
-                if (angle == 180) type = RoadTileType.RoadLine;
+                if(angle == 180) type = RoadTileType.RoadLine;
                 else type = RoadTileType.RoadCurve;
                 break;
             case 3:
@@ -335,8 +332,8 @@ public class LSystemVisualizer : MonoBehaviour
                 type = RoadTileType.Junction4Dirs;
                 break;
         }
-        if (type == RoadTileType.None) return;
-        if (!_roadTypes.ContainsKey(type)) _roadTypes[type] = new();
+        if(type == RoadTileType.None) return;
+        if(!_roadTypes.ContainsKey(type)) _roadTypes[type] = new();
 
         node.Type = type;
         _roadTypes[type].Add(node);
@@ -344,28 +341,28 @@ public class LSystemVisualizer : MonoBehaviour
 
     private Node FindNodeByPos(Vector3 pos)
     {
-        foreach (var node in _nodes)
+        foreach(var node in _nodes)
         {
-            if (Vector3.Distance(node.Position, pos) < .2f) return node;
+            if(Vector3.Distance(node.Position, pos) < .2f) return node;
         }
         return null;
     }
 
     private List<Node> TryAddNextNeighbour(List<Node> neighbours, Node newNeighbour)
     {
-        if (!neighbours.Contains(newNeighbour)) neighbours.Add(newNeighbour);
+        if(!neighbours.Contains(newNeighbour)) neighbours.Add(newNeighbour);
         return neighbours;
     }
 
     private void OnDrawGizmosSelected()
     {
-        foreach (var item in _nodes)
+        foreach(var item in _nodes)
         {
             Gizmos.color = Color.white;
 #if UNITY_EDITOR
             Handles.Label(item.Position + new Vector3(0, 2, 0), item.Direction.ToString());
 #endif
-            foreach (var neighbour in item.Neighbours)
+            foreach(var neighbour in item.Neighbours)
             {
                 Gizmos.DrawLine(item.Position, neighbour.Position + new Vector3(0, .5f, 0));
             }

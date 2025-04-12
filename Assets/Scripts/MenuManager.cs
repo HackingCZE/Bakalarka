@@ -1,8 +1,5 @@
-using System.Collections;
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 public class MenuManager : MonoBehaviour
 {
@@ -21,7 +18,7 @@ public class MenuManager : MonoBehaviour
 
 
     private void OnDisable()
-    {        
+    {
         PlayerManager.Instance.OnChangeScore -= UpdateScore;
     }
 
@@ -29,20 +26,20 @@ public class MenuManager : MonoBehaviour
     {
         MainGameManager.Instance.ClearAlgos();
         LoadingSceneManager.Instance.LoadScene("GameScene");
-    } 
+    }
 
     private void UpdateScore(int score)
     {
         scoreTMP.text = score.ToString();
     }
-    
+
     public void ShowLeaderboard()
     {
         leaderboard.SetActive(true);
     }
 
     public void CloseLeaderboard()
-    {   
+    {
         leaderboard.SetActive(false);
     }
 

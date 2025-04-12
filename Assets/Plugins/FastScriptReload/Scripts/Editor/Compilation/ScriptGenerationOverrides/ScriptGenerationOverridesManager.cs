@@ -1,11 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using FastScriptReload.Runtime;
+﻿using FastScriptReload.Runtime;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using UnityEditor;
 using UnityEditorInternal;
 using UnityEngine;
@@ -16,7 +16,7 @@ namespace FastScriptReload.Editor.Compilation.ScriptGenerationOverrides
     public static class ScriptGenerationOverridesManager
     {
         private static float LoadOverridesFolderFilesEveryNSeconds = 5;
-        
+
         private static readonly string TemplateInterfaceDeclaration = @"
 
 //New interface declaration, this is very useful in cases where code depends on some internal interfaces that re-compiled code can no longer access. Simply define them here and code will compile.
@@ -62,7 +62,7 @@ public interface ITestNewInterface {
         private static void Update()
         {
             var timeSinceStartup = EditorApplication.timeSinceStartup;
-            if (_lastTimeOverridesFolderFilesRead + LoadOverridesFolderFilesEveryNSeconds < timeSinceStartup)
+            if(_lastTimeOverridesFolderFilesRead + LoadOverridesFolderFilesEveryNSeconds < timeSinceStartup)
             {
                 _lastTimeOverridesFolderFilesRead = timeSinceStartup;
 
@@ -73,7 +73,7 @@ public interface ITestNewInterface {
         private static void UpdateUserDefinedScriptOverridesFileCache()
         {
             UserDefinedScriptOverrides.Clear();
-            if (UserDefinedScriptRewriteOverridesFolder.Exists)
+            if(UserDefinedScriptRewriteOverridesFolder.Exists)
             {
                 UserDefinedScriptOverrides.AddRange(UserDefinedScriptRewriteOverridesFolder.GetFiles().Select(f => new UserDefinedScriptOverride(f)));
             }
@@ -84,7 +84,7 @@ public interface ITestNewInterface {
             EnsureOverrideFolderExists();
 
             var overridenFile = new FileInfo(Path.Combine(UserDefinedScriptRewriteOverridesFolder.FullName, script.name + ".cs"));
-            if (!overridenFile.Exists)
+            if(!overridenFile.Exists)
             {
                 var originalFile = new FileInfo(Path.Combine(Path.Combine(Application.dataPath + "//..", AssetDatabase.GetAssetPath(script))));
 
@@ -96,11 +96,11 @@ public interface ITestNewInterface {
                     var root = tree.GetRoot();
 
                     var firstType = root.DescendantNodes().OfType<ClassDeclarationSyntax>().FirstOrDefault();
-                    if (firstType != null)
+                    if(firstType != null)
                     {
                         var members = new SyntaxList<MemberDeclarationSyntax>();
                         var firstMethod = firstType.DescendantNodes().OfType<MethodDeclarationSyntax>().FirstOrDefault(m => m.Body != null);
-                        if (firstMethod != null)
+                        if(firstMethod != null)
                         {
                             var block = SyntaxFactory.Block();
                             block = block.AddStatements(SyntaxFactory.EmptyStatement().WithLeadingTrivia(
@@ -111,16 +111,16 @@ public interface ITestNewInterface {
                                 .WithTriviaFrom(firstMethod);
                             members = members.Add(firstMethod);
                         }
-                        
+
                         root = root.ReplaceNode(firstType, firstType
                             .ReplaceToken(
-                                firstType.Identifier, 
+                                firstType.Identifier,
                                 SyntaxFactory.Identifier(firstType.Identifier.ValueText + AssemblyChangesLoader.ClassnamePatchedPostfix)
                             )
                             .WithMembers(members)).NormalizeWhitespace();
 
                         var interfaceDeclaration = CSharpSyntaxTree.ParseText(TemplateInterfaceDeclaration);
-                        
+
                         root = ((CompilationUnitSyntax)root).AddMembers(
                             interfaceDeclaration.GetRoot().DescendantNodes().OfType<InterfaceDeclarationSyntax>().First()
                         );
@@ -128,29 +128,29 @@ public interface ITestNewInterface {
 
                     templateString = root.ToFullString();
                 }
-                catch (Exception e)
+                catch(Exception e)
                 {
                     Debug.LogError($"Unable to generate user defined script override template from your file, please refer to note at the start of the file. {e}");
                 }
 
-                if (!overridenFile.Exists)
+                if(!overridenFile.Exists)
                 {
-                    File.WriteAllText(overridenFile.FullName, 
+                    File.WriteAllText(overridenFile.FullName,
                         TemplateTopComment.Replace("<ClassPostfix>", AssemblyChangesLoader.ClassnamePatchedPostfix) + templateString
                     );
                     UpdateUserDefinedScriptOverridesFileCache();
                 }
             }
-            
+
             InternalEditorUtility.OpenFileAtLineExternal(overridenFile.FullName, 0);
         }
-        
+
         public static bool TryRemoveScriptOverride(MonoScript originalScript)
         {
             EnsureOverrideFolderExists();
 
             var overridenFile = new FileInfo(Path.Combine(UserDefinedScriptRewriteOverridesFolder.FullName, originalScript.name + ".cs"));
-            if (overridenFile.Exists)
+            if(overridenFile.Exists)
             {
                 return TryRemoveScriptOverride(overridenFile);
             }
@@ -165,7 +165,7 @@ public interface ITestNewInterface {
                 overridenFile.Delete();
                 UpdateUserDefinedScriptOverridesFileCache();
             }
-            catch (Exception)
+            catch(Exception)
             {
                 Debug.Log($"Unable to remove: '{overridenFile.Name}' - make sure it's not locked / open in editor");
                 throw;
@@ -184,10 +184,10 @@ public interface ITestNewInterface {
             overridesFile = UserDefinedScriptOverrides.FirstOrDefault(f => f.File.Name == changedFile.Name && f.File.Exists)?.File;
             return overridesFile?.Exists ?? false;
         }
-        
+
         private static void EnsureOverrideFolderExists()
         {
-            if (!UserDefinedScriptRewriteOverridesFolder.Exists)
+            if(!UserDefinedScriptRewriteOverridesFolder.Exists)
                 UserDefinedScriptRewriteOverridesFolder.Create();
         }
     }

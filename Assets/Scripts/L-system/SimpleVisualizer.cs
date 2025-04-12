@@ -3,9 +3,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
-using TMPro;
-using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -57,14 +54,14 @@ public class SimpleVisualizer : MonoBehaviour
 
     private void Start()
     {
-        if (_createOnAwake) Create();
+        if(_createOnAwake) Create();
         //StartCoroutine(DynamicallyChange());
     }
 
     [Button]
     public void Create()
     {
-        if (_currentTilesParent!= null) Destroy(_currentTilesParent.gameObject);
+        if(_currentTilesParent != null) Destroy(_currentTilesParent.gameObject);
         PlacePoints();
         Length = _defaltLenght;
         _positions.Clear();
@@ -97,7 +94,7 @@ public class SimpleVisualizer : MonoBehaviour
         do
         {
             _target.transform.position = new Vector3(Random.Range(-50f, 100f), 0, Random.Range(-50f, 100f));
-        } while (Vector3.Distance(_player.transform.position, _target.transform.position) < 20);
+        } while(Vector3.Distance(_player.transform.position, _target.transform.position) < 20);
     }
 
     private void RecognizeTypeOfNode(KeyValuePair<Node, List<Node>> keyValue)
@@ -106,7 +103,7 @@ public class SimpleVisualizer : MonoBehaviour
 
         List<Vector3> vector3s = new List<Vector3>();
 
-        foreach (var item in keyValue.Value)
+        foreach(var item in keyValue.Value)
         {
             vector3s.Add(item.position);
         }
@@ -114,7 +111,7 @@ public class SimpleVisualizer : MonoBehaviour
 
         keyValue.Key.list = vector3s;
 
-        switch (keyValue.Value.Count)
+        switch(keyValue.Value.Count)
         {
             case 1:
                 type = RoadTileType.RoadEnd;
@@ -124,7 +121,7 @@ public class SimpleVisualizer : MonoBehaviour
                 Vector3 dir2 = keyValue.Value[1].position - keyValue.Key.position;
                 float angle = Mathf.Round(Vector3.Angle(dir1, dir2));
 
-                if (angle == 180) type = RoadTileType.RoadLine;
+                if(angle == 180) type = RoadTileType.RoadLine;
                 else type = RoadTileType.RoadCurve;
                 break;
             case 3:
@@ -134,29 +131,29 @@ public class SimpleVisualizer : MonoBehaviour
                 type = RoadTileType.Junction4Dirs;
                 break;
         }
-        if (type == RoadTileType.None) return;
-        if (!_roadTypes.ContainsKey(type)) _roadTypes[type] = new();
+        if(type == RoadTileType.None) return;
+        if(!_roadTypes.ContainsKey(type)) _roadTypes[type] = new();
 
         _roadTypes[type].Add(keyValue.Key);
     }
 
     private List<Node> TryAddNextNeighbour(List<Node> neighbours, Node newNeighbour)
     {
-        if (!neighbours.Contains(newNeighbour)) neighbours.Add(newNeighbour);
+        if(!neighbours.Contains(newNeighbour)) neighbours.Add(newNeighbour);
         return neighbours;
     }
 
     [Button]
     private void SpawnTiles()
     {
-        foreach (var roadType in _roadTypes)
+        foreach(var roadType in _roadTypes)
         {
-            foreach (var node in roadType.Value)
+            foreach(var node in roadType.Value)
             {
 
                 float rotation = 0f;
                 Vector3 dir1, dir2, dir3;
-                switch (roadType.Key)
+                switch(roadType.Key)
                 {
                     case RoadTileType.Junction4Dirs:
                         AddBuildinPoints(Instantiate(_junction4Dirs, node.position, Quaternion.identity, _currentTilesParent));
@@ -173,10 +170,10 @@ public class SimpleVisualizer : MonoBehaviour
                         bool left = (dir1.x < -0.5f) || (dir2.x < -0.5f) || (dir3.x < -0.5f);
 
 
-                        if (up && down && right) rotation = 0;
-                        else if (up && down && left) rotation = 180f;
-                        else if (up && left && right) rotation = -90f;
-                        else if (down && left && right) rotation = 90f;
+                        if(up && down && right) rotation = 0;
+                        else if(up && down && left) rotation = 180f;
+                        else if(up && left && right) rotation = -90f;
+                        else if(down && left && right) rotation = 90f;
 
                         //Debug.Log(rotation + " - " + Quaternion.Euler(0, rotation, 0).eulerAngles.ToString());
 
@@ -189,7 +186,7 @@ public class SimpleVisualizer : MonoBehaviour
 
                         rotation = 0f;
 
-                        if (Mathf.Abs(dir1.x) > Mathf.Abs(dir1.z)) rotation = dir1.x > 0 ? (dir2.z > 0 ? -90f : 0f) : (dir2.z > 0 ? 180f : 90f); // Soused1 je na ose X (vodorovnì
+                        if(Mathf.Abs(dir1.x) > Mathf.Abs(dir1.z)) rotation = dir1.x > 0 ? (dir2.z > 0 ? -90f : 0f) : (dir2.z > 0 ? 180f : 90f); // Soused1 je na ose X (vodorovnì
                         else rotation = dir1.z > 0 ? (dir2.x > 0 ? -90f : 180f) : (dir2.x > 0 ? 0f : 90f); // Soused1 je na ose Z (svisle)
 
                         AddBuildinPoints(Instantiate(_roadCurve, node.position, Quaternion.Euler(0, rotation, 0), _currentTilesParent));
@@ -200,7 +197,7 @@ public class SimpleVisualizer : MonoBehaviour
 
                         rotation = 0f;
 
-                        if (Mathf.Abs(dir1.x) > 0.1f && Mathf.Abs(dir2.x) > 0.1f) rotation = 90;
+                        if(Mathf.Abs(dir1.x) > 0.1f && Mathf.Abs(dir2.x) > 0.1f) rotation = 90;
 
 
                         AddBuildinPoints(Instantiate(_roadLine, node.position, Quaternion.Euler(0, rotation, 0), _currentTilesParent));
@@ -234,15 +231,15 @@ public class SimpleVisualizer : MonoBehaviour
     public List<BuildingPoint> RemoveDuplicates(List<BuildingPoint> allPoints)
     {
         List<BuildingPoint> toRemove = new();
-        foreach (var item in allPoints)
+        foreach(var item in allPoints)
         {
-            foreach (var item1 in allPoints)
+            foreach(var item1 in allPoints)
             {
-                if (!toRemove.Contains(item1) && Vector3.Distance(item.Position, item1.Position) < .15f) toRemove.Add(item1);
+                if(!toRemove.Contains(item1) && Vector3.Distance(item.Position, item1.Position) < .15f) toRemove.Add(item1);
             }
         }
 
-        for (int i = 0; i < toRemove.Count; i++)
+        for(int i = 0; i < toRemove.Count; i++)
         {
             allPoints.Remove(toRemove[i]);
         }
@@ -264,7 +261,7 @@ public class SimpleVisualizer : MonoBehaviour
         Dictionary<Vector3, AlgoNode> algoNodeMap = new Dictionary<Vector3, AlgoNode>();
 
         // Nejprve vytvoøíme všechny AlgoNode objekty bez sousedù
-        foreach (var entry in _nodes)
+        foreach(var entry in _nodes)
         {
             Node currentNode = entry.Key;
             AlgoNode algoNode = new AlgoNode(currentNode.position, null);  // Parent zatím nastaven na null
@@ -272,16 +269,16 @@ public class SimpleVisualizer : MonoBehaviour
         }
 
         // Nyní pøidáme sousedy a pøiøadíme Parent
-        foreach (var entry in _nodes)
+        foreach(var entry in _nodes)
         {
             Node currentNode = entry.Key;
             List<Node> neighbors = entry.Value;
 
             AlgoNode algoNode = algoNodeMap[currentNode.position];
 
-            foreach (Node neighbor in neighbors)
+            foreach(Node neighbor in neighbors)
             {
-                if (algoNodeMap.TryGetValue(neighbor.position, out AlgoNode neighborAlgoNode))
+                if(algoNodeMap.TryGetValue(neighbor.position, out AlgoNode neighborAlgoNode))
                 {
                     algoNode.Neighbours.Add(neighborAlgoNode);
                 }
@@ -306,7 +303,7 @@ public class SimpleVisualizer : MonoBehaviour
     {
         Stack<AgentParameters> savePoints = new();
 
-        if (randomAngle) _angle = UnityEngine.Random.Range(_angle > 180 ? 180 : 0, _angle > 180 ? 360 : 180);
+        if(randomAngle) _angle = UnityEngine.Random.Range(_angle > 180 ? 180 : 0, _angle > 180 ? 360 : 180);
         else _angle = 90;
 
         Node currentPosition = new Node(Vector3.zero);
@@ -316,10 +313,10 @@ public class SimpleVisualizer : MonoBehaviour
 
         _positions.Add(currentPosition);
 
-        foreach (var letter in sequance)
+        foreach(var letter in sequance)
         {
             EncodingLetters encoding = (EncodingLetters)letter;
-            switch (encoding)
+            switch(encoding)
             {
                 case EncodingLetters.save:
                     savePoints.Push(new AgentParameters
@@ -330,7 +327,7 @@ public class SimpleVisualizer : MonoBehaviour
                     });
                     break;
                 case EncodingLetters.load:
-                    if (savePoints.Count > 0)
+                    if(savePoints.Count > 0)
                     {
                         var agentParameter = savePoints.Pop();
                         currentPosition = agentParameter.position;
@@ -349,29 +346,29 @@ public class SimpleVisualizer : MonoBehaviour
                     //currentPosition.position2 = currentPosition.position;
 
                     Node findedNode = null;
-                    if (!_positions.Any(e =>
+                    if(!_positions.Any(e =>
                     {
-                        if (distanceCheck)
+                        if(distanceCheck)
                         {
-                            if (Vector3.Distance(e.position, currentPosition.position) <= _distance) findedNode = e;
+                            if(Vector3.Distance(e.position, currentPosition.position) <= _distance) findedNode = e;
                         }
                         else
                         {
-                            if (e.position == currentPosition.position) findedNode = e;
+                            if(e.position == currentPosition.position) findedNode = e;
                         }
                         return findedNode != null;
                     }))
                     {
-                        if (!_nodes.ContainsKey(tempPosition)) _nodes[tempPosition] = new List<Node>();
-                        if (!_nodes.ContainsKey(currentPosition)) _nodes[currentPosition] = new List<Node>();
+                        if(!_nodes.ContainsKey(tempPosition)) _nodes[tempPosition] = new List<Node>();
+                        if(!_nodes.ContainsKey(currentPosition)) _nodes[currentPosition] = new List<Node>();
                         _nodes[tempPosition] = TryAddNextNeighbour(_nodes[tempPosition], currentPosition);
                         _nodes[currentPosition] = TryAddNextNeighbour(_nodes[currentPosition], tempPosition);
 
 
                         //DrawLine(tempPosition, currentPosition, Color.red);
                         //PlaceStreetPos(tempPosition.position, Vector3Int.RoundToInt(direction), Length);
-                        if (changeLength) Length -= 2;
-                        if (Length < _minLenght) Length = _minLenght;
+                        if(changeLength) Length -= 2;
+                        if(Length < _minLenght) Length = _minLenght;
 
                         _distance = Length - .1f;
                         //while (_positions.Any(e => e.position == currentPosition.position2))
@@ -398,9 +395,9 @@ public class SimpleVisualizer : MonoBehaviour
 
     private Node FindNodeByPos(Vector3 pos)
     {
-        foreach (var node in _nodes)
+        foreach(var node in _nodes)
         {
-            if (Vector3.Distance(node.Key.position, pos) < .2f) return node.Key;
+            if(Vector3.Distance(node.Key.position, pos) < .2f) return node.Key;
 
         }
         return null;
@@ -411,11 +408,11 @@ public class SimpleVisualizer : MonoBehaviour
     {
 
         _joinNodes = new();
-        foreach (var node in _nodes)
+        foreach(var node in _nodes)
         {
-            if (node.Value.Count == 1)
+            if(node.Value.Count == 1)
             {
-                if (UnityEngine.Random.Range(0, 100f) <= _chanceToJoin)
+                if(UnityEngine.Random.Range(0, 100f) <= _chanceToJoin)
                 {
                     var currentJoin = new JoinNode();
                     var dir = (node.Key.position - node.Value[0].position).normalized * 3;
@@ -423,7 +420,7 @@ public class SimpleVisualizer : MonoBehaviour
                     currentJoin.pos = node.Key.position + dir;
 
                     var foundNode = FindNodeByPos(currentJoin.pos);
-                    if (foundNode != null)
+                    if(foundNode != null)
                     {
                         currentJoin.two = foundNode;
                         _joinNodes.Add(currentJoin);
@@ -433,45 +430,45 @@ public class SimpleVisualizer : MonoBehaviour
             }
         }
 
-        foreach (var item in _joinNodes)
+        foreach(var item in _joinNodes)
         {
-            if (!_nodes[item.one].Contains(item.two)) _nodes[item.one].Add(item.two);
-            if (!_nodes[item.two].Contains(item.one)) _nodes[item.two].Add(item.one);
+            if(!_nodes[item.one].Contains(item.two)) _nodes[item.one].Add(item.two);
+            if(!_nodes[item.two].Contains(item.one)) _nodes[item.two].Add(item.one);
         }
 
-        foreach (var node in _nodes)
+        foreach(var node in _nodes)
         {
             RecognizeTypeOfNode(node);
         }
 
-       // SpawnTiles();
+        // SpawnTiles();
     }
 
 
     private void OnDrawGizmos()
     {
-        for (int i = 0; i < _points.Count; i++)
+        for(int i = 0; i < _points.Count; i++)
         {
             Gizmos.color = Color.white;
-            if (_points[i].RotationY == 315) Gizmos.color = Color.black;
+            if(_points[i].RotationY == 315) Gizmos.color = Color.black;
             Gizmos.DrawSphere(_points[i].Position + new Vector3(0, .5f, 0), .1f);
 #if UNITY_EDITOR
             Handles.ArrowHandleCap(0, _points[i].Position, Quaternion.LookRotation(_points[i].Direction), 1f, EventType.Repaint);
 #endif
         }
         Gizmos.color = Color.red;
-        foreach (var group in _groups)
+        foreach(var group in _groups)
         {
-            for (int i = 0; i < group.Count; i++)
+            for(int i = 0; i < group.Count; i++)
             {
                 Gizmos.color = Color.red;
 
-                if (i < group.Count - 1) Gizmos.DrawLine(group[i].Position + new Vector3(0, .5f, 0), group[i + 1].Position + new Vector3(0, .5f, 0));
+                if(i < group.Count - 1) Gizmos.DrawLine(group[i].Position + new Vector3(0, .5f, 0), group[i + 1].Position + new Vector3(0, .5f, 0));
 #if UNITY_EDITOR
                 Handles.Label(group[i].Position + new Vector3(0, .8f, 0), i.ToString());
                 Handles.Label(group[i].Position + new Vector3(0, 1f, 0), group[i].Direction.ToString());
                 Handles.Label(group[i].Position + new Vector3(0, 1.2f, 0), group[i].RotationY.ToString());
-                if (i < group.Count - 1) Handles.Label(group[i].Position + new Vector3(0, 1.5f, 0), ((group[i + 1].Position - group[i].Position).normalized).ToString());
+                if(i < group.Count - 1) Handles.Label(group[i].Position + new Vector3(0, 1.5f, 0), ((group[i + 1].Position - group[i].Position).normalized).ToString());
 #endif
                 //Gizmos.color = Color.yellow;
 
@@ -484,7 +481,7 @@ public class SimpleVisualizer : MonoBehaviour
         }
 
         return;
-        foreach (var item in _joinNodes)
+        foreach(var item in _joinNodes)
         {
             Gizmos.color = Color.white;
             Gizmos.DrawSphere(item.one.position + new Vector3(0, .5f, 0), .1f);
@@ -495,7 +492,7 @@ public class SimpleVisualizer : MonoBehaviour
             Gizmos.DrawSphere(item.two.position + new Vector3(0, .8f, 0), .1f);
         }
 
-        foreach (var item in _nodes)
+        foreach(var item in _nodes)
         {
             Gizmos.color = Color.white;
 #if UNITY_EDITOR
@@ -507,9 +504,9 @@ public class SimpleVisualizer : MonoBehaviour
             }
         }
 
-        foreach (var roadType in _roadTypes)
+        foreach(var roadType in _roadTypes)
         {
-            switch (roadType.Key)
+            switch(roadType.Key)
             {
                 case RoadTileType.Junction3Dirs:
                     Gizmos.color = Color.cyan;
@@ -529,11 +526,11 @@ public class SimpleVisualizer : MonoBehaviour
             }
 
             Color currentC = Gizmos.color;
-            foreach (var node in roadType.Value)
+            foreach(var node in roadType.Value)
             {
                 Gizmos.color = currentC;
                 Gizmos.DrawWireCube(node.position, new Vector3(.5f, .5f, .5f));
-                if (roadType.Key != RoadTileType.RoadCurve) continue;
+                if(roadType.Key != RoadTileType.RoadCurve) continue;
                 Gizmos.color = Color.red;
                 Gizmos.DrawSphere(node.list[0] + new Vector3(0, 1f, 0), .1f);
                 Gizmos.color = Color.blue;
@@ -622,7 +619,7 @@ public class SimpleVisualizer : MonoBehaviour
         // Pøepsání Equals pro porovnání pozic
         public override bool Equals(object obj)
         {
-            if (obj is BuildingPoint other)
+            if(obj is BuildingPoint other)
             {
                 return Position == other.Position;
             }

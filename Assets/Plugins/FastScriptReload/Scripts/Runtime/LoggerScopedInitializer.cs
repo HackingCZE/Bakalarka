@@ -12,7 +12,7 @@ namespace FastScriptReload.Runtime
         {
             Init();
         }
-        
+
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterAssembliesLoaded)]
         static void Init()
         {

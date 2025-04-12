@@ -1,8 +1,6 @@
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using UnityEngine;
 
 public abstract class BiderectionalAlgoBase : AlgoBase
 {
@@ -15,7 +13,7 @@ public abstract class BiderectionalAlgoBase : AlgoBase
     public override Task<List<AlgoNode>> StartAlgo(AlgoNode startNode, AlgoNode endNode, List<AlgoNode> graph, IDrawingNode drawingNode)
     {
         throw new System.NotImplementedException();
-    }  
+    }
 
     public new async Task<List<AlgoNode>> GetResultPath(AlgoNode startNode, AlgoNode endNode)
     {

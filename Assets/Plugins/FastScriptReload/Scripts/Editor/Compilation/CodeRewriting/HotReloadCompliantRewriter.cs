@@ -1,21 +1,21 @@
-﻿using System.Collections.Generic;
-using FastScriptReload.Runtime;
+﻿using FastScriptReload.Runtime;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using System.Collections.Generic;
 
 namespace FastScriptReload.Editor.Compilation.CodeRewriting
 {
     class HotReloadCompliantRewriter : FastScriptReloadCodeRewriterBase
     {
         public List<string> StrippedUsingDirectives = new List<string>();
-        
-        public HotReloadCompliantRewriter(bool writeRewriteReasonAsComment, bool visitIntoStructuredTrivia = false) 
+
+        public HotReloadCompliantRewriter(bool writeRewriteReasonAsComment, bool visitIntoStructuredTrivia = false)
             : base(writeRewriteReasonAsComment, visitIntoStructuredTrivia)
         {
         }
 
-        
+
         public override SyntaxNode VisitClassDeclaration(ClassDeclarationSyntax node)
         {
             return AddPatchedPostfixToTopLevelDeclarations(node, node.Identifier);
@@ -49,7 +49,7 @@ namespace FastScriptReload.Editor.Compilation.CodeRewriting
 
         public override SyntaxNode VisitUsingDirective(UsingDirectiveSyntax node)
         {
-            if (node.Parent is CompilationUnitSyntax)
+            if(node.Parent is CompilationUnitSyntax)
             {
                 StrippedUsingDirectives.Add(node.ToFullString());
                 return null;

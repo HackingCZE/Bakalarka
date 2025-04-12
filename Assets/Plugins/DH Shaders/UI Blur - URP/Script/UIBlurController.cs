@@ -1,8 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Unity.VisualScripting;
-using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -50,12 +48,12 @@ namespace DH.Shaders.UIBlur
 
         public void SetBlurAmount()
         {
-            if (_uiImage == null)
+            if(_uiImage == null)
             {
                 _uiImage = GetComponent<Image>();
             }
 
-            if (isTransparent)
+            if(isTransparent)
             {
                 _uiImage.material.SetFloat("_BlurAmount", BlurAmount);
                 SetBlurCamera();
@@ -67,7 +65,7 @@ namespace DH.Shaders.UIBlur
             float xAmount = BlurAmount;
             float yAmount = BlurAmount;
 
-            if (aspect > 1f)
+            if(aspect > 1f)
             {
                 xAmount /= aspect;
             }
@@ -85,13 +83,13 @@ namespace DH.Shaders.UIBlur
 
         public void SetBlurCamera(bool reverse = false)
         {
-            if (blurCamera == null) return;
-            if (blurCamera.targetTexture != null)
+            if(blurCamera == null) return;
+            if(blurCamera.targetTexture != null)
             {
                 blurCamera.targetTexture.Release();
             }
 
-            if (!reverse)
+            if(!reverse)
             {
                 blurCamera.targetTexture = new RenderTexture(blurCamera.pixelWidth, blurCamera.pixelHeight, 24, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Linear);
                 blurCamera.targetTexture.name = "BlurTexture";
@@ -101,14 +99,14 @@ namespace DH.Shaders.UIBlur
             {
                 blurCamera.targetTexture = null;
             }
-          
+
         }
 
 
         [Serializable]
         public class BlurUIItem
         {
-            [field:SerializeField] public Graphic UiElement { get; set; }
+            [field: SerializeField] public Graphic UiElement { get; set; }
             [field: SerializeField] public Material OldMaterial { get; private set; }
             [field: SerializeField] public bool IncludeChildren { get; set; }
             [field: SerializeField] private List<BlurUIItem> children = new List<BlurUIItem>();
@@ -119,44 +117,44 @@ namespace DH.Shaders.UIBlur
                 OldMaterial = UiElement.material;
                 IncludeChildren = includeChildren;
                 children.Clear();
-                if (includeChildren)
+                if(includeChildren)
                 {
                     var newChildren = UiElement.GetComponentsInChildren<Graphic>();
-                    foreach (var item in newChildren)
+                    foreach(var item in newChildren)
                     {
-                        if (item.transform.parent == UiElement.transform && !children.Any(e => e.UiElement == item)) children.Add(new BlurUIItem(item, true));
+                        if(item.transform.parent == UiElement.transform && !children.Any(e => e.UiElement == item)) children.Add(new BlurUIItem(item, true));
                     }
                 }
             }
             public void SetOldMaterial()
             {
                 UiElement.material = OldMaterial;
-                foreach (BlurUIItem item in children)
+                foreach(BlurUIItem item in children)
                 {
                     item.SetOldMaterial();
                 }
             }
             public void SetMaterial(Material newMaterial, bool changedIncludeChildren = false)
             {
-                if (changedIncludeChildren)
+                if(changedIncludeChildren)
                 {
-                    if (IncludeChildren)
+                    if(IncludeChildren)
                     {
                         var newChildren = UiElement.GetComponentsInChildren<Graphic>();
-                        foreach (var item in newChildren)
+                        foreach(var item in newChildren)
                         {
-                            if (item.transform.parent == UiElement.transform && !children.Any(e => e.UiElement == item)) children.Add(new BlurUIItem(item, true));
-                            
+                            if(item.transform.parent == UiElement.transform && !children.Any(e => e.UiElement == item)) children.Add(new BlurUIItem(item, true));
+
                         }
 
                         List<BlurUIItem> toRemove = new();
 
-                        foreach (var item in children)
+                        foreach(var item in children)
                         {
-                            if (!newChildren.Any(e => e == item.UiElement)) toRemove.Add(item);
+                            if(!newChildren.Any(e => e == item.UiElement)) toRemove.Add(item);
                         }
 
-                        foreach (var item in toRemove)
+                        foreach(var item in toRemove)
                         {
                             children.Remove(item);
                         }
@@ -169,7 +167,7 @@ namespace DH.Shaders.UIBlur
                 }
 
 
-                foreach (BlurUIItem item in children)
+                foreach(BlurUIItem item in children)
                 {
                     item.SetMaterial(newMaterial);
                 }

@@ -18,7 +18,7 @@ namespace NaughtyAttributes.Editor
         {
             EditorGUI.BeginProperty(rect, label, property);
 
-            if (property.propertyType == SerializedPropertyType.String)
+            if(property.propertyType == SerializedPropertyType.String)
             {
                 // generate the taglist + custom tags
                 List<string> tagList = new List<string>();
@@ -30,9 +30,9 @@ namespace NaughtyAttributes.Editor
                 int index = 0;
                 // check if there is an entry that matches the entry and get the index
                 // we skip index 0 as that is a special custom case
-                for (int i = 1; i < tagList.Count; i++)
+                for(int i = 1; i < tagList.Count; i++)
                 {
-                    if (tagList[i].Equals(propertyString, System.StringComparison.Ordinal))
+                    if(tagList[i].Equals(propertyString, System.StringComparison.Ordinal))
                     {
                         index = i;
                         break;
@@ -45,7 +45,7 @@ namespace NaughtyAttributes.Editor
                 // Adjust the actual string value of the property based on the selection
                 string newValue = newIndex > 0 ? tagList[newIndex] : string.Empty;
 
-                if (!property.stringValue.Equals(newValue, System.StringComparison.Ordinal))
+                if(!property.stringValue.Equals(newValue, System.StringComparison.Ordinal))
                 {
                     property.stringValue = newValue;
                 }

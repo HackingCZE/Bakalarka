@@ -1,8 +1,6 @@
 using LootLocker.Requests;
 using System.Collections;
-using System.Collections.Generic;
 using TMPro;
-using UnityEditor;
 using UnityEngine;
 
 public class LootLockerManager : MonoBehaviour
@@ -45,7 +43,7 @@ public class LootLockerManager : MonoBehaviour
         bool done = false;
         LootLockerSDKManager.StartGuestSession((response) =>
         {
-            if (response.success)
+            if(response.success)
             {
                 Debug.Log("Player was logged in");
                 PlayerPrefs.SetString("PlayerID", response.player_id.ToString());
@@ -54,7 +52,7 @@ public class LootLockerManager : MonoBehaviour
                 LootLockerSDKManager.GetPlayerName((playerName) =>
                 {
                     nickname = playerName.name;
-                    if (playerName.name != "")
+                    if(playerName.name != "")
                     {
                         SecondLogin();
                     }

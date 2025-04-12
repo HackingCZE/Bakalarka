@@ -1,5 +1,5 @@
-﻿using UnityEngine;
-using UnityEditor;
+﻿using UnityEditor;
+using UnityEngine;
 
 namespace NaughtyAttributes.Editor
 {
@@ -8,40 +8,40 @@ namespace NaughtyAttributes.Editor
     {
         protected override float GetPropertyHeight_Internal(SerializedProperty property, GUIContent label)
         {
-            if (property.objectReferenceValue == null)
+            if(property.objectReferenceValue == null)
             {
                 return GetPropertyHeight(property);
             }
 
             System.Type propertyType = PropertyUtility.GetPropertyType(property);
-            if (typeof(ScriptableObject).IsAssignableFrom(propertyType))
+            if(typeof(ScriptableObject).IsAssignableFrom(propertyType))
             {
                 ScriptableObject scriptableObject = property.objectReferenceValue as ScriptableObject;
-                if (scriptableObject == null)
+                if(scriptableObject == null)
                 {
                     return GetPropertyHeight(property);
                 }
 
-                if (property.isExpanded)
+                if(property.isExpanded)
                 {
-                    using (SerializedObject serializedObject = new SerializedObject(scriptableObject))
+                    using(SerializedObject serializedObject = new SerializedObject(scriptableObject))
                     {
                         float totalHeight = EditorGUIUtility.singleLineHeight;
 
-                        using (var iterator = serializedObject.GetIterator())
+                        using(var iterator = serializedObject.GetIterator())
                         {
-                            if (iterator.NextVisible(true))
+                            if(iterator.NextVisible(true))
                             {
                                 do
                                 {
                                     SerializedProperty childProperty = serializedObject.FindProperty(iterator.name);
-                                    if (childProperty.name.Equals("m_Script", System.StringComparison.Ordinal))
+                                    if(childProperty.name.Equals("m_Script", System.StringComparison.Ordinal))
                                     {
                                         continue;
                                     }
 
                                     bool visible = PropertyUtility.IsVisible(childProperty);
-                                    if (!visible)
+                                    if(!visible)
                                     {
                                         continue;
                                     }
@@ -49,7 +49,7 @@ namespace NaughtyAttributes.Editor
                                     float height = GetPropertyHeight(childProperty);
                                     totalHeight += height;
                                 }
-                                while (iterator.NextVisible(false));
+                                while(iterator.NextVisible(false));
                             }
                         }
 
@@ -72,17 +72,17 @@ namespace NaughtyAttributes.Editor
         {
             EditorGUI.BeginProperty(rect, label, property);
 
-            if (property.objectReferenceValue == null)
+            if(property.objectReferenceValue == null)
             {
                 EditorGUI.PropertyField(rect, property, label, false);
             }
             else
             {
                 System.Type propertyType = PropertyUtility.GetPropertyType(property);
-                if (typeof(ScriptableObject).IsAssignableFrom(propertyType))
+                if(typeof(ScriptableObject).IsAssignableFrom(propertyType))
                 {
                     ScriptableObject scriptableObject = property.objectReferenceValue as ScriptableObject;
-                    if (scriptableObject == null)
+                    if(scriptableObject == null)
                     {
                         EditorGUI.PropertyField(rect, property, label, false);
                     }
@@ -111,7 +111,7 @@ namespace NaughtyAttributes.Editor
                         EditorGUI.PropertyField(propertyRect, property, label, false);
 
                         // Draw the child properties
-                        if (property.isExpanded)
+                        if(property.isExpanded)
                         {
                             DrawChildProperties(rect, property);
                         }
@@ -131,7 +131,7 @@ namespace NaughtyAttributes.Editor
         private void DrawChildProperties(Rect rect, SerializedProperty property)
         {
             ScriptableObject scriptableObject = property.objectReferenceValue as ScriptableObject;
-            if (scriptableObject == null)
+            if(scriptableObject == null)
             {
                 return;
             }
@@ -146,27 +146,27 @@ namespace NaughtyAttributes.Editor
 
             GUI.Box(boxRect, GUIContent.none);
 
-            using (new EditorGUI.IndentLevelScope())
+            using(new EditorGUI.IndentLevelScope())
             {
                 SerializedObject serializedObject = new SerializedObject(scriptableObject);
                 serializedObject.Update();
 
-                using (var iterator = serializedObject.GetIterator())
+                using(var iterator = serializedObject.GetIterator())
                 {
                     float yOffset = EditorGUIUtility.singleLineHeight;
 
-                    if (iterator.NextVisible(true))
+                    if(iterator.NextVisible(true))
                     {
                         do
                         {
                             SerializedProperty childProperty = serializedObject.FindProperty(iterator.name);
-                            if (childProperty.name.Equals("m_Script", System.StringComparison.Ordinal))
+                            if(childProperty.name.Equals("m_Script", System.StringComparison.Ordinal))
                             {
                                 continue;
                             }
 
                             bool visible = PropertyUtility.IsVisible(childProperty);
-                            if (!visible)
+                            if(!visible)
                             {
                                 continue;
                             }
@@ -184,7 +184,7 @@ namespace NaughtyAttributes.Editor
 
                             yOffset += childHeight;
                         }
-                        while (iterator.NextVisible(false));
+                        while(iterator.NextVisible(false));
                     }
                 }
 

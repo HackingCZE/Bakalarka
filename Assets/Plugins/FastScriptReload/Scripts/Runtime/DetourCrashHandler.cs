@@ -2,7 +2,6 @@
 using System;
 using System.IO;
 using System.Linq;
-using ImmersiveVrToolsCommon.Runtime.Logging;
 using UnityEngine;
 
 namespace FastScriptReload.Runtime
@@ -14,7 +13,7 @@ namespace FastScriptReload.Runtime
     {
         //TODO: add device support / android crashes / how to report issues back?
         public static string LastDetourFilePath;
-    
+
         static DetourCrashHandler()
         {
 #if UNITY_EDITOR
@@ -29,9 +28,9 @@ namespace FastScriptReload.Runtime
         {
 #if UNITY_EDITOR
             LastDetourFilePath = Path.GetTempPath() + Application.productName + "-last-detour.txt";
-            foreach (var c in Path.GetInvalidFileNameChars()) 
-            { 
-                LastDetourFilePath = LastDetourFilePath.Replace(c, '-'); 
+            foreach(var c in Path.GetInvalidFileNameChars())
+            {
+                LastDetourFilePath = LastDetourFilePath.Replace(c, '-');
             }
 #else
             LoggerScoped.Log($"{nameof(DetourCrashHandler)}: currently only supported in Editor");
@@ -50,7 +49,7 @@ namespace FastScriptReload.Runtime
         public static string RetrieveLastDetour()
         {
 #if UNITY_EDITOR
-            if (File.Exists(LastDetourFilePath))
+            if(File.Exists(LastDetourFilePath))
             {
                 var lines = File.ReadAllLines(LastDetourFilePath);
                 return lines.Length > 0 ? lines.Last() : string.Empty;

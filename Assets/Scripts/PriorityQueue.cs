@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -10,7 +9,7 @@ public class PriorityQueue<T>
 
     public void Enqueue(T item, float priority)
     {
-        if (!_elements.ContainsKey(priority))
+        if(!_elements.ContainsKey(priority))
         {
             _elements[priority] = new Queue<T>();
         }
@@ -20,14 +19,14 @@ public class PriorityQueue<T>
 
     public T Dequeue()
     {
-        if (Count == 0)
+        if(Count == 0)
         {
             return default(T);
         }
 
         var firstPair = _elements.First();
         var item = firstPair.Value.Dequeue();
-        if (firstPair.Value.Count == 0)
+        if(firstPair.Value.Count == 0)
         {
             _elements.Remove(firstPair.Key);
         }
@@ -39,9 +38,9 @@ public class PriorityQueue<T>
     public bool Contains(T item)
     {
         // Iterate through all the queues in the priority dictionary
-        foreach (var queue in _elements.Values)
+        foreach(var queue in _elements.Values)
         {
-            if (queue.Contains(item))
+            if(queue.Contains(item))
             {
                 return true;  // Item found
             }

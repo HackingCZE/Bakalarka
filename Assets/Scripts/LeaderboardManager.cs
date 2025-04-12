@@ -1,9 +1,6 @@
 using LootLocker.Requests;
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.SceneManagement;
-using UnityEngine.SocialPlatforms.Impl;
 
 public class LeaderboardManager : MonoBehaviour
 {
@@ -29,7 +26,7 @@ public class LeaderboardManager : MonoBehaviour
         string playerID = PlayerPrefs.GetString("PlayerID");
         LootLockerSDKManager.SubmitScore(playerID, scoreToUpload, leaderboardID.ToString(), (response) =>
         {
-            if (response.success)
+            if(response.success)
             {
                 Debug.Log("Successfully uploaded score");
 
@@ -50,7 +47,7 @@ public class LeaderboardManager : MonoBehaviour
 
         LootLockerSDKManager.GetScoreList(leaderboardID.ToString(), 30, 0, (response) =>
         {
-            if (response.success)
+            if(response.success)
             {
                 done = true;
                 Debug.Log("Successfully got score list!");
@@ -66,7 +63,7 @@ public class LeaderboardManager : MonoBehaviour
                         var obj = Instantiate(_leaderboardPrefab, _leaderboardParent.transform);
                         obj.GetComponent<LeaderboardItem>().SetValues(currentItem.rank.ToString(), currentItem.player.name, currentItem.score.ToString());
                     }
-                }                
+                }
             }
             else
             {
@@ -81,7 +78,7 @@ public class LeaderboardManager : MonoBehaviour
 
     private void DeastroyAllLeaderboardItems()
     {
-        foreach (Transform child in _leaderboardParent.transform)
+        foreach(Transform child in _leaderboardParent.transform)
         {
             Destroy(child.gameObject);
         }
@@ -98,7 +95,7 @@ public class LeaderboardManager : MonoBehaviour
         bool done = false;
         LootLockerSDKManager.GetMemberRank(leaderboardID.ToString(), PlayerPrefs.GetString("PlayerID"), (response) =>
         {
-            if (response.success)
+            if(response.success)
             {
                 PlayerManager.Instance.SetScore(response.score, false);
                 done = true;

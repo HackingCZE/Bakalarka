@@ -30,7 +30,7 @@ namespace NaughtyAttributes.Editor
             AnimatorParamAttribute animatorParamAttribute = PropertyUtility.GetAttribute<AnimatorParamAttribute>(property);
 
             AnimatorController animatorController = GetAnimatorController(property, animatorParamAttribute.AnimatorName);
-            if (animatorController == null)
+            if(animatorController == null)
             {
                 DrawDefaultPropertyAndHelpBox(rect, property, InvalidAnimatorControllerWarningMessage, MessageType.Warning);
                 return;
@@ -38,16 +38,16 @@ namespace NaughtyAttributes.Editor
 
             int parametersCount = animatorController.parameters.Length;
             List<AnimatorControllerParameter> animatorParameters = new List<AnimatorControllerParameter>(parametersCount);
-            for (int i = 0; i < parametersCount; i++)
+            for(int i = 0; i < parametersCount; i++)
             {
                 AnimatorControllerParameter parameter = animatorController.parameters[i];
-                if (animatorParamAttribute.AnimatorParamType == null || parameter.type == animatorParamAttribute.AnimatorParamType)
+                if(animatorParamAttribute.AnimatorParamType == null || parameter.type == animatorParamAttribute.AnimatorParamType)
                 {
                     animatorParameters.Add(parameter);
                 }
             }
 
-            switch (property.propertyType)
+            switch(property.propertyType)
             {
                 case SerializedPropertyType.Integer:
                     DrawPropertyForInt(rect, property, label, animatorParameters);
@@ -68,9 +68,9 @@ namespace NaughtyAttributes.Editor
             int paramNameHash = property.intValue;
             int index = 0;
 
-            for (int i = 0; i < animatorParameters.Count; i++)
+            for(int i = 0; i < animatorParameters.Count; i++)
             {
-                if (paramNameHash == animatorParameters[i].nameHash)
+                if(paramNameHash == animatorParameters[i].nameHash)
                 {
                     index = i + 1; // +1 because the first option is reserved for (None)
                     break;
@@ -82,7 +82,7 @@ namespace NaughtyAttributes.Editor
             int newIndex = EditorGUI.Popup(rect, label.text, index, displayOptions);
             int newValue = newIndex == 0 ? 0 : animatorParameters[newIndex - 1].nameHash;
 
-            if (property.intValue != newValue)
+            if(property.intValue != newValue)
             {
                 property.intValue = newValue;
             }
@@ -93,9 +93,9 @@ namespace NaughtyAttributes.Editor
             string paramName = property.stringValue;
             int index = 0;
 
-            for (int i = 0; i < animatorParameters.Count; i++)
+            for(int i = 0; i < animatorParameters.Count; i++)
             {
-                if (paramName.Equals(animatorParameters[i].name, System.StringComparison.Ordinal))
+                if(paramName.Equals(animatorParameters[i].name, System.StringComparison.Ordinal))
                 {
                     index = i + 1; // +1 because the first option is reserved for (None)
                     break;
@@ -107,7 +107,7 @@ namespace NaughtyAttributes.Editor
             int newIndex = EditorGUI.Popup(rect, label.text, index, displayOptions);
             string newValue = newIndex == 0 ? null : animatorParameters[newIndex - 1].name;
 
-            if (!property.stringValue.Equals(newValue, System.StringComparison.Ordinal))
+            if(!property.stringValue.Equals(newValue, System.StringComparison.Ordinal))
             {
                 property.stringValue = newValue;
             }
@@ -118,7 +118,7 @@ namespace NaughtyAttributes.Editor
             string[] displayOptions = new string[animatorParams.Count + 1];
             displayOptions[0] = "(None)";
 
-            for (int i = 0; i < animatorParams.Count; i++)
+            for(int i = 0; i < animatorParams.Count; i++)
             {
                 displayOptions[i + 1] = animatorParams[i].name;
             }
@@ -131,11 +131,11 @@ namespace NaughtyAttributes.Editor
             object target = PropertyUtility.GetTargetObjectWithProperty(property);
 
             FieldInfo animatorFieldInfo = ReflectionUtility.GetField(target, animatorName);
-            if (animatorFieldInfo != null &&
+            if(animatorFieldInfo != null &&
                 animatorFieldInfo.FieldType == typeof(Animator))
             {
                 Animator animator = animatorFieldInfo.GetValue(target) as Animator;
-                if (animator != null)
+                if(animator != null)
                 {
                     AnimatorController animatorController = animator.runtimeAnimatorController as AnimatorController;
                     return animatorController;
@@ -143,11 +143,11 @@ namespace NaughtyAttributes.Editor
             }
 
             PropertyInfo animatorPropertyInfo = ReflectionUtility.GetProperty(target, animatorName);
-            if (animatorPropertyInfo != null &&
+            if(animatorPropertyInfo != null &&
                 animatorPropertyInfo.PropertyType == typeof(Animator))
             {
                 Animator animator = animatorPropertyInfo.GetValue(target) as Animator;
-                if (animator != null)
+                if(animator != null)
                 {
                     AnimatorController animatorController = animator.runtimeAnimatorController as AnimatorController;
                     return animatorController;
@@ -155,12 +155,12 @@ namespace NaughtyAttributes.Editor
             }
 
             MethodInfo animatorGetterMethodInfo = ReflectionUtility.GetMethod(target, animatorName);
-            if (animatorGetterMethodInfo != null &&
+            if(animatorGetterMethodInfo != null &&
                 animatorGetterMethodInfo.ReturnType == typeof(Animator) &&
                 animatorGetterMethodInfo.GetParameters().Length == 0)
             {
                 Animator animator = animatorGetterMethodInfo.Invoke(target, null) as Animator;
-                if (animator != null)
+                if(animator != null)
                 {
                     AnimatorController animatorController = animator.runtimeAnimatorController as AnimatorController;
                     return animatorController;

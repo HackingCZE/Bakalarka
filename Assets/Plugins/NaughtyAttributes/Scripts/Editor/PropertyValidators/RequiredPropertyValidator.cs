@@ -8,12 +8,12 @@ namespace NaughtyAttributes.Editor
         {
             RequiredAttribute requiredAttribute = PropertyUtility.GetAttribute<RequiredAttribute>(property);
 
-            if (property.propertyType == SerializedPropertyType.ObjectReference)
+            if(property.propertyType == SerializedPropertyType.ObjectReference)
             {
-                if (property.objectReferenceValue == null)
+                if(property.objectReferenceValue == null)
                 {
                     string errorMessage = property.name + " is required";
-                    if (!string.IsNullOrEmpty(requiredAttribute.Message))
+                    if(!string.IsNullOrEmpty(requiredAttribute.Message))
                     {
                         errorMessage = requiredAttribute.Message;
                     }

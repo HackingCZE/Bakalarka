@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -18,13 +17,13 @@ public class PlanarityChecker : MonoBehaviour
         int edgeCount = CountEdges(graph);
 
         // Eulerova podmínka
-        if (edgeCount > 3 * nodeCount - 6)
+        if(edgeCount > 3 * nodeCount - 6)
         {
             return false;
         }
 
         // Geometrická kontrola pøekrývání hran
-        if (CheckEdgeIntersections(graph))
+        if(CheckEdgeIntersections(graph))
         {
             return false;
         }
@@ -36,7 +35,7 @@ public class PlanarityChecker : MonoBehaviour
     int CountEdges(List<AlgoNode> graph)
     {
         int edgeCount = 0;
-        foreach (AlgoNode node in graph)
+        foreach(AlgoNode node in graph)
         {
             edgeCount += node.Neighbours.Count;
         }
@@ -51,12 +50,12 @@ public class PlanarityChecker : MonoBehaviour
         List<(Vector2, Vector2)> edges = new List<(Vector2, Vector2)>();
 
         // Získání všech hran jako dvojic bodù
-        foreach (AlgoNode node in graph)
+        foreach(AlgoNode node in graph)
         {
-            foreach (AlgoNode neighbor in node.Neighbours)
+            foreach(AlgoNode neighbor in node.Neighbours)
             {
                 // Zamezte duplicitnímu pøidání hran (každá hrana je oboustranná)
-                if (!edges.Contains((neighbor.Position, node.Position)))
+                if(!edges.Contains((neighbor.Position, node.Position)))
                 {
                     edges.Add((node.Position, neighbor.Position));
                 }
@@ -64,11 +63,11 @@ public class PlanarityChecker : MonoBehaviour
         }
 
         // Kontrola prùseèíkù
-        for (int i = 0; i < edges.Count; i++)
+        for(int i = 0; i < edges.Count; i++)
         {
-            for (int j = i + 1; j < edges.Count; j++)
+            for(int j = i + 1; j < edges.Count; j++)
             {
-                if (DoSegmentsIntersect(edges[i].Item1, edges[i].Item2, edges[j].Item1, edges[j].Item2))
+                if(DoSegmentsIntersect(edges[i].Item1, edges[i].Item2, edges[j].Item1, edges[j].Item2))
                 {
                     return true; // Našli jsme prùseèík
                 }
@@ -86,7 +85,7 @@ public class PlanarityChecker : MonoBehaviour
         float d3 = Direction(a, b, c);
         float d4 = Direction(a, b, d);
 
-        if (((d1 > 0 && d2 < 0) || (d1 < 0 && d2 > 0)) &&
+        if(((d1 > 0 && d2 < 0) || (d1 < 0 && d2 > 0)) &&
             ((d3 > 0 && d4 < 0) || (d3 < 0 && d4 > 0)))
         {
             return true;

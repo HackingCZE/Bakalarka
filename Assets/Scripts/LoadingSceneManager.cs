@@ -34,7 +34,7 @@ public class LoadingSceneManager : MonoBehaviour
         _loadingSlider.value = 0;
         _loadingScreen.gameObject.SetActive(true);
     }
-    
+
     public void UpdateProgressBar(float progress)
     {
         _loadingSlider.value = Mathf.Clamp01(progress / .9f);
@@ -49,7 +49,7 @@ public class LoadingSceneManager : MonoBehaviour
     {
         AsyncOperation asyncOperation = SceneManager.LoadSceneAsync(sceneName);
 
-        while (!asyncOperation.isDone)
+        while(!asyncOperation.isDone)
         {
             _loadingSlider.value = Mathf.Clamp01(asyncOperation.progress / .9f);
             yield return null;

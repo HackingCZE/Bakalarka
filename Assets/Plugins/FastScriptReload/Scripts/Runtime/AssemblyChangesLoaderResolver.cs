@@ -1,9 +1,4 @@
-﻿using System;
-using System.Linq;
-using System.Reflection;
-using ImmersiveVRTools.Runtime.Common.Utilities;
-
-#if UNITY_EDITOR || LiveScriptReload_Enabled
+﻿#if UNITY_EDITOR || LiveScriptReload_Enabled
 
 namespace FastScriptReload.Runtime
 {
@@ -13,7 +8,7 @@ namespace FastScriptReload.Runtime
         public static AssemblyChangesLoaderResolver Instance => _instance ?? (_instance = new AssemblyChangesLoaderResolver());
 
         private IAssemblyChangesLoader _cachedNetworkLoader;
-        
+
         public IAssemblyChangesLoader Resolve()
         {
 #if LiveScriptReload_Enabled

@@ -1,6 +1,6 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
 using System.Reflection;
-using System.Collections.Generic;
+using UnityEngine;
 
 namespace NaughtyAttributes.Editor
 {
@@ -9,13 +9,13 @@ namespace NaughtyAttributes.Editor
         public static bool IsEnabled(Object target, MethodInfo method)
         {
             EnableIfAttributeBase enableIfAttribute = method.GetCustomAttribute<EnableIfAttributeBase>();
-            if (enableIfAttribute == null)
+            if(enableIfAttribute == null)
             {
                 return true;
             }
 
             List<bool> conditionValues = PropertyUtility.GetConditionValues(target, enableIfAttribute.Conditions);
-            if (conditionValues.Count > 0)
+            if(conditionValues.Count > 0)
             {
                 bool enabled = PropertyUtility.GetConditionsFlag(conditionValues, enableIfAttribute.ConditionOperator, enableIfAttribute.Inverted);
                 return enabled;
@@ -32,13 +32,13 @@ namespace NaughtyAttributes.Editor
         public static bool IsVisible(Object target, MethodInfo method)
         {
             ShowIfAttributeBase showIfAttribute = method.GetCustomAttribute<ShowIfAttributeBase>();
-            if (showIfAttribute == null)
+            if(showIfAttribute == null)
             {
                 return true;
             }
 
             List<bool> conditionValues = PropertyUtility.GetConditionValues(target, showIfAttribute.Conditions);
-            if (conditionValues.Count > 0)
+            if(conditionValues.Count > 0)
             {
                 bool enabled = PropertyUtility.GetConditionsFlag(conditionValues, showIfAttribute.ConditionOperator, showIfAttribute.Inverted);
                 return enabled;

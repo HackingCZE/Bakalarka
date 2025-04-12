@@ -1,7 +1,3 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.InputSystem;
@@ -45,7 +41,7 @@ public class InputReader : ScriptableObject
 
     private void OnDisable()
     {
-        if (Application.isEditor) return;
+        if(Application.isEditor) return;
         _moveInput.started -= OnMove;
         _moveInput.performed -= OnMove;
         _moveInput.canceled -= OnMove;
@@ -60,8 +56,8 @@ public class InputReader : ScriptableObject
 
     private void OnBrake(InputAction.CallbackContext context)
     {
-        if (context.started) BrakeEvent?.Invoke();
-        if (context.canceled) BrakeCanceledEvent?.Invoke();
+        if(context.started) BrakeEvent?.Invoke();
+        if(context.canceled) BrakeCanceledEvent?.Invoke();
     }
 
     private void OnMove(InputAction.CallbackContext context)

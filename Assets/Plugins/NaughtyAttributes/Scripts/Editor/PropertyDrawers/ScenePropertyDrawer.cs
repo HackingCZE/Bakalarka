@@ -1,8 +1,8 @@
-﻿using UnityEngine;
-using UnityEditor;
+﻿using System;
 using System.Linq;
 using System.Text.RegularExpressions;
-using System;
+using UnityEditor;
+using UnityEngine;
 
 namespace NaughtyAttributes.Editor
 {
@@ -30,14 +30,14 @@ namespace NaughtyAttributes.Editor
 
             string[] scenes = GetScenes();
             bool anySceneInBuildSettings = scenes.Length > 0;
-            if (!anySceneInBuildSettings)
+            if(!anySceneInBuildSettings)
             {
                 DrawDefaultPropertyAndHelpBox(rect, property, BuildSettingsWarningMessage, MessageType.Warning);
                 return;
             }
 
             string[] sceneOptions = GetSceneOptions(scenes);
-            switch (property.propertyType)
+            switch(property.propertyType)
             {
                 case SerializedPropertyType.String:
                     DrawPropertyForString(rect, property, label, scenes, sceneOptions);
@@ -73,7 +73,7 @@ namespace NaughtyAttributes.Editor
             int newIndex = EditorGUI.Popup(rect, label.text, index, sceneOptions);
             string newScene = scenes[newIndex];
 
-            if (!property.stringValue.Equals(newScene, StringComparison.Ordinal))
+            if(!property.stringValue.Equals(newScene, StringComparison.Ordinal))
             {
                 property.stringValue = scenes[newIndex];
             }
@@ -84,7 +84,7 @@ namespace NaughtyAttributes.Editor
             int index = property.intValue;
             int newIndex = EditorGUI.Popup(rect, label.text, index, sceneOptions);
 
-            if (property.intValue != newIndex)
+            if(property.intValue != newIndex)
             {
                 property.intValue = newIndex;
             }

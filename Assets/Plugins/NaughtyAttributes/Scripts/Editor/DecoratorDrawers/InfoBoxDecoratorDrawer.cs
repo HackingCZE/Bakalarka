@@ -38,7 +38,7 @@ namespace NaughtyAttributes.Editor
         private void DrawInfoBox(Rect rect, string infoText, EInfoBoxType infoBoxType)
         {
             MessageType messageType = MessageType.None;
-            switch (infoBoxType)
+            switch(infoBoxType)
             {
                 case EInfoBoxType.Normal:
                     messageType = MessageType.Info;

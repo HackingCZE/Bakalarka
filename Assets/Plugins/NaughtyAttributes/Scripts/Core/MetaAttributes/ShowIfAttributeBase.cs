@@ -28,7 +28,7 @@ namespace NaughtyAttributes
         public ShowIfAttributeBase(string enumName, Enum enumValue)
             : this(enumName)
         {
-            if (enumValue == null)
+            if(enumValue == null)
             {
                 throw new ArgumentNullException(nameof(enumValue), "This parameter must be an enum value.");
             }

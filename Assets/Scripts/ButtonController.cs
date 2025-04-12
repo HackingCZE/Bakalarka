@@ -1,8 +1,5 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using static UnityEngine.GraphicsBuffer;
 
 public class ButtonController : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {

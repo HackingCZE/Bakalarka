@@ -1,6 +1,4 @@
-using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class CameraController : MonoBehaviour
@@ -46,19 +44,19 @@ public class CameraController : MonoBehaviour
     }
     void Update()
     {
-        if (_isStatic) return;
+        if(_isStatic) return;
         HandleMovementInput();
         HandleMouseInput();
     }
 
     void HandleMouseInput()
     {
-        if (Input.mouseScrollDelta.y != 0)
+        if(Input.mouseScrollDelta.y != 0)
         {
             _newZoom += Input.mouseScrollDelta.y * _zoomAmount;
         }
 
-        if (Input.GetMouseButtonDown(0))
+        if(Input.GetMouseButtonDown(0))
         {
             Plane plane = new Plane(Vector3.up, Vector3.zero);
 
@@ -66,13 +64,13 @@ public class CameraController : MonoBehaviour
 
             float entry;
 
-            if (plane.Raycast(ray, out entry))
+            if(plane.Raycast(ray, out entry))
             {
                 _dragStartPos = ray.GetPoint(entry);
             }
         }
 
-        if (Input.GetMouseButton(0))
+        if(Input.GetMouseButton(0))
         {
             Plane plane = new Plane(Vector3.up, Vector3.zero);
 
@@ -80,7 +78,7 @@ public class CameraController : MonoBehaviour
 
             float entry;
 
-            if (plane.Raycast(ray, out entry))
+            if(plane.Raycast(ray, out entry))
             {
                 _dragCurrentPos = ray.GetPoint(entry);
 
@@ -89,11 +87,11 @@ public class CameraController : MonoBehaviour
         }
 
 
-        if (Input.GetMouseButtonDown(2))
+        if(Input.GetMouseButtonDown(2))
         {
             _rotateStartPos = Input.mousePosition;
         }
-        if (Input.GetMouseButton(2))
+        if(Input.GetMouseButton(2))
         {
             _rotateCurrentPos = Input.mousePosition;
 
@@ -127,7 +125,7 @@ public class CameraController : MonoBehaviour
 
     public void CalculateBounds(List<Vector3> points)
     {
-        if (points == null || points.Count == 0)
+        if(points == null || points.Count == 0)
         {
             return;
         }
@@ -135,7 +133,7 @@ public class CameraController : MonoBehaviour
         minBounds = points[0];
         maxBounds = points[0];
 
-        foreach (var point in points)
+        foreach(var point in points)
         {
             minBounds.x = Mathf.Min(minBounds.x, point.x);
             minBounds.y = Mathf.Min(minBounds.y, point.y);
@@ -152,7 +150,7 @@ public class CameraController : MonoBehaviour
 
     void OnDrawGizmos()
     {
-        if (minBounds != Vector3.zero && maxBounds != Vector3.zero)
+        if(minBounds != Vector3.zero && maxBounds != Vector3.zero)
         {
             Gizmos.color = Color.green;
             Gizmos.DrawLine(new Vector3(minBounds.x, minBounds.y, minBounds.z), new Vector3(maxBounds.x, minBounds.y, minBounds.z));

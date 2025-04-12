@@ -1,8 +1,6 @@
 using NaughtyAttributes;
-using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Unity.VisualScripting;
 using UnityEngine;
 using static NavigationManager;
 
@@ -16,12 +14,12 @@ public class Tester : MonoBehaviour
     {
         CSVGenerator csv = new CSVGenerator("Assets/Output.csv");
 
-        for (int i = 0; i < countInteractions; i++)
+        for(int i = 0; i < countInteractions; i++)
         {
 
             LSystemVisualizer.Instance.VisualizeMap();
             var _algorithmStats = await NavigationManager.Instance.GetOrderOfAlgorithms();
-            
+
             algorithms.Add(_algorithmStats[0].Algorithm);
             string newA = "";
             NavigationManager.Instance.GetRightAlgorithms(_algorithmStats).ForEach(e => newA += e.Algorithm.ToString() + " | ");
@@ -35,7 +33,7 @@ public class Tester : MonoBehaviour
                 });
 
             csv.AddRow("Algorithm", "Time", "VisitedNodes", "MemoryUsage", "ResultPathLength");
-            foreach (var item in _algorithmStats)
+            foreach(var item in _algorithmStats)
             {
                 csv.AddRow(new string[] {
                     item.Algorithm.ToString(),
@@ -52,7 +50,7 @@ public class Tester : MonoBehaviour
                 //Debug.Log("Time: " + item.Time.ToString());
                 //Debug.Log("--------------");
             }
-                MainGameManager.Instance.AddLevel();
+            MainGameManager.Instance.AddLevel();
 
             csv.AddRow(new string[] {
                     "",
@@ -80,9 +78,9 @@ public class Tester : MonoBehaviour
     [ContextMenu("spawn")]
     public void Spawn()
     {
-        for (int x = 0; x < gridSizeX; x++)
+        for(int x = 0; x < gridSizeX; x++)
         {
-            for (int z = 0; z < gridSizeZ; z++)
+            for(int z = 0; z < gridSizeZ; z++)
             {
                 // Spoèítáme pozici pro spawn
                 Vector3 spawnPosition = new Vector3(x * cellSize, 0, z * cellSize);
@@ -98,7 +96,7 @@ public class Tester : MonoBehaviour
         Gizmos.color = gridColor;
 
         // Vykreslení èar na ose X
-        for (int x = 0; x <= gridSizeX; x++)
+        for(int x = 0; x <= gridSizeX; x++)
         {
             Vector3 start = new Vector3(x * cellSize, 0, 0);
             Vector3 end = new Vector3(x * cellSize, 0, gridSizeZ * cellSize);
@@ -106,7 +104,7 @@ public class Tester : MonoBehaviour
         }
 
         // Vykreslení èar na ose Z
-        for (int z = 0; z <= gridSizeZ; z++)
+        for(int z = 0; z <= gridSizeZ; z++)
         {
             Vector3 start = new Vector3(0, 0, z * cellSize);
             Vector3 end = new Vector3(gridSizeX * cellSize, 0, z * cellSize);
@@ -128,11 +126,11 @@ public class Tester : MonoBehaviour
         List<Vector2> uvs = new List<Vector2>();
 
         // Procházení všech bodù
-        for (int i = 0; i < points.Count; i++)
+        for(int i = 0; i < points.Count; i++)
         {
             // Smìr mezi body
             Vector3 forward = Vector3.forward;
-            if (i < points.Count - 1)
+            if(i < points.Count - 1)
             {
                 forward = (points[i + 1] - points[i]).normalized;
             }
@@ -141,7 +139,7 @@ public class Tester : MonoBehaviour
             Quaternion rotation = Quaternion.LookRotation(forward);
 
             // Pøidání vertexù pro aktuální bod
-            for (int j = 0; j < segments; j++)
+            for(int j = 0; j < segments; j++)
             {
                 float angle = 2 * Mathf.PI * j / segments;
                 Vector3 offset = rotation * new Vector3(Mathf.Cos(angle), Mathf.Sin(angle), 0) * radius;
@@ -152,9 +150,9 @@ public class Tester : MonoBehaviour
         }
 
         // Vytvoøení trojúhelníkù mezi kruhy
-        for (int i = 0; i < points.Count - 1; i++)
+        for(int i = 0; i < points.Count - 1; i++)
         {
-            for (int j = 0; j < segments; j++)
+            for(int j = 0; j < segments; j++)
             {
                 int current = i * segments + j;
                 int next = i * segments + (j + 1) % segments;

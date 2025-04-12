@@ -1,12 +1,7 @@
-using DH.Save.SerializableTypes;
 using Newtonsoft.Json;
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Net;
 using Unity.Mathematics;
-using Unity.VisualScripting;
 using UnityEngine;
 
 [Serializable]
@@ -51,11 +46,11 @@ public class TreeCollection
     private void CheckNode(out TreeCollectionItem nearestItem, TreeCollectionItem nearestNode, TreeCollectionItem node, float3 endPoint)
     {
         nearestItem = nearestNode;
-        if (node == null) return;
-        foreach (var child in node.Children)
+        if(node == null) return;
+        foreach(var child in node.Children)
         {
             CheckNode(out nearestItem, nearestItem, child, endPoint);
-            if (Vector3.Distance(child.Position, endPoint) < Vector3.Distance(nearestItem.Position, endPoint))
+            if(Vector3.Distance(child.Position, endPoint) < Vector3.Distance(nearestItem.Position, endPoint))
             {
                 nearestItem = child;
             }
@@ -71,15 +66,15 @@ public class TreeCollection
 
     private void CheckNode(out List<TreeCollectionItem> nearestItems, List<TreeCollectionItem> nearestNodes, TreeCollectionItem node, float3 newPoint, float searchRadius)
     {
-        if (nearestNodes == null) nearestNodes = new List<TreeCollectionItem>();
+        if(nearestNodes == null) nearestNodes = new List<TreeCollectionItem>();
         nearestItems = nearestNodes;
-        if (node == null) return;
-        foreach (var child in node.Children)
+        if(node == null) return;
+        foreach(var child in node.Children)
         {
             CheckNode(out nearestItems, nearestNodes, child, newPoint, searchRadius);
-            if (Vector3.Distance(child.Position, newPoint) < searchRadius)
+            if(Vector3.Distance(child.Position, newPoint) < searchRadius)
             {
-                if (!nearestItems.Contains(child)) nearestItems.Add(child);
+                if(!nearestItems.Contains(child)) nearestItems.Add(child);
             }
         }
     }
@@ -89,7 +84,7 @@ public class TreeCollection
     {
         recontructedPath = new List<TreeCollectionItem>();
         TreeCollectionItem currentNode = endNode;
-        while (currentNode != null)
+        while(currentNode != null)
         {
             recontructedPath.Insert(0, currentNode);
             currentNode = currentNode.Parent;
@@ -103,14 +98,14 @@ public class TreeCollection
 public class TreeCollectionItem
 {
     public Vector3 Position;
-     public TreeCollectionItem Parent;
-    [JsonIgnore]public List<TreeCollectionItem> Children;
+    public TreeCollectionItem Parent;
+    [JsonIgnore] public List<TreeCollectionItem> Children;
     public TreeCollectionItem() { }
     public TreeCollectionItem(float3 position, TreeCollectionItem parent = null)
     {
         this.Position = (Vector3)position;
         this.Parent = parent;
-        if (Children == null) Children = new List<TreeCollectionItem>();
+        if(Children == null) Children = new List<TreeCollectionItem>();
     }
 
     public void AddChild(TreeCollectionItem child)

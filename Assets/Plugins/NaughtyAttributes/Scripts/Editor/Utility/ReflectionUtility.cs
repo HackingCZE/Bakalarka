@@ -10,7 +10,7 @@ namespace NaughtyAttributes.Editor
     {
         public static IEnumerable<FieldInfo> GetAllFields(object target, Func<FieldInfo, bool> predicate)
         {
-            if (target == null)
+            if(target == null)
             {
                 Debug.LogError("The target object is null. Check for missing scripts.");
                 yield break;
@@ -18,13 +18,13 @@ namespace NaughtyAttributes.Editor
 
             List<Type> types = GetSelfAndBaseTypes(target);
 
-            for (int i = types.Count - 1; i >= 0; i--)
+            for(int i = types.Count - 1; i >= 0; i--)
             {
                 IEnumerable<FieldInfo> fieldInfos = types[i]
                     .GetFields(BindingFlags.Instance | BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.DeclaredOnly)
                     .Where(predicate);
 
-                foreach (var fieldInfo in fieldInfos)
+                foreach(var fieldInfo in fieldInfos)
                 {
                     yield return fieldInfo;
                 }
@@ -33,7 +33,7 @@ namespace NaughtyAttributes.Editor
 
         public static IEnumerable<PropertyInfo> GetAllProperties(object target, Func<PropertyInfo, bool> predicate)
         {
-            if (target == null)
+            if(target == null)
             {
                 Debug.LogError("The target object is null. Check for missing scripts.");
                 yield break;
@@ -41,13 +41,13 @@ namespace NaughtyAttributes.Editor
 
             List<Type> types = GetSelfAndBaseTypes(target);
 
-            for (int i = types.Count - 1; i >= 0; i--)
+            for(int i = types.Count - 1; i >= 0; i--)
             {
                 IEnumerable<PropertyInfo> propertyInfos = types[i]
                     .GetProperties(BindingFlags.Instance | BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.DeclaredOnly)
                     .Where(predicate);
 
-                foreach (var propertyInfo in propertyInfos)
+                foreach(var propertyInfo in propertyInfos)
                 {
                     yield return propertyInfo;
                 }
@@ -56,7 +56,7 @@ namespace NaughtyAttributes.Editor
 
         public static IEnumerable<MethodInfo> GetAllMethods(object target, Func<MethodInfo, bool> predicate)
         {
-            if (target == null)
+            if(target == null)
             {
                 Debug.LogError("The target object is null. Check for missing scripts.");
                 yield break;
@@ -64,13 +64,13 @@ namespace NaughtyAttributes.Editor
 
             List<Type> types = GetSelfAndBaseTypes(target);
 
-            for (int i = types.Count - 1; i >= 0; i--)
+            for(int i = types.Count - 1; i >= 0; i--)
             {
                 IEnumerable<MethodInfo> methodInfos = types[i]
                     .GetMethods(BindingFlags.Instance | BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.DeclaredOnly)
                     .Where(predicate);
 
-                foreach (var methodInfo in methodInfos)
+                foreach(var methodInfo in methodInfos)
                 {
                     yield return methodInfo;
                 }
@@ -94,7 +94,7 @@ namespace NaughtyAttributes.Editor
 
         public static Type GetListElementType(Type listType)
         {
-            if (listType.IsGenericType)
+            if(listType.IsGenericType)
             {
                 return listType.GetGenericArguments()[0];
             }
@@ -117,7 +117,7 @@ namespace NaughtyAttributes.Editor
                 target.GetType()
             };
 
-            while (types.Last().BaseType != null)
+            while(types.Last().BaseType != null)
             {
                 types.Add(types.Last().BaseType);
             }

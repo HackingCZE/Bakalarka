@@ -15,7 +15,7 @@ namespace NaughtyAttributes.Editor
             }
             set
             {
-                if (_value == value)
+                if(_value == value)
                 {
                     return;
                 }

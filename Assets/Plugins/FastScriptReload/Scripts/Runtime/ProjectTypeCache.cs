@@ -15,7 +15,7 @@ namespace FastScriptReload.Runtime
         {
             get
             {
-                if (!_isInitialized)
+                if(!_isInitialized)
                 {
                     Init();
                 }
@@ -26,7 +26,7 @@ namespace FastScriptReload.Runtime
 
         private static void Init()
         {
-            if (_allTypesInNonDynamicGeneratedAssemblies == null)
+            if(_allTypesInNonDynamicGeneratedAssemblies == null)
             {
                 var typeLookupSw = new Stopwatch();
                 typeLookupSw.Start();
@@ -37,7 +37,7 @@ namespace FastScriptReload.Runtime
                     .GroupBy(t => t.FullName)
                     .Select(g => g.First()) //TODO: quite odd that same type full name can be defined multiple times? eg Microsoft.CodeAnalysis.EmbeddedAttribute throws 'An item with the same key has already been added' 
                     .ToDictionary(t => t.FullName, t => t);
-                    
+
 #if ImmersiveVrTools_DebugEnabled
                     LoggerScoped.Log($"Initialized type-lookup dictionary, took: {typeLookupSw.ElapsedMilliseconds}ms - cached");
 #endif

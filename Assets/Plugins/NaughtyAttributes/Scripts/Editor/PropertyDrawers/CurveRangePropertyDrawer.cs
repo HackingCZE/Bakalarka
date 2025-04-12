@@ -1,5 +1,5 @@
-﻿using UnityEngine;
-using UnityEditor;
+﻿using UnityEditor;
+using UnityEngine;
 
 namespace NaughtyAttributes.Editor
 {
@@ -20,7 +20,7 @@ namespace NaughtyAttributes.Editor
             EditorGUI.BeginProperty(rect, label, property);
 
             // Check user error
-            if (property.propertyType != SerializedPropertyType.AnimationCurve)
+            if(property.propertyType != SerializedPropertyType.AnimationCurve)
             {
                 string message = string.Format("Field {0} is not an AnimationCurve", property.name);
                 DrawDefaultPropertyAndHelpBox(rect, property, message, MessageType.Warning);

@@ -1,7 +1,7 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
 using UnityEditor;
 using UnityEditorInternal;
-using System.Collections.Generic;
+using UnityEngine;
 
 namespace NaughtyAttributes.Editor
 {
@@ -15,7 +15,7 @@ namespace NaughtyAttributes.Editor
 
         private GUIStyle GetLabelStyle()
         {
-            if (_labelStyle == null)
+            if(_labelStyle == null)
             {
                 _labelStyle = new GUIStyle(EditorStyles.boldLabel);
                 _labelStyle.richText = true;
@@ -31,11 +31,11 @@ namespace NaughtyAttributes.Editor
 
         protected override float GetPropertyHeight_Internal(SerializedProperty property)
         {
-            if (property.isArray)
+            if(property.isArray)
             {
                 string key = GetPropertyKeyName(property);
 
-                if (_reorderableListsByPropertyName.TryGetValue(key, out ReorderableList reorderableList) == false)
+                if(_reorderableListsByPropertyName.TryGetValue(key, out ReorderableList reorderableList) == false)
                 {
                     return 0;
                 }
@@ -48,12 +48,12 @@ namespace NaughtyAttributes.Editor
 
         protected override void OnGUI_Internal(Rect rect, SerializedProperty property, GUIContent label)
         {
-            if (property.isArray)
+            if(property.isArray)
             {
                 string key = GetPropertyKeyName(property);
 
                 ReorderableList reorderableList = null;
-                if (!_reorderableListsByPropertyName.ContainsKey(key))
+                if(!_reorderableListsByPropertyName.ContainsKey(key))
                 {
                     reorderableList = new ReorderableList(property.serializedObject, property, true, true, true, true)
                     {
@@ -84,7 +84,7 @@ namespace NaughtyAttributes.Editor
 
                 reorderableList = _reorderableListsByPropertyName[key];
 
-                if (rect == default)
+                if(rect == default)
                 {
                     reorderableList.DoLayoutList();
                 }
@@ -111,24 +111,24 @@ namespace NaughtyAttributes.Editor
             System.Type listType = PropertyUtility.GetPropertyType(list.serializedProperty);
             System.Type elementType = ReflectionUtility.GetListElementType(listType);
 
-            if (elementType == null)
+            if(elementType == null)
             {
                 return null;
             }
 
             System.Type objType = obj.GetType();
 
-            if (elementType.IsAssignableFrom(objType))
+            if(elementType.IsAssignableFrom(objType))
             {
                 return obj;
             }
 
-            if (objType == typeof(GameObject))
+            if(objType == typeof(GameObject))
             {
-                if (typeof(Transform).IsAssignableFrom(elementType))
+                if(typeof(Transform).IsAssignableFrom(elementType))
                 {
                     Transform transform = ((GameObject)obj).transform;
-                    if (elementType == typeof(RectTransform))
+                    if(elementType == typeof(RectTransform))
                     {
                         RectTransform rectTransform = transform as RectTransform;
                         return rectTransform;
@@ -138,7 +138,7 @@ namespace NaughtyAttributes.Editor
                         return transform;
                     }
                 }
-                else if (typeof(MonoBehaviour).IsAssignableFrom(elementType))
+                else if(typeof(MonoBehaviour).IsAssignableFrom(elementType))
                 {
                     return ((GameObject)obj).GetComponent(elementType);
                 }
@@ -152,10 +152,10 @@ namespace NaughtyAttributes.Editor
             var currentEvent = Event.current;
             var usedEvent = false;
 
-            switch (currentEvent.type)
+            switch(currentEvent.type)
             {
                 case EventType.DragExited:
-                    if (GUI.enabled)
+                    if(GUI.enabled)
                     {
                         HandleUtility.Repaint();
                     }
@@ -164,18 +164,18 @@ namespace NaughtyAttributes.Editor
 
                 case EventType.DragUpdated:
                 case EventType.DragPerform:
-                    if (rect.Contains(currentEvent.mousePosition) && GUI.enabled)
+                    if(rect.Contains(currentEvent.mousePosition) && GUI.enabled)
                     {
                         // Check each single object, so we can add multiple objects in a single drag.
                         bool didAcceptDrag = false;
                         Object[] references = DragAndDrop.objectReferences;
-                        foreach (Object obj in references)
+                        foreach(Object obj in references)
                         {
                             Object assignableObject = GetAssignableObject(obj, list);
-                            if (assignableObject != null)
+                            if(assignableObject != null)
                             {
                                 DragAndDrop.visualMode = DragAndDropVisualMode.Copy;
-                                if (currentEvent.type == EventType.DragPerform)
+                                if(currentEvent.type == EventType.DragPerform)
                                 {
                                     list.serializedProperty.arraySize++;
                                     int arrayEnd = list.serializedProperty.arraySize - 1;
@@ -185,7 +185,7 @@ namespace NaughtyAttributes.Editor
                             }
                         }
 
-                        if (didAcceptDrag)
+                        if(didAcceptDrag)
                         {
                             GUI.changed = true;
                             DragAndDrop.AcceptDrag();
@@ -196,7 +196,7 @@ namespace NaughtyAttributes.Editor
                     break;
             }
 
-            if (usedEvent)
+            if(usedEvent)
             {
                 currentEvent.Use();
             }

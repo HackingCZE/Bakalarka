@@ -1,9 +1,7 @@
 using System.Collections;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
-using UnityEngine.Rendering;
 using UnityEngine.UI;
 
 public class PopUpText : MonoBehaviour
@@ -45,7 +43,7 @@ public class PopUpText : MonoBehaviour
 
     private async Task AnimateTextWithCallback(float time)
     {
-        if (_lastCoroutine != null) StopCoroutine(_lastCoroutine);
+        if(_lastCoroutine != null) StopCoroutine(_lastCoroutine);
 
         var tcs = new TaskCompletionSource<bool>();
 
@@ -57,7 +55,7 @@ public class PopUpText : MonoBehaviour
     private IEnumerator AnimateText(TaskCompletionSource<bool> tcs, float time)
     {
         float elapsedTime = 0f;
-        while (elapsedTime < time)
+        while(elapsedTime < time)
         {
             elapsedTime += Time.deltaTime;
             float progress = Mathf.Clamp01(elapsedTime / time);

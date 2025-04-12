@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
@@ -16,31 +15,31 @@ public class DLS : AlgoBase
 
         int c = 0;
         _stack = new Stack<AlgoNode>();
-        startNode.Cost = 0; 
+        startNode.Cost = 0;
         _stack.Push(startNode);
 
-        while (_stack.Count > 0)
+        while(_stack.Count > 0)
         {
             await Task.Yield();
             AlgoNode currentNode = _stack.Pop();
 
-            if (currentNode == endNode)
+            if(currentNode == endNode)
             {
                 return await GetResultPath(startNode, currentNode);
             }
 
-            if (!currentNode.Visited)
+            if(!currentNode.Visited)
             {
                 currentNode.Visited = true;
                 VisitedNodes++;
 
                 drawingNode.DrawNode(currentNode);
 
-                if (currentNode.Cost < _depthLimit)
+                if(currentNode.Cost < _depthLimit)
                 {
-                    foreach (var neighbor in currentNode.Neighbours)
+                    foreach(var neighbor in currentNode.Neighbours)
                     {
-                        if (!neighbor.Visited)
+                        if(!neighbor.Visited)
                         {
                             neighbor.Cost = currentNode.Cost + 1; // add depth
                             _stack.Push(neighbor);
@@ -51,7 +50,7 @@ public class DLS : AlgoBase
                 }
             }
 
-            if (c > graph.Count + 150) break;
+            if(c > graph.Count + 150) break;
             c++;
         }
 

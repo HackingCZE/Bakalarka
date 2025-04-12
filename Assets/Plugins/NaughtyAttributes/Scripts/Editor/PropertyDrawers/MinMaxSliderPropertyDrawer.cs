@@ -19,7 +19,7 @@ namespace NaughtyAttributes.Editor
 
             MinMaxSliderAttribute minMaxSliderAttribute = (MinMaxSliderAttribute)attribute;
 
-            if (property.propertyType == SerializedPropertyType.Vector2 || property.propertyType == SerializedPropertyType.Vector2Int)
+            if(property.propertyType == SerializedPropertyType.Vector2 || property.propertyType == SerializedPropertyType.Vector2Int)
             {
                 EditorGUI.BeginProperty(rect, label, property);
 
@@ -59,7 +59,7 @@ namespace NaughtyAttributes.Editor
                 // Draw the slider
                 EditorGUI.BeginChangeCheck();
 
-                if (property.propertyType == SerializedPropertyType.Vector2)
+                if(property.propertyType == SerializedPropertyType.Vector2)
                 {
                     Vector2 sliderValue = property.vector2Value;
                     EditorGUI.MinMaxSlider(sliderRect, ref sliderValue.x, ref sliderValue.y, minMaxSliderAttribute.MinValue, minMaxSliderAttribute.MaxValue);
@@ -70,12 +70,12 @@ namespace NaughtyAttributes.Editor
                     sliderValue.y = EditorGUI.FloatField(maxFloatFieldRect, sliderValue.y);
                     sliderValue.y = Mathf.Clamp(sliderValue.y, Mathf.Max(minMaxSliderAttribute.MinValue, sliderValue.x), minMaxSliderAttribute.MaxValue);
 
-                    if (EditorGUI.EndChangeCheck())
+                    if(EditorGUI.EndChangeCheck())
                     {
                         property.vector2Value = sliderValue;
                     }
                 }
-                else if (property.propertyType == SerializedPropertyType.Vector2Int)
+                else if(property.propertyType == SerializedPropertyType.Vector2Int)
                 {
                     Vector2Int sliderValue = property.vector2IntValue;
                     float xValue = sliderValue.x;
@@ -88,7 +88,7 @@ namespace NaughtyAttributes.Editor
                     sliderValue.y = EditorGUI.IntField(maxFloatFieldRect, (int)yValue);
                     sliderValue.y = (int)Mathf.Clamp(sliderValue.y, Mathf.Max(minMaxSliderAttribute.MinValue, sliderValue.x), minMaxSliderAttribute.MaxValue);
 
-                    if (EditorGUI.EndChangeCheck())
+                    if(EditorGUI.EndChangeCheck())
                     {
                         property.vector2IntValue = sliderValue;
                     }

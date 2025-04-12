@@ -22,7 +22,7 @@ namespace NaughtyAttributes
     {
         public static Color GetColor(this EColor color)
         {
-            switch (color)
+            switch(color)
             {
                 case EColor.Clear:
                     return new Color32(0, 0, 0, 0);

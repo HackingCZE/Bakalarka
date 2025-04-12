@@ -1,14 +1,10 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using UnityEngine.UIElements;
 using static NavigationManager;
-using static SpreadAlgorithms;
 
 public class SpreadAlgorithms : MonoBehaviour
 {
@@ -198,7 +194,7 @@ public class SpreadAlgorithms : MonoBehaviour
             if(item.TrailRenderer != null) yield return StartCoroutine(MoveToPosition(item.TrailRenderer.transform.parent.gameObject, new Vector3(targetPosition.x, targetPosition.y + 1, targetPosition.z)));
             if(item.TrailRenderer != null) item.AddPointTube(item.TrailRenderer.transform.position);
         }
-        item.AddPointTube(item.AlgorithmStats.Path[item.AlgorithmStats.Path.Count-1]);
+        item.AddPointTube(item.AlgorithmStats.Path[item.AlgorithmStats.Path.Count - 1]);
     }
 
     private IEnumerator MoveToPosition(GameObject obj, Vector3 targetPosition)

@@ -1,6 +1,3 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class CarController : MonoBehaviour
@@ -55,7 +52,7 @@ public class CarController : MonoBehaviour
         MotorForce();
         UpdateWheels();
         Steering();
-        if (_isBraking) Brake();
+        if(_isBraking) Brake();
         else StopBraking();
     }
 
@@ -78,7 +75,7 @@ public class CarController : MonoBehaviour
         _frontRightWheelCollider.motorTorque = _motorForce * _moveInput.y;
         _frontLeftWheelCollider.motorTorque = _motorForce * _moveInput.y;
 
-        if (_moveInput.y == 0) { _backRightWheelCollider.motorTorque = 0; _backLeftWheelCollider.motorTorque = 0; }
+        if(_moveInput.y == 0) { _backRightWheelCollider.motorTorque = 0; _backLeftWheelCollider.motorTorque = 0; }
     }
 
     void UpdateWheels()

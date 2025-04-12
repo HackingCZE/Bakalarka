@@ -9,14 +9,14 @@ namespace NaughtyAttributes.Editor
         {
             // Check if visible
             bool visible = PropertyUtility.IsVisible(property);
-            if (!visible)
+            if(!visible)
             {
                 return;
             }
 
             // Validate
             ValidatorAttribute[] validatorAttributes = PropertyUtility.GetAttributes<ValidatorAttribute>(property);
-            foreach (var validatorAttribute in validatorAttributes)
+            foreach(var validatorAttribute in validatorAttributes)
             {
                 validatorAttribute.GetValidator().ValidateProperty(property);
             }
@@ -25,13 +25,13 @@ namespace NaughtyAttributes.Editor
             EditorGUI.BeginChangeCheck();
             bool enabled = PropertyUtility.IsEnabled(property);
 
-            using (new EditorGUI.DisabledScope(disabled: !enabled))
+            using(new EditorGUI.DisabledScope(disabled: !enabled))
             {
                 OnGUI_Internal(rect, property, PropertyUtility.GetLabel(property));
             }
 
             // Call OnValueChanged callbacks
-            if (EditorGUI.EndChangeCheck())
+            if(EditorGUI.EndChangeCheck())
             {
                 PropertyUtility.CallOnValueChangedCallbacks(property);
             }
@@ -42,7 +42,7 @@ namespace NaughtyAttributes.Editor
         sealed override public float GetPropertyHeight(SerializedProperty property, GUIContent label)
         {
             bool visible = PropertyUtility.IsVisible(property);
-            if (!visible)
+            if(!visible)
             {
                 return 0.0f;
             }
@@ -58,7 +58,7 @@ namespace NaughtyAttributes.Editor
         protected float GetPropertyHeight(SerializedProperty property)
         {
             SpecialCaseDrawerAttribute specialCaseAttribute = PropertyUtility.GetAttribute<SpecialCaseDrawerAttribute>(property);
-            if (specialCaseAttribute != null)
+            if(specialCaseAttribute != null)
             {
                 return specialCaseAttribute.GetDrawer().GetPropertyHeight(property);
             }

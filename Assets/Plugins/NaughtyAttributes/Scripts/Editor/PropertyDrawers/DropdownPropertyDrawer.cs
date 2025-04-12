@@ -1,9 +1,9 @@
-﻿using UnityEngine;
-using UnityEditor;
+﻿using System;
 using System.Collections;
-using System.Reflection;
-using System;
 using System.Collections.Generic;
+using System.Reflection;
+using UnityEditor;
+using UnityEngine;
 
 namespace NaughtyAttributes.Editor
 {
@@ -33,9 +33,9 @@ namespace NaughtyAttributes.Editor
             object valuesObject = GetValues(property, dropdownAttribute.ValuesName);
             FieldInfo dropdownField = ReflectionUtility.GetField(target, property.name);
 
-            if (AreValuesValid(valuesObject, dropdownField))
+            if(AreValuesValid(valuesObject, dropdownField))
             {
-                if (valuesObject is IList && dropdownField.FieldType == GetElementType(valuesObject))
+                if(valuesObject is IList && dropdownField.FieldType == GetElementType(valuesObject))
                 {
                     // Selected value
                     object selectedValue = dropdownField.GetValue(target);
@@ -45,7 +45,7 @@ namespace NaughtyAttributes.Editor
                     object[] values = new object[valuesList.Count];
                     string[] displayOptions = new string[valuesList.Count];
 
-                    for (int i = 0; i < values.Length; i++)
+                    for(int i = 0; i < values.Length; i++)
                     {
                         object value = valuesList[i];
                         values[i] = value;
@@ -54,7 +54,7 @@ namespace NaughtyAttributes.Editor
 
                     // Selected value index
                     int selectedValueIndex = Array.IndexOf(values, selectedValue);
-                    if (selectedValueIndex < 0)
+                    if(selectedValueIndex < 0)
                     {
                         selectedValueIndex = 0;
                     }
@@ -62,7 +62,7 @@ namespace NaughtyAttributes.Editor
                     NaughtyEditorGUI.Dropdown(
                         rect, property.serializedObject, target, dropdownField, label.text, selectedValueIndex, values, displayOptions);
                 }
-                else if (valuesObject is IDropdownList)
+                else if(valuesObject is IDropdownList)
                 {
                     // Current value
                     object selectedValue = dropdownField.GetValue(target);
@@ -74,25 +74,25 @@ namespace NaughtyAttributes.Editor
                     List<string> displayOptions = new List<string>();
                     IDropdownList dropdown = (IDropdownList)valuesObject;
 
-                    using (IEnumerator<KeyValuePair<string, object>> dropdownEnumerator = dropdown.GetEnumerator())
+                    using(IEnumerator<KeyValuePair<string, object>> dropdownEnumerator = dropdown.GetEnumerator())
                     {
-                        while (dropdownEnumerator.MoveNext())
+                        while(dropdownEnumerator.MoveNext())
                         {
                             index++;
 
                             KeyValuePair<string, object> current = dropdownEnumerator.Current;
-                            if (current.Value?.Equals(selectedValue) == true)
+                            if(current.Value?.Equals(selectedValue) == true)
                             {
                                 selectedValueIndex = index;
                             }
 
                             values.Add(current.Value);
 
-                            if (current.Key == null)
+                            if(current.Key == null)
                             {
                                 displayOptions.Add("<null>");
                             }
-                            else if (string.IsNullOrWhiteSpace(current.Key))
+                            else if(string.IsNullOrWhiteSpace(current.Key))
                             {
                                 displayOptions.Add("<empty>");
                             }
@@ -103,7 +103,7 @@ namespace NaughtyAttributes.Editor
                         }
                     }
 
-                    if (selectedValueIndex < 0)
+                    if(selectedValueIndex < 0)
                     {
                         selectedValueIndex = 0;
                     }
@@ -128,19 +128,19 @@ namespace NaughtyAttributes.Editor
             object target = PropertyUtility.GetTargetObjectWithProperty(property);
 
             FieldInfo valuesFieldInfo = ReflectionUtility.GetField(target, valuesName);
-            if (valuesFieldInfo != null)
+            if(valuesFieldInfo != null)
             {
                 return valuesFieldInfo.GetValue(target);
             }
 
             PropertyInfo valuesPropertyInfo = ReflectionUtility.GetProperty(target, valuesName);
-            if (valuesPropertyInfo != null)
+            if(valuesPropertyInfo != null)
             {
                 return valuesPropertyInfo.GetValue(target);
             }
 
             MethodInfo methodValuesInfo = ReflectionUtility.GetMethod(target, valuesName);
-            if (methodValuesInfo != null &&
+            if(methodValuesInfo != null &&
                 methodValuesInfo.ReturnType != typeof(void) &&
                 methodValuesInfo.GetParameters().Length == 0)
             {
@@ -152,12 +152,12 @@ namespace NaughtyAttributes.Editor
 
         private bool AreValuesValid(object values, FieldInfo dropdownField)
         {
-            if (values == null || dropdownField == null)
+            if(values == null || dropdownField == null)
             {
                 return false;
             }
 
-            if ((values is IList && dropdownField.FieldType == GetElementType(values)) ||
+            if((values is IList && dropdownField.FieldType == GetElementType(values)) ||
                 (values is IDropdownList))
             {
                 return true;

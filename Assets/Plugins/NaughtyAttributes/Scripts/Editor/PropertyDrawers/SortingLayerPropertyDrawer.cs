@@ -1,7 +1,7 @@
-﻿using UnityEngine;
-using UnityEditor;
-using System;
+﻿using System;
 using System.Reflection;
+using UnityEditor;
+using UnityEngine;
 
 namespace NaughtyAttributes.Editor
 {
@@ -23,7 +23,7 @@ namespace NaughtyAttributes.Editor
         {
             EditorGUI.BeginProperty(rect, label, property);
 
-            switch (property.propertyType)
+            switch(property.propertyType)
             {
                 case SerializedPropertyType.String:
                     DrawPropertyForString(rect, property, label, GetLayers());
@@ -53,7 +53,7 @@ namespace NaughtyAttributes.Editor
             int newIndex = EditorGUI.Popup(rect, label.text, index, layers);
             string newLayer = layers[newIndex];
 
-            if (!property.stringValue.Equals(newLayer, StringComparison.Ordinal))
+            if(!property.stringValue.Equals(newLayer, StringComparison.Ordinal))
             {
                 property.stringValue = layers[newIndex];
             }
@@ -63,9 +63,9 @@ namespace NaughtyAttributes.Editor
         {
             int index = 0;
             string layerName = SortingLayer.IDToName(property.intValue);
-            for (int i = 0; i < layers.Length; i++)
+            for(int i = 0; i < layers.Length; i++)
             {
-                if (layerName.Equals(layers[i], StringComparison.Ordinal))
+                if(layerName.Equals(layers[i], StringComparison.Ordinal))
                 {
                     index = i;
                     break;
@@ -76,7 +76,7 @@ namespace NaughtyAttributes.Editor
             string newLayerName = layers[newIndex];
             int newLayerNumber = SortingLayer.NameToID(newLayerName);
 
-            if (property.intValue != newLayerNumber)
+            if(property.intValue != newLayerNumber)
             {
                 property.intValue = newLayerNumber;
             }

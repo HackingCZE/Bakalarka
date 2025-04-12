@@ -1,15 +1,6 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
-using System.Numerics;
 using System.Threading.Tasks;
 using Unity.Mathematics;
-using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.UIElements;
-using Quaternion = UnityEngine.Quaternion;
 using Vector3 = UnityEngine.Vector3;
 
 public interface IRRTAlgorithm
@@ -19,7 +10,7 @@ public interface IRRTAlgorithm
 
     public static bool NotInCollision(TreeCollectionItem newNode, TreeCollectionItem parentNode, LayerMask barrierLayer)
     {
-        if (LineIntersectsObstacle(newNode.Position, parentNode.Position, barrierLayer))
+        if(LineIntersectsObstacle(newNode.Position, parentNode.Position, barrierLayer))
         {
             return false;
         }
@@ -29,9 +20,9 @@ public interface IRRTAlgorithm
     {
         Vector3 direction = ((Vector3)(position2 - position1)).normalized;
         float distance = Vector3.Distance(position1, position2);
-        if (Physics.Raycast(position1, direction, out RaycastHit hit, distance, barrierLayer))
+        if(Physics.Raycast(position1, direction, out RaycastHit hit, distance, barrierLayer))
         {
-            if (hit.collider)
+            if(hit.collider)
             {
                 return true;
             }
@@ -58,7 +49,7 @@ public interface IRRTAlgorithm
         var direction = toPoint - (float3)fromNode.Position;
         var distance = Length(direction);
 
-        if (distance > maxStepLength)
+        if(distance > maxStepLength)
         {
             direction = ((Vector3)direction).normalized;
             newPoint = (float3)fromNode.Position + direction * maxStepLength;
@@ -72,7 +63,7 @@ public interface IRRTAlgorithm
         return new TreeCollectionItem(newPoint);
     }
 
-    
+
 
     public static float Length(float3 vector)
     {

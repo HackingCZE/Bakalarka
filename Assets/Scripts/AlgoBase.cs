@@ -1,10 +1,8 @@
-using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using UnityEngine;
 using static NavigationManager;
-using Debug = UnityEngine.Debug;
 
 public abstract class AlgoBase : IAlgo
 {

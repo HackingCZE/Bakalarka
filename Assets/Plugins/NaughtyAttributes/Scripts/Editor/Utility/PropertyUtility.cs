@@ -1,8 +1,8 @@
-﻿using UnityEditor;
-using System.Reflection;
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Reflection;
+using UnityEditor;
 using UnityEngine;
 
 namespace NaughtyAttributes.Editor
@@ -18,7 +18,7 @@ namespace NaughtyAttributes.Editor
         public static T[] GetAttributes<T>(SerializedProperty property) where T : class
         {
             FieldInfo fieldInfo = ReflectionUtility.GetField(GetTargetObjectWithProperty(property), property.name);
-            if (fieldInfo == null)
+            if(fieldInfo == null)
             {
                 return new T[] { };
             }
@@ -40,7 +40,7 @@ namespace NaughtyAttributes.Editor
         public static void CallOnValueChangedCallbacks(SerializedProperty property)
         {
             OnValueChangedAttribute[] onValueChangedAttributes = GetAttributes<OnValueChangedAttribute>(property);
-            if (onValueChangedAttributes.Length == 0)
+            if(onValueChangedAttributes.Length == 0)
             {
                 return;
             }
@@ -48,10 +48,10 @@ namespace NaughtyAttributes.Editor
             object target = GetTargetObjectWithProperty(property);
             property.serializedObject.ApplyModifiedProperties(); // We must apply modifications so that the new value is updated in the serialized object
 
-            foreach (var onValueChangedAttribute in onValueChangedAttributes)
+            foreach(var onValueChangedAttribute in onValueChangedAttributes)
             {
                 MethodInfo callbackMethod = ReflectionUtility.GetMethod(target, onValueChangedAttribute.CallbackName);
-                if (callbackMethod != null &&
+                if(callbackMethod != null &&
                     callbackMethod.ReturnType == typeof(void) &&
                     callbackMethod.GetParameters().Length == 0)
                 {
@@ -71,13 +71,13 @@ namespace NaughtyAttributes.Editor
         public static bool IsEnabled(SerializedProperty property)
         {
             ReadOnlyAttribute readOnlyAttribute = GetAttribute<ReadOnlyAttribute>(property);
-            if (readOnlyAttribute != null)
+            if(readOnlyAttribute != null)
             {
                 return false;
             }
 
             EnableIfAttributeBase enableIfAttribute = GetAttribute<EnableIfAttributeBase>(property);
-            if (enableIfAttribute == null)
+            if(enableIfAttribute == null)
             {
                 return true;
             }
@@ -85,10 +85,10 @@ namespace NaughtyAttributes.Editor
             object target = GetTargetObjectWithProperty(property);
 
             // deal with enum conditions
-            if (enableIfAttribute.EnumValue != null)
+            if(enableIfAttribute.EnumValue != null)
             {
                 Enum value = GetEnumValue(target, enableIfAttribute.Conditions[0]);
-                if (value != null)
+                if(value != null)
                 {
                     bool matched = value.GetType().GetCustomAttribute<FlagsAttribute>() == null
                         ? enableIfAttribute.EnumValue.Equals(value)
@@ -105,7 +105,7 @@ namespace NaughtyAttributes.Editor
 
             // deal with normal conditions
             List<bool> conditionValues = GetConditionValues(target, enableIfAttribute.Conditions);
-            if (conditionValues.Count > 0)
+            if(conditionValues.Count > 0)
             {
                 bool enabled = GetConditionsFlag(conditionValues, enableIfAttribute.ConditionOperator, enableIfAttribute.Inverted);
                 return enabled;
@@ -122,7 +122,7 @@ namespace NaughtyAttributes.Editor
         public static bool IsVisible(SerializedProperty property)
         {
             ShowIfAttributeBase showIfAttribute = GetAttribute<ShowIfAttributeBase>(property);
-            if (showIfAttribute == null)
+            if(showIfAttribute == null)
             {
                 return true;
             }
@@ -130,10 +130,10 @@ namespace NaughtyAttributes.Editor
             object target = GetTargetObjectWithProperty(property);
 
             // deal with enum conditions
-            if (showIfAttribute.EnumValue != null)
+            if(showIfAttribute.EnumValue != null)
             {
                 Enum value = GetEnumValue(target, showIfAttribute.Conditions[0]);
-                if (value != null)
+                if(value != null)
                 {
                     bool matched = value.GetType().GetCustomAttribute<FlagsAttribute>() == null
                         ? showIfAttribute.EnumValue.Equals(value)
@@ -150,7 +150,7 @@ namespace NaughtyAttributes.Editor
 
             // deal with normal conditions
             List<bool> conditionValues = GetConditionValues(target, showIfAttribute.Conditions);
-            if (conditionValues.Count > 0)
+            if(conditionValues.Count > 0)
             {
                 bool enabled = GetConditionsFlag(conditionValues, showIfAttribute.ConditionOperator, showIfAttribute.Inverted);
                 return enabled;
@@ -173,19 +173,19 @@ namespace NaughtyAttributes.Editor
         internal static Enum GetEnumValue(object target, string enumName)
         {
             FieldInfo enumField = ReflectionUtility.GetField(target, enumName);
-            if (enumField != null && enumField.FieldType.IsSubclassOf(typeof(Enum)))
+            if(enumField != null && enumField.FieldType.IsSubclassOf(typeof(Enum)))
             {
                 return (Enum)enumField.GetValue(target);
             }
 
             PropertyInfo enumProperty = ReflectionUtility.GetProperty(target, enumName);
-            if (enumProperty != null && enumProperty.PropertyType.IsSubclassOf(typeof(Enum)))
+            if(enumProperty != null && enumProperty.PropertyType.IsSubclassOf(typeof(Enum)))
             {
                 return (Enum)enumProperty.GetValue(target);
             }
 
             MethodInfo enumMethod = ReflectionUtility.GetMethod(target, enumName);
-            if (enumMethod != null && enumMethod.ReturnType.IsSubclassOf(typeof(Enum)))
+            if(enumMethod != null && enumMethod.ReturnType.IsSubclassOf(typeof(Enum)))
             {
                 return (Enum)enumMethod.Invoke(target, null);
             }
@@ -196,24 +196,24 @@ namespace NaughtyAttributes.Editor
         internal static List<bool> GetConditionValues(object target, string[] conditions)
         {
             List<bool> conditionValues = new List<bool>();
-            foreach (var condition in conditions)
+            foreach(var condition in conditions)
             {
                 FieldInfo conditionField = ReflectionUtility.GetField(target, condition);
-                if (conditionField != null &&
+                if(conditionField != null &&
                     conditionField.FieldType == typeof(bool))
                 {
                     conditionValues.Add((bool)conditionField.GetValue(target));
                 }
 
                 PropertyInfo conditionProperty = ReflectionUtility.GetProperty(target, condition);
-                if (conditionProperty != null &&
+                if(conditionProperty != null &&
                     conditionProperty.PropertyType == typeof(bool))
                 {
                     conditionValues.Add((bool)conditionProperty.GetValue(target));
                 }
 
                 MethodInfo conditionMethod = ReflectionUtility.GetMethod(target, condition);
-                if (conditionMethod != null &&
+                if(conditionMethod != null &&
                     conditionMethod.ReturnType == typeof(bool) &&
                     conditionMethod.GetParameters().Length == 0)
                 {
@@ -227,10 +227,10 @@ namespace NaughtyAttributes.Editor
         internal static bool GetConditionsFlag(List<bool> conditionValues, EConditionOperator conditionOperator, bool invert)
         {
             bool flag;
-            if (conditionOperator == EConditionOperator.And)
+            if(conditionOperator == EConditionOperator.And)
             {
                 flag = true;
-                foreach (var value in conditionValues)
+                foreach(var value in conditionValues)
                 {
                     flag = flag && value;
                 }
@@ -238,13 +238,13 @@ namespace NaughtyAttributes.Editor
             else
             {
                 flag = false;
-                foreach (var value in conditionValues)
+                foreach(var value in conditionValues)
                 {
                     flag = flag || value;
                 }
             }
 
-            if (invert)
+            if(invert)
             {
                 flag = !flag;
             }
@@ -267,7 +267,7 @@ namespace NaughtyAttributes.Editor
         /// <returns></returns>
         public static object GetTargetObjectOfProperty(SerializedProperty property)
         {
-            if (property == null)
+            if(property == null)
             {
                 return null;
             }
@@ -276,9 +276,9 @@ namespace NaughtyAttributes.Editor
             object obj = property.serializedObject.targetObject;
             string[] elements = path.Split('.');
 
-            foreach (var element in elements)
+            foreach(var element in elements)
             {
-                if (element.Contains("["))
+                if(element.Contains("["))
                 {
                     string elementName = element.Substring(0, element.IndexOf("["));
                     int index = Convert.ToInt32(element.Substring(element.IndexOf("[")).Replace("[", "").Replace("]", ""));
@@ -304,10 +304,10 @@ namespace NaughtyAttributes.Editor
             object obj = property.serializedObject.targetObject;
             string[] elements = path.Split('.');
 
-            for (int i = 0; i < elements.Length - 1; i++)
+            for(int i = 0; i < elements.Length - 1; i++)
             {
                 string element = elements[i];
-                if (element.Contains("["))
+                if(element.Contains("["))
                 {
                     string elementName = element.Substring(0, element.IndexOf("["));
                     int index = Convert.ToInt32(element.Substring(element.IndexOf("[")).Replace("[", "").Replace("]", ""));
@@ -324,23 +324,23 @@ namespace NaughtyAttributes.Editor
 
         private static object GetValue_Imp(object source, string name)
         {
-            if (source == null)
+            if(source == null)
             {
                 return null;
             }
 
             Type type = source.GetType();
 
-            while (type != null)
+            while(type != null)
             {
                 FieldInfo field = type.GetField(name, BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
-                if (field != null)
+                if(field != null)
                 {
                     return field.GetValue(source);
                 }
 
                 PropertyInfo property = type.GetProperty(name, BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
-                if (property != null)
+                if(property != null)
                 {
                     return property.GetValue(source, null);
                 }
@@ -354,15 +354,15 @@ namespace NaughtyAttributes.Editor
         private static object GetValue_Imp(object source, string name, int index)
         {
             IEnumerable enumerable = GetValue_Imp(source, name) as IEnumerable;
-            if (enumerable == null)
+            if(enumerable == null)
             {
                 return null;
             }
 
             IEnumerator enumerator = enumerable.GetEnumerator();
-            for (int i = 0; i <= index; i++)
+            for(int i = 0; i <= index; i++)
             {
-                if (!enumerator.MoveNext())
+                if(!enumerator.MoveNext())
                 {
                     return null;
                 }

@@ -24,7 +24,7 @@ namespace NaughtyAttributes.Editor
         {
             EditorGUI.BeginProperty(rect, label, property);
 
-            if (property.propertyType == SerializedPropertyType.String)
+            if(property.propertyType == SerializedPropertyType.String)
             {
                 var inputManagerAsset = AssetDatabase.LoadAssetAtPath(AssetPath, typeof(object));
                 var inputManager = new SerializedObject(inputManagerAsset);
@@ -33,7 +33,7 @@ namespace NaughtyAttributes.Editor
                 var axesSet = new HashSet<string>();
                 axesSet.Add("(None)");
 
-                for (var i = 0; i < axesProperty.arraySize; i++)
+                for(var i = 0; i < axesProperty.arraySize; i++)
                 {
                     var axis = axesProperty.GetArrayElementAtIndex(i).FindPropertyRelative(NamePropertyPath).stringValue;
                     axesSet.Add(axis);
@@ -45,9 +45,9 @@ namespace NaughtyAttributes.Editor
                 int index = 0;
                 // check if there is an entry that matches the entry and get the index
                 // we skip index 0 as that is a special custom case
-                for (int i = 1; i < axes.Length; i++)
+                for(int i = 1; i < axes.Length; i++)
                 {
-                    if (axes[i].Equals(propertyString, System.StringComparison.Ordinal))
+                    if(axes[i].Equals(propertyString, System.StringComparison.Ordinal))
                     {
                         index = i;
                         break;
@@ -60,7 +60,7 @@ namespace NaughtyAttributes.Editor
                 // Adjust the actual string value of the property based on the selection
                 string newValue = newIndex > 0 ? axes[newIndex] : string.Empty;
 
-                if (!property.stringValue.Equals(newValue, System.StringComparison.Ordinal))
+                if(!property.stringValue.Equals(newValue, System.StringComparison.Ordinal))
                 {
                     property.stringValue = newValue;
                 }

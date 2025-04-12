@@ -1,9 +1,5 @@
-using System.Collections;
 using System.Collections.Generic;
-using System.Drawing;
 using UnityEngine;
-using UnityEngine.Purchasing;
-using UnityEngine.Rendering.Universal.Internal;
 using static SimpleVisualizer;
 
 public class TileStats : MonoBehaviour
@@ -13,7 +9,7 @@ public class TileStats : MonoBehaviour
     public List<BuildingPoint> GetBuildingPoints()
     {
         var result = new List<BuildingPoint>();
-        foreach (Transform t in points)
+        foreach(Transform t in points)
         {
             result.Add(new BuildingPoint(t.position, t.transform.right, t.transform.localEulerAngles.y));
             //Debug.Log(t.transform.localEulerAngles.y);
@@ -32,13 +28,13 @@ public class GroupingPoints
     {
         List<List<BuildingPoint>> groups = new List<List<BuildingPoint>>();
 
-        foreach (BuildingPoint point in allPoints)
+        foreach(BuildingPoint point in allPoints)
         {
-            if (!point.Visited)
+            if(!point.Visited)
             {
                 // Vytvoøení nové skupiny a zahájení vyhledávání
                 List<BuildingPoint> group = new List<BuildingPoint>();
-                Search(point, allPoints,  group);
+                Search(point, allPoints, group);
                 groups.Add(group);
             }
         }
@@ -46,7 +42,7 @@ public class GroupingPoints
         return groups;
     }
 
-    public void Search(BuildingPoint startPoint, List<BuildingPoint> allPoints,  List<BuildingPoint> currentGroup)
+    public void Search(BuildingPoint startPoint, List<BuildingPoint> allPoints, List<BuildingPoint> currentGroup)
     {
         // Vytvoøení fronty pro BFS (šíøkové prohledávání)
         Queue<BuildingPoint> queue = new Queue<BuildingPoint>();
@@ -54,13 +50,13 @@ public class GroupingPoints
         startPoint.Visited = true; // Oznaèíme bod jako navštívený
         currentGroup.Add(startPoint);
 
-        while (queue.Count > 0)
+        while(queue.Count > 0)
         {
             BuildingPoint currentPoint = queue.Dequeue();
 
-            foreach (BuildingPoint point in allPoints)
+            foreach(BuildingPoint point in allPoints)
             {
-                if (!point.Visited)
+                if(!point.Visited)
                 {
                     // Podmínky na RotationY a Direction 
                     bool isRotationMatching = false;
@@ -71,17 +67,17 @@ public class GroupingPoints
                         Debug.Log("now");
                     }
 
-                    switch (currentPoint.RotationY)
+                    switch(currentPoint.RotationY)
                     {
                         case 0:
                         case 180:
                         case 90:
                         case 270:
                             isRotationMatching = false;
-                            if (Vector3.Distance(point.Position, currentPoint.Position) <= maxDistance)
+                            if(Vector3.Distance(point.Position, currentPoint.Position) <= maxDistance)
                             {
                                 // Kontrola, zda RotationY odpovídá požadovaným hodnotám
-                               // isRotationMatching = (point.RotationY != 0 && point.RotationY != 180 && point.RotationY != 90 && point.RotationY != 270);
+                                // isRotationMatching = (point.RotationY != 0 && point.RotationY != 180 && point.RotationY != 90 && point.RotationY != 270);
 
                             }
                             //if (!isRotationMatching)
@@ -105,7 +101,7 @@ public class GroupingPoints
                             break;
                         default: // Obrácená kontrola pro opaèné rotace
                                  // Kontrola vzdálenosti
-                            if (Vector3.Distance(point.Position, currentPoint.Position) <= maxDistance)
+                            if(Vector3.Distance(point.Position, currentPoint.Position) <= maxDistance)
                             {
                                 isRotationMatching = point.RotationY == 0 ||
                                                  point.RotationY == 180 ||
@@ -117,7 +113,7 @@ public class GroupingPoints
                     }
 
                     // Pokud RotationY odpovídá a smìr je správný, pøidej bod do skupiny
-                    if (isRotationMatching)
+                    if(isRotationMatching)
                     {
                         Debug.Log("X" + currentPoint.RotationY + " Y" + point.RotationY);
 

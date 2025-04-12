@@ -3,8 +3,8 @@ using UnityEngine;
 namespace FastScriptReload.Examples
 {
     using static Mathf;
-    
-    public class FunctionLibrary: MonoBehaviour
+
+    public class FunctionLibrary : MonoBehaviour
     {
         public delegate Vector3 Function(float u, float v, float t);
 
@@ -51,7 +51,7 @@ namespace FastScriptReload.Examples
             Vector3 p;
             p.x = u;
             p.y = Sin(PI * (4f * d - t));
-            p.y /= 1f + 10f * d;   
+            p.y /= 1f + 10f * d;
             p.z = v;
             return p;
         }

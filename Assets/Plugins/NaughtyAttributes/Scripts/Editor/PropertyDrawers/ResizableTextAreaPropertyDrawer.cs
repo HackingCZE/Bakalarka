@@ -1,7 +1,7 @@
-﻿using UnityEngine;
-using UnityEditor;
+﻿using System;
 using System.Text.RegularExpressions;
-using System;
+using UnityEditor;
+using UnityEngine;
 
 namespace NaughtyAttributes.Editor
 {
@@ -10,7 +10,7 @@ namespace NaughtyAttributes.Editor
     {
         protected override float GetPropertyHeight_Internal(SerializedProperty property, GUIContent label)
         {
-            if (property.propertyType == SerializedPropertyType.String)
+            if(property.propertyType == SerializedPropertyType.String)
             {
                 float labelHeight = EditorGUIUtility.singleLineHeight;
                 float textAreaHeight = GetTextAreaHeight(property.stringValue);
@@ -26,7 +26,7 @@ namespace NaughtyAttributes.Editor
         {
             EditorGUI.BeginProperty(rect, label, property);
 
-            if (property.propertyType == SerializedPropertyType.String)
+            if(property.propertyType == SerializedPropertyType.String)
             {
                 Rect labelRect = new Rect()
                 {
@@ -50,7 +50,7 @@ namespace NaughtyAttributes.Editor
 
                 string textAreaValue = EditorGUI.TextArea(textAreaRect, property.stringValue);
 
-                if (EditorGUI.EndChangeCheck())
+                if(EditorGUI.EndChangeCheck())
                 {
                     property.stringValue = textAreaValue;
                 }

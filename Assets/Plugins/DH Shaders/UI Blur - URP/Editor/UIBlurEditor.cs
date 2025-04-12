@@ -3,7 +3,6 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
 using static DH.Shaders.UIBlur.UIBlurController;
-using static UnityEngine.GraphicsBuffer;
 #if UNITY_URP || UNITY_RENDER_PIPELINE_URP
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
@@ -48,13 +47,13 @@ namespace DH.Shaders.UIBlur
             EditorGUILayout.PropertyField(_propIsTransparent);
             GUIStyle myStyle = new GUIStyle();
             myStyle.normal.textColor = Color.red;
-            if (_target.isTransparent)
+            if(_target.isTransparent)
             {
                 _wasTransparent = true;
                 myStyle.normal.textColor = Color.yellow;
                 GUILayout.Label("(only works for gameobjects in the scene)", myStyle);
                 EditorGUILayout.PropertyField(_propBlurCamera);
-               
+
             }
             else
             {
@@ -69,7 +68,7 @@ namespace DH.Shaders.UIBlur
 #else
                 GUILayout.Label("(you need URP in project)", myStyle);
 #endif
-                if (_wasTransparent)
+                if(_wasTransparent)
                 {
                     _wasTransparent = true;
                     _target.SetBlurCamera(true);
@@ -79,18 +78,18 @@ namespace DH.Shaders.UIBlur
                 DrawFoldout();
             }
 
-            if (serializedObject.ApplyModifiedProperties())
+            if(serializedObject.ApplyModifiedProperties())
             {
-                if (_propBlurCamera.objectReferenceValue != _startObjectCamera)
+                if(_propBlurCamera.objectReferenceValue != _startObjectCamera)
                 {
                     _startObjectCamera = _propBlurCamera.objectReferenceValue;
                     _target.SetBlurCamera();
                 }
             }
 
-            
 
-            
+
+
         }
 
         private void DrawFoldout()
@@ -98,12 +97,12 @@ namespace DH.Shaders.UIBlur
             Rect foldoutRect = EditorGUILayout.BeginVertical(EditorStyles.helpBox);
             _foldout = EditorGUILayout.Foldout(_foldout, new GUIContent("UI Elements", "UI elements that will be affected by blurring."), true);
 
-            if (_foldout)
+            if(_foldout)
             {
                 EditorGUILayout.BeginVertical(EditorStyles.helpBox);
-                for (int i = 0; i < _target.blurUIItems.Count; i++)
+                for(int i = 0; i < _target.blurUIItems.Count; i++)
                 {
-                    if (_target.blurUIItems[i].UiElement == null)
+                    if(_target.blurUIItems[i].UiElement == null)
                     {
                         _target.blurUIItems.RemoveAt(i);
                         continue;
@@ -119,12 +118,12 @@ namespace DH.Shaders.UIBlur
 
                     _target.blurUIItems[i].IncludeChildren = GUILayout.Toggle(_target.blurUIItems[i].IncludeChildren, new GUIContent("", tooltip: "Include children"), GUILayout.Width(20));
 
-                    if (oldIsActive != _target.blurUIItems[i].IncludeChildren)
+                    if(oldIsActive != _target.blurUIItems[i].IncludeChildren)
                     {
                         OnBoolChanged(_target.blurUIItems[i], _target.sharedMaterial);
                     }
 
-                    if (GUILayout.Button("X", GUILayout.Width(25)))
+                    if(GUILayout.Button("X", GUILayout.Width(25)))
                     {
                         Undo.RecordObject(_target, "Remove UI Object");
                         _target.blurUIItems[i].SetOldMaterial();
@@ -135,7 +134,7 @@ namespace DH.Shaders.UIBlur
                     EditorGUILayout.EndHorizontal();
                 }
 
-                if (_target.blurUIItems.Count < 1)
+                if(_target.blurUIItems.Count < 1)
                 {
                     EditorGUILayout.LabelField("List is Empty");
                 }
@@ -146,7 +145,7 @@ namespace DH.Shaders.UIBlur
             EditorGUILayout.EndVertical();
             HandleDragAndDrop(foldoutRect, _target.blurUIItems, _target.sharedMaterial);
 
-            if (GUI.changed)
+            if(GUI.changed)
             {
                 EditorUtility.SetDirty(_target);
             }
@@ -156,31 +155,31 @@ namespace DH.Shaders.UIBlur
         {
             Event evt = Event.current;
 
-            switch (evt.type)
+            switch(evt.type)
             {
                 case EventType.DragUpdated:
                 case EventType.DragPerform:
-                    if (!dropArea.Contains(evt.mousePosition))
+                    if(!dropArea.Contains(evt.mousePosition))
                         return;
 
                     DragAndDrop.visualMode = DragAndDropVisualMode.Copy;
 
-                    if (evt.type == EventType.DragPerform)
+                    if(evt.type == EventType.DragPerform)
                     {
                         DragAndDrop.AcceptDrag();
 
                         Undo.RecordObject(target, "Add UI Object");
 
-                        foreach (Object draggedObject in DragAndDrop.objectReferences)
+                        foreach(Object draggedObject in DragAndDrop.objectReferences)
                         {
                             GameObject go = draggedObject as GameObject;
-                            if (go != null)
+                            if(go != null)
                             {
                                 Graphic graphic = go.GetComponent<Graphic>();
-                                if (graphic != null)
+                                if(graphic != null)
                                 {
                                     BlurUIItem newItem = new BlurUIItem(graphic);
-                                    newItem.IncludeChildren = false;  
+                                    newItem.IncludeChildren = false;
                                     newItem.SetMaterial(sharedMaterial);
                                     uiObjects.Add(newItem);
                                 }

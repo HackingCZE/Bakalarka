@@ -11,14 +11,14 @@ namespace NaughtyAttributes.Editor
         {
             // Check if visible
             bool visible = PropertyUtility.IsVisible(property);
-            if (!visible)
+            if(!visible)
             {
                 return;
             }
 
             // Validate
             ValidatorAttribute[] validatorAttributes = PropertyUtility.GetAttributes<ValidatorAttribute>(property);
-            foreach (var validatorAttribute in validatorAttributes)
+            foreach(var validatorAttribute in validatorAttributes)
             {
                 validatorAttribute.GetValidator().ValidateProperty(property);
             }
@@ -27,13 +27,13 @@ namespace NaughtyAttributes.Editor
             EditorGUI.BeginChangeCheck();
             bool enabled = PropertyUtility.IsEnabled(property);
 
-            using (new EditorGUI.DisabledScope(disabled: !enabled))
+            using(new EditorGUI.DisabledScope(disabled: !enabled))
             {
                 OnGUI_Internal(rect, property, PropertyUtility.GetLabel(property));
             }
 
             // Call OnValueChanged callbacks
-            if (EditorGUI.EndChangeCheck())
+            if(EditorGUI.EndChangeCheck())
             {
                 PropertyUtility.CallOnValueChangedCallbacks(property);
             }
@@ -61,7 +61,7 @@ namespace NaughtyAttributes.Editor
         public static SpecialCasePropertyDrawerBase GetDrawer(this SpecialCaseDrawerAttribute attr)
         {
             SpecialCasePropertyDrawerBase drawer;
-            if (_drawersByAttributeType.TryGetValue(attr.GetType(), out drawer))
+            if(_drawersByAttributeType.TryGetValue(attr.GetType(), out drawer))
             {
                 return drawer;
             }

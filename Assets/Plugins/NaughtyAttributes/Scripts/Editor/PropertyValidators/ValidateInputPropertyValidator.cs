@@ -1,6 +1,6 @@
-using UnityEditor;
-using System.Reflection;
 using System;
+using System.Reflection;
+using UnityEditor;
 
 namespace NaughtyAttributes.Editor
 {
@@ -13,16 +13,16 @@ namespace NaughtyAttributes.Editor
 
             MethodInfo validationCallback = ReflectionUtility.GetMethod(target, validateInputAttribute.CallbackName);
 
-            if (validationCallback != null &&
+            if(validationCallback != null &&
                 validationCallback.ReturnType == typeof(bool))
             {
                 ParameterInfo[] callbackParameters = validationCallback.GetParameters();
 
-                if (callbackParameters.Length == 0)
+                if(callbackParameters.Length == 0)
                 {
-                    if (!(bool)validationCallback.Invoke(target, null))
+                    if(!(bool)validationCallback.Invoke(target, null))
                     {
-                        if (string.IsNullOrEmpty(validateInputAttribute.Message))
+                        if(string.IsNullOrEmpty(validateInputAttribute.Message))
                         {
                             NaughtyEditorGUI.HelpBox_Layout(
                                 property.name + " is not valid", MessageType.Error, context: property.serializedObject.targetObject);
@@ -34,17 +34,17 @@ namespace NaughtyAttributes.Editor
                         }
                     }
                 }
-                else if (callbackParameters.Length == 1)
+                else if(callbackParameters.Length == 1)
                 {
                     FieldInfo fieldInfo = ReflectionUtility.GetField(target, property.name);
                     Type fieldType = fieldInfo.FieldType;
                     Type parameterType = callbackParameters[0].ParameterType;
 
-                    if (fieldType == parameterType)
+                    if(fieldType == parameterType)
                     {
-                        if (!(bool)validationCallback.Invoke(target, new object[] { fieldInfo.GetValue(target) }))
+                        if(!(bool)validationCallback.Invoke(target, new object[] { fieldInfo.GetValue(target) }))
                         {
-                            if (string.IsNullOrEmpty(validateInputAttribute.Message))
+                            if(string.IsNullOrEmpty(validateInputAttribute.Message))
                             {
                                 NaughtyEditorGUI.HelpBox_Layout(
                                     property.name + " is not valid", MessageType.Error, context: property.serializedObject.targetObject);

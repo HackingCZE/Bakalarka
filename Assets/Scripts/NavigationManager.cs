@@ -1,15 +1,11 @@
 using NaughtyAttributes;
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Threading;
 using System.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
-using static GameManager;
 using static NavigationManager;
 using Random = UnityEngine.Random;
 
@@ -34,7 +30,6 @@ public class NavigationManager : MonoBehaviour, IDrawingNode
     private List<TreeCollectionItem> _nodes;
     private List<TreeCollectionItem> _path;
     private List<AlgoNode> _result, _oldResult;
-    private List<Line> _lines;
 
     RRTStar _rRT;
     AlgoBase _algoBase;
@@ -51,7 +46,6 @@ public class NavigationManager : MonoBehaviour, IDrawingNode
     {
         _rRT = new RRTStar();
         _nodes = new List<TreeCollectionItem>();
-        _lines = new List<Line>();
         _path = new List<TreeCollectionItem>();
     }
 
@@ -102,7 +96,6 @@ public class NavigationManager : MonoBehaviour, IDrawingNode
         _oldResult = _result;
         _result = new();
         _nodes = new List<TreeCollectionItem>();
-        _lines = new List<Line>();
         _path = new List<TreeCollectionItem>();
         _startNode = null;
         _endNode = null;
@@ -133,7 +126,7 @@ public class NavigationManager : MonoBehaviour, IDrawingNode
 
 
         Vector3 newPosition;
-        int safetyCounter = 200;
+        int safetyCounter = 2000;
 
         do
         {
@@ -291,34 +284,6 @@ public class NavigationManager : MonoBehaviour, IDrawingNode
     }
 
     List<AlgoNode> _newNodes = new List<AlgoNode>();
-    public void DrawNode(AlgoNode node)
-    {
-        return;
-        foreach(var item in _newNodes)
-        {
-            if(item == node)
-            {
-                Debug.LogError("Stejny node");
-            }
-        }
-        _newNodes.Add(node);
-    }
-
-    public void DrawNode()
-    {
-        DrawNode(((RRTStar)_rRT).treeCollection.root);
-    }
-
-    private void DrawNode(TreeCollectionItem node)
-    {
-        if(node == null) return;
-        foreach(var child in node.Children)
-        {
-            _lines.Add(new Line(node.Position, child.Position));
-            TryAddNewNode(child);
-            DrawNode(child);
-        }
-    }
 
     private void TryAddNewNode(TreeCollectionItem newNode)
     {
@@ -386,12 +351,6 @@ public class NavigationManager : MonoBehaviour, IDrawingNode
             Gizmos.color = Color.red;
             if(i == _nodes.Count - 1) Gizmos.color = Color.blue;
             Gizmos.DrawSphere(node.Position, .5f);
-        }
-
-        foreach(var item in _lines)
-        {
-            Gizmos.color = Color.green;
-            Gizmos.DrawLine(item.start, item.end);
         }
 
         for(int i = 0; i < _path.Count; i++)
