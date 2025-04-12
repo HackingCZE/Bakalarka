@@ -109,7 +109,7 @@ public class MainGameManager : MonoBehaviour
             catch { }
         }
 
-        Debug.Log(_algorithmStats[0].Algorithm.ToString());
+        //Debug.Log(_algorithmStats[0].Algorithm.ToString());
     }
 
 
